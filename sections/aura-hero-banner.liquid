@@ -272,7 +272,7 @@
     overflow: hidden;
     min-height: 3.25rem;
     padding: 0 2rem;
-    border-radius: 0.3rem;
+    border-radius: 0.5rem;
     border: 1px solid transparent;
     font-size: var(--aura-hero-button-size);
     font-weight: 900;
@@ -306,11 +306,13 @@
   .{{ hero_class }} .aura-hero__button--secondary {
     background: var(--aura-hero-secondary-background);
     color: var(--aura-hero-secondary-foreground);
-    border-color: transparent;
+    border-color: var(--aura-hero-secondary-foreground);
     border-radius: 0.3rem;
   }
 
   .{{ hero_class }} .aura-hero__button--secondary:hover {
+    background: var(--aura-hero-secondary-foreground);
+    border-color: var(--aura-hero-secondary-foreground);
     color: #ffffff;
   }
 
@@ -1031,13 +1033,13 @@
       "type": "color",
       "id": "secondary_button_background",
       "label": "Secondary button background",
-      "default": "#1B2C58"
+      "default": "rgba(0,0,0,0)"
     },
     {
       "type": "color",
       "id": "secondary_button_foreground",
       "label": "Secondary button text",
-      "default": "#ffffff"
+      "default": "#1B2C58"
     },
     {
       "type": "header",
