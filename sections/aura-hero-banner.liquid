@@ -15,7 +15,7 @@
 %}
 
 <section
-  class="aura-hero full-width {{ hero_class }}{% if section.settings.desktop_image != blank %} aura-hero--has-image{% endif %}{% if section.settings.reverse_layout %} aura-hero--reverse{% endif %} aura-hero--{{ section.settings.text_alignment }}"
+  class="aura-hero full-width {{ hero_class }}{% if section.settings.desktop_image != blank %} aura-hero--has-banner-image{% endif %}{% if section.settings.reverse_layout %} aura-hero--reverse{% endif %} aura-hero--{{ section.settings.text_alignment }}"
   style="
     --aura-hero-background: {{ section_background }};
     --aura-hero-content-width: {{ section.settings.content_width }}px;
@@ -42,13 +42,20 @@
     --aura-hero-secondary-foreground: {{ section.settings.secondary_button_foreground }};
     --aura-hero-min-height: {{ section.settings.min_height_desktop }}px;
     --aura-hero-min-height-mobile: {{ section.settings.min_height_mobile }}px;
-    --aura-hero-orb-opacity: {{ section.settings.orb_opacity | divided_by: 100.0 }};
-    --aura-hero-product-opacity: {{ section.settings.product_image_opacity | divided_by: 100.0 }};
-    --aura-hero-image-max-width: {{ section.settings.hero_image_max_width }}px;
-    --aura-hero-image-justify: {{ section.settings.hero_image_position_desktop }};
-    --aura-hero-image-justify-mobile: {{ section.settings.hero_image_position_mobile }};
   "
 >
+  {% if section.settings.desktop_image != blank %}
+    <div class="aura-hero__banner-background" aria-hidden="true">
+      <picture class="aura-hero__banner-picture">
+        {% if section.settings.mobile_image != blank %}
+          <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
+        {% endif %}
+        {{ section.settings.desktop_image | image_url: width: 2200 | image_tag: class: 'aura-hero__banner-image', loading: 'eager' }}
+      </picture>
+      <div class="aura-hero__banner-fade"></div>
+    </div>
+  {% endif %}
+
   <div class="aura-hero__shell">
     <div class="aura-hero__grid">
       <div class="aura-hero__content">
@@ -96,34 +103,23 @@
 
       <div class="aura-hero__media">
         <div class="aura-hero__media-shell">
-          <div class="aura-hero__visual-canvas">
-            {% if section.settings.show_decorative_orbs %}
-              <div class="aura-hero__stage"></div>
-              <div class="aura-hero__orb aura-hero__orb--one"></div>
-              <div class="aura-hero__orb aura-hero__orb--two"></div>
-            {% endif %}
+          <div class="aura-hero__stage"></div>
+          <div class="aura-hero__orb aura-hero__orb--one"></div>
+          <div class="aura-hero__orb aura-hero__orb--two"></div>
 
-            {% if section.settings.desktop_image != blank %}
-              <picture class="aura-hero__picture">
-                {% if section.settings.mobile_image != blank %}
-                  <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
-                {% endif %}
-                {{ section.settings.desktop_image | image_url: width: 1800 | image_tag: class: 'aura-hero__image', loading: 'eager' }}
-              </picture>
-            {% else %}
-              <div class="aura-hero__mock-products" aria-hidden="true">
-                <div class="aura-hero__product aura-hero__product--bottle">
-                  <span>Aura<br>Society</span>
-                </div>
-                <div class="aura-hero__product aura-hero__product--tube">
-                  <span>Aura<br>Society</span>
-                </div>
-                <div class="aura-hero__product aura-hero__product--jar">
-                  <span>Aura Society</span>
-                </div>
+          {% if section.settings.desktop_image == blank %}
+            <div class="aura-hero__mock-products" aria-hidden="true">
+              <div class="aura-hero__product aura-hero__product--bottle">
+                <span>Aura<br>Society</span>
               </div>
-            {% endif %}
-          </div>
+              <div class="aura-hero__product aura-hero__product--tube">
+                <span>Aura<br>Society</span>
+              </div>
+              <div class="aura-hero__product aura-hero__product--jar">
+                <span>Aura Society</span>
+              </div>
+            </div>
+          {% endif %}
 
           {% if section.settings.show_floating_cards and section.blocks.size > 0 %}
             <div class="aura-hero__floating-cards">
@@ -158,6 +154,7 @@
     position: relative;
     background: var(--aura-hero-background);
     color: #171012;
+    overflow: hidden;
   }
 
   .{{ hero_class }} .aura-hero__shell {
@@ -167,6 +164,34 @@
     margin: 0 auto;
     padding-top: var(--aura-hero-padding-top);
     padding-bottom: var(--aura-hero-padding-bottom);
+  }
+
+  .{{ hero_class }} .aura-hero__banner-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .{{ hero_class }} .aura-hero__banner-picture,
+  .{{ hero_class }} .aura-hero__banner-image {
+    width: 100%;
+    height: 100%;
+  }
+
+  .{{ hero_class }} .aura-hero__banner-image {
+    object-fit: cover;
+    object-position: right center;
+  }
+
+  .{{ hero_class }} .aura-hero__banner-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255, 248, 245, 0.98) 0%, rgba(255, 248, 245, 0.95) 34%, rgba(255, 248, 245, 0.66) 54%, rgba(255, 248, 245, 0.18) 74%, rgba(255, 248, 245, 0.04) 100%);
+  }
+
+  .{{ hero_class }}.aura-hero--reverse .aura-hero__banner-fade {
+    background: linear-gradient(270deg, rgba(255, 248, 245, 0.98) 0%, rgba(255, 248, 245, 0.95) 34%, rgba(255, 248, 245, 0.66) 54%, rgba(255, 248, 245, 0.18) 74%, rgba(255, 248, 245, 0.04) 100%);
   }
 
   .{{ hero_class }} .aura-hero__grid {
@@ -315,79 +340,68 @@
   .{{ hero_class }} .aura-hero__media-shell {
     position: relative;
     min-height: 30rem;
-    padding: 0 0 0 1rem;
+    isolation: isolate;
   }
 
-  .{{ hero_class }} .aura-hero__visual-canvas {
-    position: relative;
-    min-height: 30rem;
-    overflow: hidden;
-    border-radius: 2rem;
-    isolation: isolate;
+  .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__stage,
+  .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__orb {
+    display: none;
+  }
+
+  .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__media-shell {
+    min-height: 26rem;
   }
 
   .{{ hero_class }} .aura-hero__stage {
     position: absolute;
-    width: 30rem;
-    height: 30rem;
-    right: 2.4rem;
-    top: 50%;
-    transform: translateY(-50%);
-    border-radius: 50%;
-    background: radial-gradient(circle at 38% 34%, rgba(255, 255, 255, 0.55), rgba(255, 233, 241, 0.82) 54%, rgba(247, 204, 223, 0.92) 100%);
-    opacity: calc(var(--aura-hero-orb-opacity) * 0.72);
-    z-index: 0;
+    inset: 4.4rem 2.5rem 0 1.25rem;
+    border-radius: 50% 50% 18% 18%;
+    background: radial-gradient(circle at 45% 35%, rgba(255, 255, 255, 0.82), transparent 25%), linear-gradient(135deg, rgba(206, 92, 124, 0.22), rgba(255, 255, 255, 0.14));
   }
 
   .{{ hero_class }} .aura-hero__orb {
     position: absolute;
     border-radius: 50%;
-    pointer-events: none;
+    background: linear-gradient(135deg, rgba(198, 58, 102, 0.72), rgba(255, 214, 220, 0.7));
+    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
     z-index: 1;
   }
 
   .{{ hero_class }} .aura-hero__orb--one {
-    width: 6.75rem;
-    height: 6.75rem;
-    left: 2.2rem;
-    bottom: 3.2rem;
-    background: linear-gradient(135deg, rgba(236, 0, 140, 0.42), rgba(244, 162, 206, 0.36));
-    opacity: var(--aura-hero-orb-opacity);
+    width: 9.8rem;
+    height: 9.8rem;
+    left: 3rem;
+    bottom: 3.8rem;
   }
 
   .{{ hero_class }} .aura-hero__orb--two {
-    width: 8.5rem;
-    height: 8.5rem;
-    right: 2rem;
-    top: 8.5rem;
-    background: linear-gradient(135deg, rgba(255, 220, 214, 0.7), rgba(255, 193, 220, 0.52));
-    opacity: calc(var(--aura-hero-orb-opacity) * 0.88);
+    width: 12rem;
+    height: 12rem;
+    right: 0;
+    top: 8rem;
+    opacity: 0.78;
   }
 
   .{{ hero_class }} .aura-hero__picture {
-    position: absolute;
-    inset: 0;
+    position: relative;
     z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: var(--aura-hero-image-justify);
-    padding: 1rem 2.75rem 1rem 2rem;
+    display: block;
+    width: 100%;
+    max-width: 38rem;
+    margin: 0 auto;
   }
 
   .{{ hero_class }} .aura-hero__image {
-    width: min(100%, var(--aura-hero-image-max-width));
-    max-height: 28rem;
+    width: 100%;
+    max-height: 35rem;
     object-fit: contain;
-    opacity: var(--aura-hero-product-opacity);
     filter: drop-shadow(0 28px 60px rgba(80, 40, 45, 0.16));
   }
 
   .{{ hero_class }} .aura-hero__mock-products {
-    position: absolute;
-    inset: 0;
+    position: relative;
     z-index: 2;
     min-height: 30rem;
-    opacity: var(--aura-hero-product-opacity);
   }
 
   .{{ hero_class }} .aura-hero__product {
@@ -476,23 +490,23 @@
   }
 
   .{{ hero_class }} .aura-hero__floating-card--top-right {
-    top: 1rem;
-    right: 0;
+    top: 1.5rem;
+    right: 3.75rem;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--middle-left {
-    top: 9rem;
-    right: 0.25rem;
+    top: 10.75rem;
+    right: 3.95rem;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--bottom-right {
     right: 0;
-    bottom: 3.25rem;
+    bottom: 4.7rem;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--bottom-left {
-    left: 1.5rem;
-    bottom: 2rem;
+    left: 0;
+    bottom: 3rem;
   }
 
   .{{ hero_class }} .aura-hero__floating-icon {
@@ -547,17 +561,6 @@
 
     .{{ hero_class }} .aura-hero__media-shell {
       min-height: 26rem;
-      padding-left: 0;
-    }
-
-    .{{ hero_class }} .aura-hero__visual-canvas {
-      min-height: 26rem;
-    }
-
-    .{{ hero_class }} .aura-hero__stage {
-      width: 24rem;
-      height: 24rem;
-      right: 1.5rem;
     }
 
     .{{ hero_class }} .aura-hero__product--bottle {
@@ -572,13 +575,10 @@
       right: 2rem;
     }
 
-    .{{ hero_class }} .aura-hero__floating-card--top-right,
     .{{ hero_class }} .aura-hero__floating-card--middle-left {
+      top: 9.75rem;
       right: 1rem;
-    }
-
-    .{{ hero_class }} .aura-hero__floating-card--middle-left {
-      top: 8.4rem;
+      left: auto;
     }
   }
 
@@ -607,62 +607,21 @@
     }
 
     .{{ hero_class }} .aura-hero__media-shell {
-      min-height: 18rem;
-      padding-left: 0;
+      min-height: 20rem;
+      transform: scale(0.9);
+      transform-origin: top center;
     }
 
-    .{{ hero_class }} .aura-hero__visual-canvas {
-      min-height: 18rem;
+    .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__media {
+      display: none;
     }
 
-    .{{ hero_class }} .aura-hero__picture {
-      justify-content: var(--aura-hero-image-justify-mobile);
-      padding: 0.75rem 1rem 0.75rem 1rem;
-    }
-
-    .{{ hero_class }} .aura-hero__image {
-      max-height: 16rem;
-    }
-
-    .{{ hero_class }} .aura-hero__stage {
-      width: 16rem;
-      height: 16rem;
-      right: 50%;
-      top: 50%;
-      transform: translate(50%, -50%);
-      opacity: calc(var(--aura-hero-orb-opacity) * 0.45);
-    }
-
-    .{{ hero_class }} .aura-hero__orb--one,
-    .{{ hero_class }} .aura-hero__orb--two {
-      opacity: calc(var(--aura-hero-orb-opacity) * 0.35);
-    }
-
-    .{{ hero_class }} .aura-hero__orb--one {
-      width: 4.5rem;
-      height: 4.5rem;
-      left: 1rem;
-      bottom: 1rem;
-    }
-
-    .{{ hero_class }} .aura-hero__orb--two {
-      width: 5rem;
-      height: 5rem;
-      right: 1rem;
-      top: 2.25rem;
+    .{{ hero_class }} .aura-hero__banner-image {
+      object-position: center;
     }
 
     .{{ hero_class }} .aura-hero__floating-cards {
-      position: static;
-      display: grid;
-      gap: 0.75rem;
-      margin-top: 1rem;
-      pointer-events: auto;
-    }
-
-    .{{ hero_class }} .aura-hero__floating-card {
-      position: static;
-      max-width: none;
+      display: none;
     }
   }
 {% endstyle %}
@@ -743,64 +702,6 @@
       "id": "show_floating_cards",
       "label": "Show floating cards",
       "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_decorative_orbs",
-      "label": "Show decorative orbs",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "orb_opacity",
-      "label": "Orb opacity",
-      "min": 0,
-      "max": 100,
-      "step": 5,
-      "unit": "%",
-      "default": 55
-    },
-    {
-      "type": "range",
-      "id": "product_image_opacity",
-      "label": "Product image opacity",
-      "min": 40,
-      "max": 100,
-      "step": 5,
-      "unit": "%",
-      "default": 100
-    },
-    {
-      "type": "range",
-      "id": "hero_image_max_width",
-      "label": "Hero image max width",
-      "min": 280,
-      "max": 720,
-      "step": 10,
-      "unit": "px",
-      "default": 520
-    },
-    {
-      "type": "select",
-      "id": "hero_image_position_desktop",
-      "label": "Hero image position desktop",
-      "default": "center",
-      "options": [
-        { "value": "flex-start", "label": "Left" },
-        { "value": "center", "label": "Center" },
-        { "value": "flex-end", "label": "Right" }
-      ]
-    },
-    {
-      "type": "select",
-      "id": "hero_image_position_mobile",
-      "label": "Hero image position mobile",
-      "default": "center",
-      "options": [
-        { "value": "flex-start", "label": "Left" },
-        { "value": "center", "label": "Center" },
-        { "value": "flex-end", "label": "Right" }
-      ]
     },
     {
       "type": "checkbox",
