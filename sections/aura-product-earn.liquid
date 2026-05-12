@@ -155,18 +155,18 @@
   }
 
   .{{ product_class }} .aura-product-earn__heading {
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: var(--aura-product-earn-heading-size);
     font-weight: 500;
     letter-spacing: -0.04em;
-    color: #171012;
+    color: var(--aura-heading-color);
   }
 
   .{{ product_class }} .aura-product-earn__view-all {
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
     font-size: 0.75rem;
     font-weight: 900;
     letter-spacing: 0.13em;
@@ -267,7 +267,7 @@
   .{{ product_class }} .aura-product-earn__title,
   .{{ product_class }} .aura-product-earn__title a {
     margin: 0;
-    color: #171012;
+    color: var(--aura-heading-color);
     font-size: var(--aura-product-earn-title-size);
     font-weight: 600;
     text-decoration: none;

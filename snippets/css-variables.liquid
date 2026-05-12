@@ -3,8 +3,9 @@
   assign primary_font_style = 'normal'
   assign primary_font_weight = 400
   assign aura_primary_color = settings.aura_primary_color | default: '#EC008C'
-  assign aura_secondary_color = settings.aura_secondary_color | default: '#813952'
+  assign aura_secondary_color = settings.aura_secondary_color | default: '#43318F'
   assign aura_accent_color = settings.aura_accent_color | default: '#FFD6EA'
+  assign aura_heading_color = settings.aura_heading_color | default: '#1B2C58'
 
   if settings.type_primary_font.family != blank
     capture primary_font_family
@@ -27,10 +28,40 @@
     {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
   {% endif %}
 
+  @font-face {
+    font-family: 'HvDTrial Pluto';
+    src:
+      local('HvDTrial Pluto'),
+      local('HvDTrial Pluto Medium'),
+      url('{{ 'HvDTrial_Pluto-Medium-BF6486959ddd7bf.woff' | asset_url }}') format('woff');
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'HvDTrial Pluto';
+    src:
+      local('HvDTrial Pluto'),
+      local('HvDTrial Pluto Heavy Italic'),
+      url('{{ 'HvDTrial_Pluto-HeavyItalic-BF6486959ed1c09.woff' | asset_url }}') format('woff'),
+      url('{{ 'HvDTrial_Pluto-BlackItalic-BF6486959ee62b5.woff' | asset_url }}') format('woff');
+    font-style: italic;
+    font-weight: 800;
+    font-display: swap;
+  }
+
   :root {
     --font-primary--family: {{ primary_font_family }};
     --font-primary--style: {{ primary_font_style }};
     --font-primary--weight: {{ primary_font_weight }};
+    --font-heading--family: 'HvDTrial Pluto', Georgia, 'Times New Roman', serif;
+    --font-h1--family: var(--font-heading--family);
+    --font-h2--family: var(--font-heading--family);
+    --font-h3--family: var(--font-heading--family);
+    --font-h4--family: var(--font-heading--family);
+    --font-h5--family: var(--font-heading--family);
+    --font-h6--family: var(--font-heading--family);
     --page-width: {{ settings.max_page_width | default: '90rem' }};
     --page-margin: {{ settings.min_page_margin | default: 20 }}px;
     --color-background: {{ settings.background_color | default: '#FFFFFF' }};
@@ -43,5 +74,19 @@
     --aura-primary-color-40: {{ aura_primary_color | color_modify: 'alpha', 0.4 }};
     --aura-secondary-color: {{ aura_secondary_color }};
     --aura-accent-color: {{ aura_accent_color }};
+    --aura-heading-color: {{ aura_heading_color }};
+    --color-foreground-heading: {{ aura_heading_color }};
+    --font-h1--color: {{ aura_heading_color }};
+    --font-h2--color: {{ aura_heading_color }};
+    --font-h3--color: {{ aura_heading_color }};
+    --font-h4--color: {{ aura_heading_color }};
+    --font-h5--color: {{ aura_heading_color }};
+    --font-h6--color: {{ aura_heading_color }};
+    --color-secondary-button-text: {{ aura_secondary_color }};
+    --color-secondary-button-background: transparent;
+    --color-secondary-button-border: {{ aura_secondary_color }};
+    --color-secondary-button-hover-text: #ffffff;
+    --color-secondary-button-hover-background: {{ aura_secondary_color }};
+    --color-secondary-button-hover-border: {{ aura_secondary_color }};
   }
 {% endstyle %}

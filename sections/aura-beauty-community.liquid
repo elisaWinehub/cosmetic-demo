@@ -101,7 +101,7 @@
   }
 
   .{{ community_class }} .aura-beauty-community__eyebrow {
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
     font-size: 0.74rem;
     font-weight: 900;
     letter-spacing: 0.14em;
@@ -110,12 +110,12 @@
 
   .{{ community_class }} .aura-beauty-community__heading {
     margin-top: 0.85rem;
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: var(--aura-beauty-community-heading-size);
     font-weight: 500;
     line-height: 1.05;
     letter-spacing: -0.04em;
-    color: #171012;
+    color: var(--aura-heading-color);
   }
 
   .{{ community_class }} .aura-beauty-community__body {
@@ -156,7 +156,7 @@
     border: 1px solid rgba(129, 57, 82, 0.1);
     border-radius: 999px;
     background: var(--aura-beauty-community-arrow-background);
-    color: #813952;
+    color: var(--aura-beauty-community-arrow-color);
     cursor: pointer;
   }
 
@@ -227,7 +227,7 @@
   .{{ community_class }} .aura-beauty-community__rating {
     display: flex;
     gap: 0.2rem;
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
     margin-bottom: 0.7rem;
   }
 
@@ -370,7 +370,7 @@
       "type": "color",
       "id": "arrow_color",
       "label": "Arrow color",
-      "default": "#7c3b56"
+      "default": "#EC008C"
     },
     {
       "type": "select",

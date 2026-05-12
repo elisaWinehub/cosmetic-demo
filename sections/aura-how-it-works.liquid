@@ -71,11 +71,11 @@
   }
 
   .{{ works_class }} .aura-how-it-works__heading {
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: var(--aura-how-it-works-heading-size);
     font-weight: 500;
     letter-spacing: -0.04em;
-    color: #171012;
+    color: var(--aura-heading-color);
   }
 
   .{{ works_class }} .aura-how-it-works__grid {
@@ -129,6 +129,7 @@
 
   .{{ works_class }} .aura-how-it-works__step-heading {
     margin: 0 0 0.45rem;
+    color: var(--aura-heading-color);
     font-size: 0.78rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -208,7 +209,7 @@
       "type": "color",
       "id": "icon_color",
       "label": "Icon color",
-      "default": "#a65471"
+      "default": "#EC008C"
     },
     {
       "type": "color",

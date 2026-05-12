@@ -219,7 +219,7 @@
     padding: 0.6rem 0.95rem;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.68);
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.14em;
@@ -233,12 +233,12 @@
 
   .{{ hero_class }} .aura-hero__heading {
     margin: 1.6rem 0 1.3rem;
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: clamp(3.5rem, var(--aura-hero-heading-size), 5.9rem);
     font-weight: var(--aura-hero-heading-weight);
     line-height: var(--aura-hero-heading-line-height);
     letter-spacing: var(--aura-hero-heading-letter-spacing);
-    color: #171012;
+    color: var(--aura-heading-color);
     text-wrap: balance;
   }
 
@@ -269,7 +269,7 @@
     min-height: 3.25rem;
     padding: 0 2rem;
     border-radius: 0.3rem;
-    border: 1px solid var(--aura-primary-color);
+    border: 1px solid transparent;
     font-size: var(--aura-hero-button-size);
     font-weight: 900;
     letter-spacing: var(--aura-hero-button-letter-spacing);
@@ -285,12 +285,14 @@
   .{{ hero_class }} .aura-hero__button--primary {
     background: var(--aura-hero-button-background);
     color: var(--aura-hero-button-foreground);
+    border-color: var(--aura-primary-color);
     box-shadow: 0 18px 45px rgba(129, 57, 82, 0.16);
   }
 
   .{{ hero_class }} .aura-hero__button--secondary {
     background: var(--aura-hero-secondary-background);
     color: var(--aura-hero-secondary-foreground);
+    border-color: var(--aura-hero-secondary-foreground);
   }
 
   .{{ hero_class }} .aura-hero__social-proof {
@@ -429,7 +431,7 @@
     place-items: center;
     border: 1px solid rgba(134, 72, 74, 0.16);
     color: rgba(60, 25, 30, 0.62);
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     letter-spacing: 0.12em;
     text-align: center;
     background: linear-gradient(90deg, #f7c1b4, #fff6ee 38%, #c77d73 100%);
@@ -536,7 +538,7 @@
   }
 
   .{{ hero_class }} .aura-hero__floating-eyebrow {
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.1em;
@@ -545,9 +547,10 @@
 
   .{{ hero_class }} .aura-hero__floating-heading {
     margin-top: 0.15rem;
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: 1.9rem;
     line-height: 1;
+    color: var(--aura-heading-color);
   }
 
   .{{ hero_class }} .aura-hero__floating-card--middle-left .aura-hero__floating-heading,
@@ -858,13 +861,13 @@
       "type": "color",
       "id": "secondary_button_background",
       "label": "Secondary button background",
-      "default": "#fff6f7"
+      "default": "rgba(0,0,0,0)"
     },
     {
       "type": "color",
       "id": "secondary_button_foreground",
       "label": "Secondary button text",
-      "default": "#633348"
+      "default": "#43318F"
     },
     {
       "type": "header",

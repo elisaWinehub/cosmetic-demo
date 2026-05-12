@@ -100,12 +100,12 @@
   }
 
   .{{ journey_class }} .aura-glow-journey__heading {
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: var(--aura-glow-journey-heading-size);
     font-weight: 500;
     line-height: 1.05;
     letter-spacing: -0.04em;
-    color: #171012;
+    color: var(--aura-heading-color);
   }
 
   .{{ journey_class }} .aura-glow-journey__subheading {
@@ -155,7 +155,7 @@
     padding: 0.75rem;
     border-radius: 999px;
     background: #fff0f3;
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
   }
 
   .{{ journey_class }} .aura-glow-journey__card--highlight .aura-glow-journey__icon {
@@ -181,6 +181,7 @@
 
   .{{ journey_class }} .aura-glow-journey__tier-name {
     margin: 0 0 0.6rem;
+    color: var(--aura-heading-color);
     font-size: clamp(1.65rem, 2vw, 2rem);
     font-weight: 600;
   }

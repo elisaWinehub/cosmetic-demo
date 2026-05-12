@@ -128,8 +128,14 @@
       {
         "type": "color",
         "id": "aura_secondary_color",
-        "default": "#813952",
+        "default": "#43318F",
         "label": "Secondary brand color"
+      },
+      {
+        "type": "color",
+        "id": "aura_heading_color",
+        "default": "#1B2C58",
+        "label": "Heading color"
       },
       {
         "type": "color",
