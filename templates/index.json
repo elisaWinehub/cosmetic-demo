@@ -57,10 +57,13 @@
         "primary_button_link": "/collections/all",
         "secondary_button_text": "Explore products",
         "secondary_button_link": "/collections/all",
+        "desktop_image": "shopify://shop_images/ChatGPT_Image_May_12_2026_02_24_22_PM.png",
         "show_floating_cards": true,
         "reverse_layout": false,
         "text_alignment": "left",
         "content_width": 520,
+        "min_height_desktop": 650,
+        "min_height_mobile": 520,
         "background_style": "gradient",
         "background_color": "#fff8f5",
         "accent_color": "#fbe8e7",
@@ -68,7 +71,7 @@
         "card_foreground": "#5d2f43",
         "primary_button_background": "#b64b70",
         "primary_button_foreground": "#ffffff",
-        "secondary_button_background": "transparent",
+        "secondary_button_background": "rgba(0,0,0,0)",
         "secondary_button_foreground": "#b64b70",
         "heading_font_size": 82,
         "heading_font_weight": 500,
@@ -94,6 +97,7 @@
           "type": "benefit",
           "settings": {
             "icon": "points",
+            "custom_svg": "",
             "heading": "Earn points",
             "text": "Earn points every time you shop and redeem them for exclusive rewards."
           }
@@ -102,6 +106,7 @@
           "type": "benefit",
           "settings": {
             "icon": "crown",
+            "custom_svg": "",
             "heading": "VIP tiers",
             "text": "Unlock Glow, Muse, and Elite tiers for early access, perks, and special surprises."
           }
@@ -110,6 +115,7 @@
           "type": "benefit",
           "settings": {
             "icon": "community",
+            "custom_svg": "",
             "heading": "Referral rewards",
             "text": "Invite your beauty circle and earn bonus credits when friends place their first order."
           }
@@ -118,6 +124,7 @@
           "type": "benefit",
           "settings": {
             "icon": "gift",
+            "custom_svg": "",
             "heading": "Birthday gifts",
             "text": "Celebrate your month with bonus points and curated rewards delivered automatically."
           }
@@ -150,6 +157,7 @@
       "type": "aura-product-earn",
       "settings": {
         "heading": "Shop. Earn. Glow.",
+        "collection": "featured",
         "view_all_text": "View all products",
         "view_all_link": "/collections/all",
         "product_limit": 6,
@@ -187,10 +195,13 @@
           "type": "tier",
           "settings": {
             "icon": "sparkle",
+            "custom_svg": "",
             "tier_name": "Glow",
             "description": "Earn 1 point for every dollar spent.",
             "list_items": "Beauty rewards\nProduct drops\nReferral points",
+            "label": "",
             "button_text": "Free to join",
+            "button_link": "",
             "highlight": false
           }
         },
@@ -198,11 +209,13 @@
           "type": "tier",
           "settings": {
             "icon": "crown",
+            "custom_svg": "",
             "tier_name": "Muse",
             "description": "A tier for your most-loved beauty rituals.",
             "list_items": "2x points on select launches\nVIP offers\nExclusive gifts",
             "label": "Most popular",
             "button_text": "Free to join",
+            "button_link": "",
             "highlight": true
           }
         },
@@ -210,10 +223,13 @@
           "type": "tier",
           "settings": {
             "icon": "diamond",
+            "custom_svg": "",
             "tier_name": "Elite",
             "description": "For high-glow members who want the full experience.",
             "list_items": "3x points events\nPriority rewards\nBirthday surprise",
+            "label": "",
             "button_text": "Start earning",
+            "button_link": "",
             "highlight": false
           }
         }
@@ -246,6 +262,7 @@
         "testimonial_1": {
           "type": "testimonial",
           "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_04_05_36_PM.png",
             "quote": "Aura Society rewards made every purchase feel even more exciting.",
             "author": "Olivia P.",
             "rating": 5
@@ -254,6 +271,7 @@
         "testimonial_2": {
           "type": "testimonial",
           "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_04_08_04_PM.png",
             "quote": "I love the early access and birthday gift. It feels so elevated.",
             "author": "Sonia M.",
             "rating": 5
@@ -262,6 +280,7 @@
         "testimonial_3": {
           "type": "testimonial",
           "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_04_06_37_PM.png",
             "quote": "Referral rewards are such a fun bonus, and the products are incredible.",
             "author": "Mia T.",
             "rating": 5
@@ -270,6 +289,7 @@
         "testimonial_4": {
           "type": "testimonial",
           "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_04_09_19_PM.png",
             "quote": "A premium beauty experience that actually gives something back.",
             "author": "Noa R.",
             "rating": 5
@@ -310,8 +330,9 @@
           "type": "step",
           "settings": {
             "icon": "sparkle",
+            "custom_svg": "",
             "step_number": "1. Join",
-            "heading": "Join",
+            "heading": "",
             "text": "Sign up for free and start collecting points instantly."
           }
         },
@@ -319,8 +340,9 @@
           "type": "step",
           "settings": {
             "icon": "bag",
+            "custom_svg": "",
             "step_number": "2. Shop & earn",
-            "heading": "Shop & earn",
+            "heading": "",
             "text": "Earn points every time you purchase your skincare favorites."
           }
         },
@@ -328,8 +350,9 @@
           "type": "step",
           "settings": {
             "icon": "crown",
+            "custom_svg": "",
             "step_number": "3. Unlock perks",
-            "heading": "Unlock perks",
+            "heading": "",
             "text": "Move up tiers to unlock exclusive beauty experiences."
           }
         },
@@ -337,8 +360,9 @@
           "type": "step",
           "settings": {
             "icon": "gift",
+            "custom_svg": "",
             "step_number": "4. Redeem rewards",
-            "heading": "Redeem rewards",
+            "heading": "",
             "text": "Use your points for curated rewards, credits, and gifts."
           }
         }
@@ -371,6 +395,7 @@
           "type": "feature",
           "settings": {
             "icon": "points",
+            "custom_svg": "",
             "text": "Track your points and tier progress"
           }
         },
@@ -378,6 +403,7 @@
           "type": "feature",
           "settings": {
             "icon": "gift",
+            "custom_svg": "",
             "text": "Discover exclusive rewards and beauty drops"
           }
         },
@@ -385,6 +411,7 @@
           "type": "feature",
           "settings": {
             "icon": "community",
+            "custom_svg": "",
             "text": "Refer friends and unlock more perks"
           }
         }
@@ -399,10 +426,13 @@
         "background_style": "gradient",
         "background_color": "#fff8f5",
         "accent_color": "#ffdfe7",
+        "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_03_57_10_PM_1.png",
         "eyebrow": "Your rewards, anytime",
         "heading": "The Aura Society experience\nright in your pocket",
         "body": "<p>Track your points, refer friends, unlock VIP moments, and discover curated rewards in one elegant place.</p>",
+        "app_store_badge": "shopify://shop_images/Download_on_the_App_Store_Badge_svg.png",
         "app_store_link": "/",
+        "google_play_badge": "shopify://shop_images/1664287128google-play-store-logo-png.webp",
         "google_play_link": "/",
         "heading_size": 34,
         "body_size": 15,
@@ -416,6 +446,7 @@
         "background_style": "gradient",
         "background_color": "#d86f8a",
         "accent_color": "#9d3a63",
+        "desktop_image": "shopify://shop_images/ChatGPT_Image_May_12_2026_03_55_42_PM_900c20a9-c2e6-423d-9357-002a83db4c7f.png",
         "overlay_color": "#6a3248",
         "overlay_opacity": 25,
         "alignment": "center",
