@@ -15,7 +15,7 @@
 %}
 
 <section
-  class="aura-hero full-width {{ hero_class }}{% if section.settings.reverse_layout %} aura-hero--reverse{% endif %} aura-hero--{{ section.settings.text_alignment }}"
+  class="aura-hero full-width {{ hero_class }}{% if section.settings.desktop_image != blank %} aura-hero--has-banner-image{% endif %}{% if section.settings.reverse_layout %} aura-hero--reverse{% endif %} aura-hero--{{ section.settings.text_alignment }}"
   style="
     --aura-hero-background: {{ section_background }};
     --aura-hero-content-width: {{ section.settings.content_width }}px;
@@ -44,6 +44,18 @@
     --aura-hero-min-height-mobile: {{ section.settings.min_height_mobile }}px;
   "
 >
+  {% if section.settings.desktop_image != blank %}
+    <div class="aura-hero__banner-background" aria-hidden="true">
+      <picture class="aura-hero__banner-picture">
+        {% if section.settings.mobile_image != blank %}
+          <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
+        {% endif %}
+        {{ section.settings.desktop_image | image_url: width: 2200 | image_tag: class: 'aura-hero__banner-image', loading: 'eager' }}
+      </picture>
+      <div class="aura-hero__banner-fade"></div>
+    </div>
+  {% endif %}
+
   <div class="aura-hero__shell">
     <div class="aura-hero__grid">
       <div class="aura-hero__content">
@@ -95,14 +107,7 @@
           <div class="aura-hero__orb aura-hero__orb--one"></div>
           <div class="aura-hero__orb aura-hero__orb--two"></div>
 
-          {% if section.settings.desktop_image != blank %}
-            <picture class="aura-hero__picture">
-              {% if section.settings.mobile_image != blank %}
-                <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 960 }}">
-              {% endif %}
-              {{ section.settings.desktop_image | image_url: width: 1800 | image_tag: class: 'aura-hero__image', loading: 'eager' }}
-            </picture>
-          {% else %}
+          {% if section.settings.desktop_image == blank %}
             <div class="aura-hero__mock-products" aria-hidden="true">
               <div class="aura-hero__product aura-hero__product--bottle">
                 <span>Aura<br>Society</span>
@@ -146,16 +151,47 @@
 
 {% style %}
   .{{ hero_class }} {
+    position: relative;
     background: var(--aura-hero-background);
     color: #171012;
     overflow: hidden;
   }
 
   .{{ hero_class }} .aura-hero__shell {
+    position: relative;
+    z-index: 1;
     width: min(1160px, calc(100% - 48px));
     margin: 0 auto;
     padding-top: var(--aura-hero-padding-top);
     padding-bottom: var(--aura-hero-padding-bottom);
+  }
+
+  .{{ hero_class }} .aura-hero__banner-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .{{ hero_class }} .aura-hero__banner-picture,
+  .{{ hero_class }} .aura-hero__banner-image {
+    width: 100%;
+    height: 100%;
+  }
+
+  .{{ hero_class }} .aura-hero__banner-image {
+    object-fit: cover;
+    object-position: right center;
+  }
+
+  .{{ hero_class }} .aura-hero__banner-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255, 248, 245, 0.98) 0%, rgba(255, 248, 245, 0.95) 34%, rgba(255, 248, 245, 0.66) 54%, rgba(255, 248, 245, 0.18) 74%, rgba(255, 248, 245, 0.04) 100%);
+  }
+
+  .{{ hero_class }}.aura-hero--reverse .aura-hero__banner-fade {
+    background: linear-gradient(270deg, rgba(255, 248, 245, 0.98) 0%, rgba(255, 248, 245, 0.95) 34%, rgba(255, 248, 245, 0.66) 54%, rgba(255, 248, 245, 0.18) 74%, rgba(255, 248, 245, 0.04) 100%);
   }
 
   .{{ hero_class }} .aura-hero__grid {
@@ -305,6 +341,15 @@
     position: relative;
     min-height: 30rem;
     isolation: isolate;
+  }
+
+  .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__stage,
+  .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__orb {
+    display: none;
+  }
+
+  .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__media-shell {
+    min-height: 26rem;
   }
 
   .{{ hero_class }} .aura-hero__stage {
@@ -565,6 +610,14 @@
       min-height: 20rem;
       transform: scale(0.9);
       transform-origin: top center;
+    }
+
+    .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__media {
+      display: none;
+    }
+
+    .{{ hero_class }} .aura-hero__banner-image {
+      object-position: center;
     }
 
     .{{ hero_class }} .aura-hero__floating-cards {
