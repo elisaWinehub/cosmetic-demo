@@ -58,6 +58,7 @@
         "secondary_button_text": "Explore products",
         "secondary_button_link": "/collections/all",
         "desktop_image": "shopify://shop_images/ChatGPT_Image_May_12_2026_02_24_22_PM.png",
+        "show_banner_fade": true,
         "show_floating_cards": true,
         "reverse_layout": false,
         "text_alignment": "left",

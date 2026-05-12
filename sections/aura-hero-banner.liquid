@@ -52,7 +52,9 @@
         {% endif %}
         {{ section.settings.desktop_image | image_url: width: 2200 | image_tag: class: 'aura-hero__banner-image', loading: 'eager' }}
       </picture>
-      <div class="aura-hero__banner-fade"></div>
+      {% if section.settings.show_banner_fade %}
+        <div class="aura-hero__banner-fade"></div>
+      {% endif %}
     </div>
   {% endif %}
 
@@ -614,10 +616,6 @@
     line-height: 0.98;
   }
 
-  .{{ hero_class }} .aura-hero__floating-card--middle-left .aura-hero__floating-text {
-    display: none;
-  }
-
   .{{ hero_class }} .aura-hero__floating-text {
     margin-top: 0.08rem;
     color: #746a7c;
@@ -903,6 +901,12 @@
       "type": "image_picker",
       "id": "mobile_image",
       "label": "Mobile image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_banner_fade",
+      "label": "Show image fade overlay",
+      "default": true
     },
     {
       "type": "checkbox",
