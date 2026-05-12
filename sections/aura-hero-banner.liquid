@@ -495,78 +495,153 @@
     inset: 0;
     z-index: 3;
     pointer-events: none;
+    overflow: visible;
   }
 
   .{{ hero_class }} .aura-hero__floating-card {
     position: absolute;
-    min-width: 11rem;
-    max-width: 13.5rem;
-    padding: 1rem 1.15rem;
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    background: var(--aura-hero-card-background);
-    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
-    backdrop-filter: blur(12px);
-    color: var(--aura-hero-card-foreground);
+    width: clamp(12rem, 22vw, 16rem);
+    min-width: 0;
+    max-width: none;
+    padding: clamp(1.15rem, 1.6vw, 1.45rem) clamp(1rem, 1.5vw, 1.45rem) clamp(1rem, 1.4vw, 1.3rem);
+    border-radius: clamp(1.35rem, 1.9vw, 1.7rem);
+    border: 1px solid rgba(236, 0, 140, 0.14);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 252, 250, 0.86) 58%, rgba(245, 248, 255, 0.78));
+    box-shadow: 0 20px 45px rgba(27, 44, 88, 0.12), 0 8px 22px rgba(236, 0, 140, 0.08);
+    backdrop-filter: blur(18px) saturate(135%);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    color: #6a6474;
+    overflow: visible;
+    animation: aura-hero-floating-card-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.8), transparent 48%);
+    pointer-events: none;
+    z-index: 0;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--top-right {
-    top: 1rem;
-    right: 1rem;
+    top: clamp(0.85rem, 1.5vw, 1.5rem);
+    right: clamp(0.6rem, 1.1vw, 1.35rem);
+    width: clamp(14rem, 24vw, 17.25rem);
+    animation-delay: 0.08s;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--middle-left {
-    top: 11rem;
-    left: 0.75rem;
+    top: clamp(9rem, 31%, 11.2rem);
+    right: clamp(4.25rem, 14%, 5.75rem);
+    width: clamp(11.5rem, 19vw, 14.1rem);
+    animation-delay: 0.2s;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--bottom-right {
-    right: 1rem;
-    bottom: 1rem;
+    right: clamp(0.2rem, 0.9vw, 0.9rem);
+    bottom: clamp(0.9rem, 1.8vw, 1.8rem);
+    width: clamp(12.4rem, 21vw, 16rem);
+    animation-delay: 0.34s;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--bottom-left {
-    left: 0.75rem;
-    bottom: 1.25rem;
+    right: clamp(4.8rem, 16%, 6.2rem);
+    bottom: clamp(1rem, 2vw, 1.9rem);
+    width: clamp(11.75rem, 20vw, 14.5rem);
+    animation-delay: 0.44s;
   }
 
   .{{ hero_class }} .aura-hero__floating-icon {
-    width: 1.65rem;
-    height: 1.65rem;
-    margin-bottom: 0.45rem;
-    color: var(--aura-primary-color);
+    position: absolute;
+    top: clamp(-0.9rem, -1vw, -0.7rem);
+    left: clamp(-1rem, -1vw, -0.75rem);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: clamp(3.25rem, 5vw, 4rem);
+    height: clamp(3.25rem, 5vw, 4rem);
+    border-radius: 50%;
+    border: 1px solid rgba(236, 0, 140, 0.14);
+    background: #F5F8FF;
+    box-shadow: 0 14px 28px rgba(27, 44, 88, 0.16), 0 6px 14px rgba(236, 0, 140, 0.12);
+    color: #EC008C;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-icon .aura-icon,
+  .{{ hero_class }} .aura-hero__floating-icon .aura-icon svg {
+    width: 52%;
+    height: 52%;
+    color: #EC008C;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-copy {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
   }
 
   .{{ hero_class }} .aura-hero__floating-eyebrow {
-    color: var(--aura-primary-color);
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
+    color: #EC008C;
+    font-size: clamp(0.72rem, 0.68rem + 0.2vw, 0.84rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
   .{{ hero_class }} .aura-hero__floating-heading {
-    margin-top: 0.15rem;
+    margin-top: 0;
     font-family: var(--font-heading--family);
-    font-size: 1.9rem;
-    line-height: 1;
-    color: var(--aura-heading-color);
+    font-size: clamp(1.55rem, 2.35vw, 2rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    color: #1b2c58;
+    text-wrap: balance;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--top-right .aura-hero__floating-heading {
+    font-size: clamp(2.05rem, 3.9vw, 3.15rem);
+    line-height: 0.88;
+    max-width: 6ch;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--middle-left .aura-hero__floating-heading,
   .{{ hero_class }} .aura-hero__floating-card--bottom-right .aura-hero__floating-heading,
   .{{ hero_class }} .aura-hero__floating-card--bottom-left .aura-hero__floating-heading {
-    font-family: var(--font-primary--family);
-    font-size: 1rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
+    font-size: clamp(1.35rem, 2vw, 1.95rem);
+    line-height: 0.94;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--middle-left .aura-hero__floating-text {
+    display: none;
   }
 
   .{{ hero_class }} .aura-hero__floating-text {
-    margin-top: 0.1rem;
-    color: #6f5b63;
-    font-size: 0.88rem;
-    line-height: 1.4;
+    margin-top: 0.08rem;
+    color: #746a7c;
+    font-size: clamp(0.92rem, 0.82rem + 0.25vw, 1rem);
+    line-height: 1.45;
+    max-width: 15ch;
+  }
+
+  @keyframes aura-hero-floating-card-in {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 16px, 0) scale(0.98);
+    }
+
+    65% {
+      opacity: 1;
+      transform: translate3d(0, -3px, 0) scale(1);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
   }
 
   @media (max-width: 989px) {
@@ -603,19 +678,38 @@
       right: 2rem;
     }
 
+    .{{ hero_class }} .aura-hero__floating-card {
+      width: clamp(10.5rem, 29vw, 13.5rem);
+      padding: 1rem 0.95rem 0.95rem;
+    }
+
     .{{ hero_class }} .aura-hero__floating-card--top-right {
-      right: 0.5rem;
+      top: 0.5rem;
+      right: 0.4rem;
     }
 
     .{{ hero_class }} .aura-hero__floating-card--middle-left {
-      top: 10rem;
-      left: 0.25rem;
-      right: auto;
+      top: 8.6rem;
+      right: 2.9rem;
     }
 
     .{{ hero_class }} .aura-hero__floating-card--bottom-right {
-      right: 0.5rem;
+      right: 0.35rem;
       bottom: 0.5rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card--bottom-left {
+      right: 2.95rem;
+      bottom: 0.85rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-icon {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card--top-right .aura-hero__floating-heading {
+      font-size: clamp(1.85rem, 4.4vw, 2.45rem);
     }
   }
 
@@ -688,7 +782,52 @@
     }
 
     .{{ hero_class }} .aura-hero__floating-cards {
+      inset: auto 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.6rem;
+      width: min(13.75rem, calc(100% - 0.35rem));
+      padding: 0 0.35rem 0.15rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card {
+      position: relative;
+      top: auto;
+      right: auto;
+      bottom: auto;
+      left: auto;
+      width: 100%;
+      padding: 0.9rem 0.95rem 0.9rem;
+      animation-duration: 0.55s;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-icon {
+      width: 2.85rem;
+      height: 2.85rem;
+      top: -0.7rem;
+      left: -0.55rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-heading,
+    .{{ hero_class }} .aura-hero__floating-card--top-right .aura-hero__floating-heading {
+      font-size: clamp(1.15rem, 5vw, 1.7rem);
+      max-width: none;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card:not(.aura-hero__floating-card--top-right) .aura-hero__floating-text {
       display: none;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-text {
+      font-size: 0.86rem;
+      max-width: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .{{ hero_class }} .aura-hero__floating-card {
+      animation: none;
     }
   }
 {% endstyle %}
