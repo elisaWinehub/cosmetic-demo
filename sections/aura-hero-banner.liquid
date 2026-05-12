@@ -504,7 +504,7 @@
     min-width: 0;
     max-width: none;
     padding: clamp(0.95rem, 1.2vw, 1.15rem) clamp(0.9rem, 1.1vw, 1.15rem) clamp(0.85rem, 1vw, 1rem);
-    border-radius: clamp(1.35rem, 1.9vw, 1.7rem);
+    border-radius: 12px;
     border: 1px solid rgba(236, 0, 140, 0.14);
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 252, 250, 0.86) 58%, rgba(245, 248, 255, 0.78));
     box-shadow: 0 20px 45px rgba(27, 44, 88, 0.12), 0 8px 22px rgba(236, 0, 140, 0.08);
@@ -555,8 +555,8 @@
 
   .{{ hero_class }} .aura-hero__floating-icon {
     position: absolute;
-    top: clamp(-0.72rem, -0.8vw, -0.58rem);
-    left: clamp(-0.82rem, -0.9vw, -0.62rem);
+    top: clamp(-5.72rem, -1.8vw, -1.58rem);
+    left: clamp(-4.82rem, -1.9vw, -1.62rem);
     z-index: 2;
     display: grid;
     place-items: center;
@@ -564,16 +564,16 @@
     height: clamp(2.85rem, 4vw, 3.35rem);
     border-radius: 50%;
     border: 1px solid rgba(236, 0, 140, 0.14);
-    background: #F5F8FF;
+    background: #EC008C;
     box-shadow: 0 14px 28px rgba(27, 44, 88, 0.16), 0 6px 14px rgba(236, 0, 140, 0.12);
-    color: #EC008C;
+    color: #ffffff;
   }
 
   .{{ hero_class }} .aura-hero__floating-icon .aura-icon,
   .{{ hero_class }} .aura-hero__floating-icon .aura-icon svg {
-    width: 62%;
-    height: 62%;
-    color: #EC008C;
+    width: 72%;
+    height: 72%;
+    color: #ffffff;
   }
 
   .{{ hero_class }} .aura-hero__floating-copy {
@@ -603,9 +603,8 @@
   }
 
   .{{ hero_class }} .aura-hero__floating-card--top-right .aura-hero__floating-heading {
-    font-size: clamp(1.55rem, 2.4vw, 2.3rem);
+    font-size: 1.3em;
     line-height: 0.9;
-    max-width: 6ch;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--middle-left .aura-hero__floating-heading,
@@ -624,7 +623,6 @@
     color: #746a7c;
     font-size: clamp(0.8rem, 0.76rem + 0.12vw, 0.9rem);
     line-height: 1.32;
-    max-width: 16ch;
   }
 
   @keyframes aura-hero-floating-card-in {
@@ -825,7 +823,6 @@
 
     .{{ hero_class }} .aura-hero__floating-text {
       font-size: 0.75rem;
-      max-width: none;
     }
   }
 
