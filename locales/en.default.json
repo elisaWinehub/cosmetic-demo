@@ -48,5 +48,16 @@
     "submit": "Search",
     "no_results_html": "No results found for {{ terms }}",
     "results_for_html": "{{ count }} results found for {{ terms }}"
+  },
+  "sections": {
+    "aura_beauty_community": {
+      "previous": "Previous testimonial",
+      "next": "Next testimonial",
+      "rating": "{{ rating }} out of 5"
+    },
+    "aura_mobile_app": {
+      "app_store": "App Store",
+      "google_play": "Google Play"
+    }
   }
 }

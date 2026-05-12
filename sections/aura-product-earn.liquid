@@ -1,0 +1,558 @@
+{% assign product_class = 'aura-product-earn-' | append: section.id %}
+
+<section
+  class="aura-product-earn full-width {{ product_class }}{% if section.settings.enable_mobile_slider %} aura-product-earn--mobile-slider{% endif %}"
+  style="
+    --aura-product-earn-background: {{ section.settings.background_color }};
+    --aura-product-earn-card-background: {{ section.settings.card_background }};
+    --aura-product-earn-card-text: {{ section.settings.card_text_color }};
+    --aura-product-earn-badge-background: {{ section.settings.badge_background }};
+    --aura-product-earn-badge-text: {{ section.settings.badge_text_color }};
+    --aura-product-earn-columns-desktop: {{ section.settings.columns_desktop }};
+    --aura-product-earn-columns-tablet: {{ section.settings.columns_tablet }};
+    --aura-product-earn-columns-mobile: {{ section.settings.columns_mobile }};
+    --aura-product-earn-gap: {{ section.settings.grid_gap }}px;
+    --aura-product-earn-padding-top: {{ section.settings.padding_top }}px;
+    --aura-product-earn-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --aura-product-earn-heading-size: {{ section.settings.heading_size }}px;
+    --aura-product-earn-title-size: {{ section.settings.card_title_size }}px;
+    --aura-product-earn-body-size: {{ section.settings.body_size }}px;
+  "
+>
+  <div class="aura-product-earn__inner">
+    <div class="aura-product-earn__header">
+      {% if section.settings.heading != blank %}
+        <h2 class="aura-product-earn__heading">{{ section.settings.heading | escape }}</h2>
+      {% endif %}
+
+      {% if section.settings.view_all_text != blank %}
+        {% liquid
+          assign view_all_url = section.settings.view_all_link
+          if view_all_url == blank and section.settings.collection != blank
+            assign view_all_url = section.settings.collection.url
+          endif
+        %}
+
+        {% if view_all_url != blank %}
+          <a class="aura-product-earn__view-all" href="{{ view_all_url }}">
+            {{ section.settings.view_all_text | escape }}
+            <span class="aura-product-earn__view-all-icon">{% render 'aura-icon', icon: 'arrow-right' %}</span>
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="aura-product-earn__grid">
+      {% if section.settings.collection != blank %}
+        {% for product in section.settings.collection.products limit: section.settings.product_limit %}
+          {% liquid
+            assign product_points = blank
+            assign metafield_namespace = section.settings.points_metafield_namespace
+            assign metafield_key = section.settings.points_metafield_key
+            assign placeholder_variant = forloop.index | modulo: 6
+
+            if metafield_namespace != blank and metafield_key != blank
+              if product.metafields[metafield_namespace] != blank
+                if product.metafields[metafield_namespace][metafield_key] != blank
+                  assign product_points = product.metafields[metafield_namespace][metafield_key].value
+                endif
+              endif
+            endif
+
+            if product_points == blank
+              assign product_points = product.price | divided_by: 100.0 | times: section.settings.points_multiplier | round
+            endif
+          %}
+
+          <article class="aura-product-earn__card">
+            <a class="aura-product-earn__image-link" href="{{ product.url }}">
+              {% if section.settings.show_points_badge %}
+                <span class="aura-product-earn__badge">
+                  Earn {{ product_points }} {{ section.settings.points_label | escape }}
+                </span>
+              {% endif %}
+
+              {% if product.featured_image != blank %}
+                {{ product.featured_image | image_url: width: 900 | image_tag: class: 'aura-product-earn__image' }}
+              {% else %}
+                <div class="aura-product-earn__mock-image">
+                  <span class="aura-product-earn__mock-product{% if placeholder_variant == 0 %} aura-product-earn__mock-product--jar{% elsif placeholder_variant == 1 or placeholder_variant == 4 %} aura-product-earn__mock-product--tall{% endif %}"></span>
+                </div>
+              {% endif %}
+            </a>
+
+            <div class="aura-product-earn__card-body">
+              {% if section.settings.show_vendor %}
+                <p class="aura-product-earn__vendor">{{ product.vendor | escape }}</p>
+              {% endif %}
+
+              {% if section.settings.show_title %}
+                <h3 class="aura-product-earn__title">
+                  <a href="{{ product.url }}">{{ product.title | escape }}</a>
+                </h3>
+              {% endif %}
+
+              {% if section.settings.show_price %}
+                <p class="aura-product-earn__price">{{ product.price | money }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      {% else %}
+        {% for i in (1..section.settings.product_limit) %}
+          {% assign placeholder_variant = forloop.index | modulo: 6 %}
+          <article class="aura-product-earn__card">
+            <div class="aura-product-earn__image-link">
+              {% if section.settings.show_points_badge %}
+                <span class="aura-product-earn__badge">
+                  Earn {{ 24 | times: i | times: section.settings.points_multiplier }} {{ section.settings.points_label | escape }}
+                </span>
+              {% endif %}
+
+              <div class="aura-product-earn__mock-image">
+                <span class="aura-product-earn__mock-product{% if placeholder_variant == 0 %} aura-product-earn__mock-product--jar{% elsif placeholder_variant == 1 or placeholder_variant == 4 %} aura-product-earn__mock-product--tall{% endif %}"></span>
+              </div>
+            </div>
+
+            <div class="aura-product-earn__card-body">
+              {% if section.settings.show_vendor %}
+                <p class="aura-product-earn__vendor">{{ section.settings.placeholder_vendor | escape }}</p>
+              {% endif %}
+
+              {% if section.settings.show_title %}
+                <h3 class="aura-product-earn__title">{{ section.settings.placeholder_title | escape }}</h3>
+              {% endif %}
+
+              {% if section.settings.show_price %}
+                <p class="aura-product-earn__price">{{ 2400 | times: i | money }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% style %}
+  .{{ product_class }} {
+    background: var(--aura-product-earn-background);
+  }
+
+  .{{ product_class }} .aura-product-earn__inner {
+    width: min(1160px, calc(100% - 48px));
+    margin: 0 auto;
+    padding-top: var(--aura-product-earn-padding-top);
+    padding-bottom: var(--aura-product-earn-padding-bottom);
+  }
+
+  .{{ product_class }} .aura-product-earn__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .{{ product_class }} .aura-product-earn__heading {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--aura-product-earn-heading-size);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    color: #171012;
+  }
+
+  .{{ product_class }} .aura-product-earn__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #dd6f8e;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.13em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .{{ product_class }} .aura-product-earn__view-all-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .{{ product_class }} .aura-product-earn__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--aura-product-earn-columns-desktop), minmax(0, 1fr));
+    gap: var(--aura-product-earn-gap);
+  }
+
+  .{{ product_class }} .aura-product-earn__card {
+    min-width: 0;
+  }
+
+  .{{ product_class }} .aura-product-earn__image-link {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 13.1rem;
+    border-radius: 0.55rem;
+    background: linear-gradient(135deg, #fff3f0, #ead4cf);
+    overflow: hidden;
+  }
+
+  .{{ product_class }} .aura-product-earn__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .{{ product_class }} .aura-product-earn__mock-image {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 243, 240, 0.95), rgba(234, 212, 207, 0.9));
+  }
+
+  .{{ product_class }} .aura-product-earn__mock-product {
+    width: 3.4rem;
+    height: 9.3rem;
+    border-radius: 1rem;
+    background: linear-gradient(90deg, #efb0a9, #fff2ec, #bb746b);
+    box-shadow: 0 18px 35px rgba(94, 49, 53, 0.12);
+  }
+
+  .{{ product_class }} .aura-product-earn__mock-product--tall {
+    width: 2.65rem;
+    height: 10.7rem;
+    border-radius: 1.2rem;
+  }
+
+  .{{ product_class }} .aura-product-earn__mock-product--jar {
+    width: 7rem;
+    height: 4.7rem;
+    border-radius: 1.25rem 1.25rem 2.2rem 2.2rem;
+  }
+
+  .{{ product_class }} .aura-product-earn__badge {
+    position: absolute;
+    bottom: 0.55rem;
+    left: 0.55rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid rgba(182, 75, 112, 0.4);
+    border-radius: 999px;
+    background: var(--aura-product-earn-badge-background);
+    color: var(--aura-product-earn-badge-text);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .{{ product_class }} .aura-product-earn__card-body {
+    padding-top: 0.75rem;
+  }
+
+  .{{ product_class }} .aura-product-earn__vendor {
+    margin: 0 0 0.2rem;
+    color: #6f5b63;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .{{ product_class }} .aura-product-earn__title,
+  .{{ product_class }} .aura-product-earn__title a {
+    margin: 0;
+    color: #171012;
+    font-size: var(--aura-product-earn-title-size);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .{{ product_class }} .aura-product-earn__price {
+    margin: 0.3rem 0 0;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #171012;
+  }
+
+  @media (max-width: 989px) {
+    .{{ product_class }} .aura-product-earn__grid {
+      grid-template-columns: repeat(var(--aura-product-earn-columns-tablet), minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 767px) {
+    .{{ product_class }} .aura-product-earn__inner {
+      width: min(1160px, calc(100% - 32px));
+    }
+
+    .{{ product_class }} .aura-product-earn__header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .{{ product_class }} .aura-product-earn__heading {
+      font-size: min(calc(var(--aura-product-earn-heading-size) * 0.84), 2.25rem);
+    }
+
+    .{{ product_class }}.aura-product-earn--mobile-slider .aura-product-earn__grid {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(76%, 1fr);
+      grid-template-columns: none;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scroll-snap-type: x proximity;
+    }
+
+    .{{ product_class }}.aura-product-earn--mobile-slider .aura-product-earn__card {
+      scroll-snap-align: start;
+    }
+
+    .{{ product_class }}:not(.aura-product-earn--mobile-slider) .aura-product-earn__grid {
+      grid-template-columns: repeat(var(--aura-product-earn-columns-mobile), minmax(0, 1fr));
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Aura product earn",
+  "tag": "section",
+  "class": "section-aura-product-earn",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop. Earn. Glow."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "View all text",
+      "default": "View all products"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "View all link"
+    },
+    {
+      "type": "range",
+      "id": "product_limit",
+      "label": "Product limit",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "points_multiplier",
+      "label": "Points multiplier",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "text",
+      "id": "points_label",
+      "label": "Points label",
+      "default": "points"
+    },
+    {
+      "type": "text",
+      "id": "points_metafield_namespace",
+      "label": "Points metafield namespace",
+      "default": "custom"
+    },
+    {
+      "type": "text",
+      "id": "points_metafield_key",
+      "label": "Points metafield key",
+      "default": "loyalty_points"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show title",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_points_badge",
+      "label": "Show points badge",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fff9f8"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#fff3f4"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text color",
+      "default": "#412332"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Badge background",
+      "default": "#8b3f5d"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Title size",
+      "min": 14,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "label": "Body size",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns desktop",
+      "default": "5",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" },
+        { "value": "6", "label": "6" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "Columns tablet",
+      "default": "3",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns mobile",
+      "default": "2",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_mobile_slider",
+      "label": "Enable mobile slider",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Grid spacing",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 44
+    },
+    {
+      "type": "text",
+      "id": "placeholder_vendor",
+      "label": "Placeholder vendor",
+      "default": "Aura favorites"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_title",
+      "label": "Placeholder title",
+      "default": "Reward-ready beauty pick"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Aura product earn"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,523 @@
+{% assign community_class = 'aura-beauty-community-' | append: section.id %}
+
+<section
+  class="aura-beauty-community full-width {{ community_class }} aura-beauty-community--{{ section.settings.desktop_behavior }} aura-beauty-community--{{ section.settings.image_ratio }}"
+  data-section-id="{{ section.id }}"
+  style="
+    --aura-beauty-community-background: {{ section.settings.background_color }};
+    --aura-beauty-community-card-background: {{ section.settings.card_background }};
+    --aura-beauty-community-card-text: {{ section.settings.card_text_color }};
+    --aura-beauty-community-arrow-background: {{ section.settings.arrow_background }};
+    --aura-beauty-community-arrow-color: {{ section.settings.arrow_color }};
+    --aura-beauty-community-heading-size: {{ section.settings.heading_size }}px;
+    --aura-beauty-community-body-size: {{ section.settings.body_size }}px;
+    --aura-beauty-community-padding-top: {{ section.settings.padding_top }}px;
+    --aura-beauty-community-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --aura-beauty-community-gap: {{ section.settings.card_gap }}px;
+  "
+>
+  <div class="aura-beauty-community__inner">
+    <div class="aura-beauty-community__content">
+      {% if section.settings.eyebrow != blank %}
+        <p class="aura-beauty-community__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2 class="aura-beauty-community__heading">{{ section.settings.heading | escape | newline_to_br }}</h2>
+      {% endif %}
+
+      {% if section.settings.body != blank %}
+        <div class="aura-beauty-community__body rte">{{ section.settings.body }}</div>
+      {% endif %}
+
+      {% if section.settings.button_text != blank %}
+        <a class="aura-beauty-community__button" href="{{ section.settings.button_link | default: '#' }}">
+          {{ section.settings.button_text | escape }}
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="aura-beauty-community__media">
+      {% if section.settings.show_arrows %}
+        <div class="aura-beauty-community__controls">
+          <button class="aura-beauty-community__arrow" type="button" data-direction="prev" aria-label="{{ 'sections.aura_beauty_community.previous' | t }}">
+            {% render 'aura-icon', icon: 'arrow-right', class: 'aura-beauty-community__arrow-icon aura-beauty-community__arrow-icon--prev' %}
+          </button>
+          <button class="aura-beauty-community__arrow" type="button" data-direction="next" aria-label="{{ 'sections.aura_beauty_community.next' | t }}">
+            {% render 'aura-icon', icon: 'arrow-right', class: 'aura-beauty-community__arrow-icon' %}
+          </button>
+        </div>
+      {% endif %}
+
+      <div class="aura-beauty-community__track" data-track>
+        {% for block in section.blocks %}
+          <article class="aura-beauty-community__card" {{ block.shopify_attributes }}>
+            <div class="aura-beauty-community__card-image">
+              {% if block.settings.image != blank %}
+                {{ block.settings.image | image_url: width: 900 | image_tag: class: 'aura-beauty-community__image' }}
+              {% else %}
+                <div class="aura-beauty-community__image aura-beauty-community__image--placeholder"></div>
+              {% endif %}
+            </div>
+
+            <div class="aura-beauty-community__card-body">
+              <div class="aura-beauty-community__rating" aria-label="{{ 'sections.aura_beauty_community.rating' | t: rating: block.settings.rating }}">
+                {% for i in (1..5) %}
+                  <span class="aura-beauty-community__star{% if i > block.settings.rating %} aura-beauty-community__star--empty{% endif %}">
+                    {% render 'aura-icon', icon: 'star' %}
+                  </span>
+                {% endfor %}
+              </div>
+
+              {% if block.settings.quote != blank %}
+                <p class="aura-beauty-community__quote">{{ block.settings.quote | escape }}</p>
+              {% endif %}
+
+              {% if block.settings.author != blank %}
+                <p class="aura-beauty-community__author">- {{ block.settings.author | escape }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  .{{ community_class }} {
+    background: var(--aura-beauty-community-background);
+  }
+
+  .{{ community_class }} .aura-beauty-community__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.55fr) minmax(0, 1.45fr);
+    gap: 2.25rem;
+    align-items: center;
+    width: min(1160px, calc(100% - 48px));
+    margin: 0 auto;
+    padding-top: var(--aura-beauty-community-padding-top);
+    padding-bottom: var(--aura-beauty-community-padding-bottom);
+  }
+
+  .{{ community_class }} .aura-beauty-community__eyebrow {
+    color: #dd6f8e;
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .{{ community_class }} .aura-beauty-community__heading {
+    margin-top: 0.85rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--aura-beauty-community-heading-size);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: #171012;
+  }
+
+  .{{ community_class }} .aura-beauty-community__body {
+    margin-top: 0.9rem;
+    color: #4c3940;
+    font-size: var(--aura-beauty-community-body-size);
+    line-height: 1.6;
+  }
+
+  .{{ community_class }} .aura-beauty-community__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    margin-top: 1.25rem;
+    padding: 0.85rem 1.35rem;
+    border-radius: 0.3rem;
+    background: #b64b70;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .{{ community_class }} .aura-beauty-community__controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.7rem;
+    margin-bottom: 1rem;
+  }
+
+  .{{ community_class }} .aura-beauty-community__arrow {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0.7rem;
+    border: 1px solid rgba(129, 57, 82, 0.1);
+    border-radius: 999px;
+    background: var(--aura-beauty-community-arrow-background);
+    color: #813952;
+    cursor: pointer;
+  }
+
+  .{{ community_class }} .aura-beauty-community__arrow-icon {
+    width: 100%;
+    height: 100%;
+  }
+
+  .{{ community_class }} .aura-beauty-community__arrow-icon--prev {
+    transform: rotate(180deg);
+  }
+
+  .{{ community_class }} .aura-beauty-community__track {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--aura-beauty-community-gap);
+  }
+
+  .{{ community_class }}.aura-beauty-community--slider .aura-beauty-community__track {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(15rem, 1fr);
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  .{{ community_class }} .aura-beauty-community__card {
+    overflow: hidden;
+    border: 1px solid rgba(129, 57, 82, 0.12);
+    border-radius: 0.8rem;
+    background: var(--aura-beauty-community-card-background);
+    box-shadow: 0 12px 32px rgba(150, 92, 104, 0.06);
+    scroll-snap-align: start;
+  }
+
+  .{{ community_class }} .aura-beauty-community__card-image {
+    overflow: hidden;
+  }
+
+  .{{ community_class }}.aura-beauty-community--square .aura-beauty-community__card-image {
+    aspect-ratio: 1;
+  }
+
+  .{{ community_class }}.aura-beauty-community--portrait .aura-beauty-community__card-image {
+    aspect-ratio: 4 / 5;
+  }
+
+  .{{ community_class }}.aura-beauty-community--landscape .aura-beauty-community__card-image {
+    aspect-ratio: 16 / 10;
+  }
+
+  .{{ community_class }} .aura-beauty-community__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .{{ community_class }} .aura-beauty-community__image--placeholder {
+    background: linear-gradient(135deg, #6c382d, #f4b7a9);
+  }
+
+  .{{ community_class }} .aura-beauty-community__card-body {
+    padding: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .{{ community_class }} .aura-beauty-community__rating {
+    display: flex;
+    gap: 0.2rem;
+    color: #dd6f8e;
+    margin-bottom: 0.7rem;
+  }
+
+  .{{ community_class }} .aura-beauty-community__star {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  .{{ community_class }} .aura-beauty-community__star--empty {
+    opacity: 0.2;
+  }
+
+  .{{ community_class }} .aura-beauty-community__quote {
+    margin: 0;
+    font-size: var(--aura-beauty-community-body-size);
+    line-height: 1.45;
+  }
+
+  .{{ community_class }} .aura-beauty-community__author {
+    margin: 0.9rem 0 0;
+    color: #6f5b63;
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 989px) {
+    .{{ community_class }} .aura-beauty-community__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .{{ community_class }} .aura-beauty-community__track {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(16rem, 1fr);
+      grid-template-columns: none;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .{{ community_class }} .aura-beauty-community__inner {
+      width: min(1160px, calc(100% - 32px));
+    }
+
+    .{{ community_class }} .aura-beauty-community__heading {
+      font-size: min(calc(var(--aura-beauty-community-heading-size) * 0.84), 2.3rem);
+    }
+
+    .{{ community_class }} .aura-beauty-community__controls {
+      justify-content: flex-start;
+    }
+
+    .{{ community_class }} .aura-beauty-community__track {
+      grid-auto-columns: minmax(84%, 1fr);
+    }
+  }
+{% endstyle %}
+
+{% javascript %}
+  document.querySelectorAll('.aura-beauty-community').forEach((sectionElement) => {
+    if (sectionElement.dataset.sliderBound === 'true') return
+
+    sectionElement.dataset.sliderBound = 'true'
+
+    const track = sectionElement.querySelector('[data-track]')
+    if (!track) return
+
+    sectionElement.querySelectorAll('.aura-beauty-community__arrow').forEach((button) => {
+      button.addEventListener('click', () => {
+        const firstCard = track.querySelector('.aura-beauty-community__card')
+        const amount = firstCard ? firstCard.getBoundingClientRect().width + 16 : 320
+        const direction = button.dataset.direction === 'prev' ? -1 : 1
+
+        track.scrollBy({ left: amount * direction, behavior: 'smooth' })
+      })
+    })
+  })
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Aura beauty community",
+  "tag": "section",
+  "class": "section-aura-beauty-community",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "More than skincare"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "It's a beauty\ncommunity."
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body",
+      "default": "<p>Real results, real people, real glow. See what our members are saying.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Join the community"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fff9f8"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#fff3f4"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text color",
+      "default": "#432434"
+    },
+    {
+      "type": "color",
+      "id": "arrow_background",
+      "label": "Arrow background",
+      "default": "#fff3f4"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow color",
+      "default": "#7c3b56"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "default": "portrait",
+      "options": [
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "landscape", "label": "Landscape" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "desktop_behavior",
+      "label": "Desktop layout",
+      "default": "slider",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "slider", "label": "Slider" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrow controls",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "label": "Body size",
+      "min": 13,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Card spacing",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "The loyalty perks make every order feel like a treat."
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Author",
+          "default": "Sonia M."
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Aura beauty community",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Aura Society rewards made every purchase feel even more exciting.",
+            "author": "Olivia P."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "I love the early access and birthday gift. It feels so elevated.",
+            "author": "Sonia M."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Referral rewards are such a fun bonus, and the products are incredible.",
+            "author": "Mia T."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "A premium beauty experience that actually gives something back.",
+            "author": "Noa R."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

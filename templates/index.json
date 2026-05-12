@@ -9,12 +9,441 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "settings": {}
+    "aura_hero_banner": {
+      "type": "aura-hero-banner",
+      "blocks": {
+        "hero_card_1": {
+          "type": "reward_card",
+          "settings": {
+            "icon": "points",
+            "eyebrow": "You earned",
+            "heading": "250 glow points",
+            "text": "From your latest order",
+            "position": "top-right"
+          }
+        },
+        "hero_card_2": {
+          "type": "reward_card",
+          "settings": {
+            "icon": "crown",
+            "eyebrow": "VIP tier",
+            "heading": "Unlocked",
+            "text": "Welcome to Muse",
+            "position": "middle-left"
+          }
+        },
+        "hero_card_3": {
+          "type": "reward_card",
+          "settings": {
+            "icon": "gift",
+            "eyebrow": "Refer a friend",
+            "heading": "Get $20",
+            "text": "Reward credit for every referral",
+            "position": "bottom-right"
+          }
+        }
+      },
+      "block_order": [
+        "hero_card_1",
+        "hero_card_2",
+        "hero_card_3"
+      ],
+      "settings": {
+        "eyebrow": "Loyalty. Rewards. Beauty.",
+        "heading": "Glow more.\nEarn more.",
+        "body": "<p>Join Aura Society and unlock exclusive rewards, VIP perks, birthday gifts, referrals, and member-only beauty drops.</p>",
+        "social_proof": "<p>Join 20,000+ members and start earning rewards today.</p>",
+        "primary_button_text": "Join Aura Society",
+        "primary_button_link": "/collections/all",
+        "secondary_button_text": "Explore products",
+        "secondary_button_link": "/collections/all",
+        "show_floating_cards": true,
+        "reverse_layout": false,
+        "text_alignment": "left",
+        "content_width": 520,
+        "background_style": "gradient",
+        "background_color": "#fff8f5",
+        "accent_color": "#fbe8e7",
+        "card_background": "#fff8f8",
+        "card_foreground": "#5d2f43",
+        "primary_button_background": "#b64b70",
+        "primary_button_foreground": "#ffffff",
+        "secondary_button_background": "transparent",
+        "secondary_button_foreground": "#b64b70",
+        "heading_font_size": 82,
+        "heading_font_weight": 500,
+        "heading_line_height": 90,
+        "heading_letter_spacing": -2,
+        "body_font_size": 16,
+        "body_font_weight": 400,
+        "body_line_height": 160,
+        "body_letter_spacing": 0,
+        "button_font_size": 13,
+        "button_font_weight": 800,
+        "button_letter_spacing": 1,
+        "padding_top_desktop": 88,
+        "padding_bottom_desktop": 72,
+        "padding_top_mobile": 52,
+        "padding_bottom_mobile": 44
+      }
+    },
+    "aura_benefits": {
+      "type": "aura-benefits",
+      "blocks": {
+        "benefit_1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "points",
+            "heading": "Earn points",
+            "text": "Earn points every time you shop and redeem them for exclusive rewards."
+          }
+        },
+        "benefit_2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "crown",
+            "heading": "VIP tiers",
+            "text": "Unlock Glow, Muse, and Elite tiers for early access, perks, and special surprises."
+          }
+        },
+        "benefit_3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "community",
+            "heading": "Referral rewards",
+            "text": "Invite your beauty circle and earn bonus credits when friends place their first order."
+          }
+        },
+        "benefit_4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "gift",
+            "heading": "Birthday gifts",
+            "text": "Celebrate your month with bonus points and curated rewards delivered automatically."
+          }
+        }
+      },
+      "block_order": [
+        "benefit_1",
+        "benefit_2",
+        "benefit_3",
+        "benefit_4"
+      ],
+      "settings": {
+        "heading": "More benefits. More glow.",
+        "background_color": "#fff8f5",
+        "card_background": "#ffffff",
+        "icon_color": "#dd6f8e",
+        "text_color": "#171012",
+        "heading_size": 34,
+        "card_title_size": 14,
+        "body_size": 15,
+        "columns_desktop": "4",
+        "columns_tablet": "2",
+        "columns_mobile": "1",
+        "grid_gap": 18,
+        "padding_top": 28,
+        "padding_bottom": 36
+      }
+    },
+    "aura_product_earn": {
+      "type": "aura-product-earn",
+      "settings": {
+        "heading": "Shop. Earn. Glow.",
+        "view_all_text": "View all products",
+        "view_all_link": "/collections/all",
+        "product_limit": 6,
+        "points_multiplier": 1,
+        "points_label": "points",
+        "points_metafield_namespace": "custom",
+        "points_metafield_key": "loyalty_points",
+        "show_vendor": false,
+        "show_title": true,
+        "show_price": true,
+        "show_points_badge": true,
+        "background_color": "#ffffff",
+        "card_background": "#fff3f4",
+        "card_text_color": "#171012",
+        "badge_background": "#fff8fb",
+        "badge_text_color": "#b64b70",
+        "heading_size": 34,
+        "card_title_size": 16,
+        "body_size": 15,
+        "columns_desktop": "6",
+        "columns_tablet": "3",
+        "columns_mobile": "2",
+        "enable_mobile_slider": true,
+        "grid_gap": 18,
+        "padding_top": 28,
+        "padding_bottom": 44,
+        "placeholder_vendor": "Aura favorites",
+        "placeholder_title": "Reward-ready beauty pick"
+      }
+    },
+    "aura_glow_journey": {
+      "type": "aura-glow-journey",
+      "blocks": {
+        "tier_1": {
+          "type": "tier",
+          "settings": {
+            "icon": "sparkle",
+            "tier_name": "Glow",
+            "description": "Earn 1 point for every dollar spent.",
+            "list_items": "Beauty rewards\nProduct drops\nReferral points",
+            "button_text": "Free to join",
+            "highlight": false
+          }
+        },
+        "tier_2": {
+          "type": "tier",
+          "settings": {
+            "icon": "crown",
+            "tier_name": "Muse",
+            "description": "A tier for your most-loved beauty rituals.",
+            "list_items": "2x points on select launches\nVIP offers\nExclusive gifts",
+            "label": "Most popular",
+            "button_text": "Free to join",
+            "highlight": true
+          }
+        },
+        "tier_3": {
+          "type": "tier",
+          "settings": {
+            "icon": "diamond",
+            "tier_name": "Elite",
+            "description": "For high-glow members who want the full experience.",
+            "list_items": "3x points events\nPriority rewards\nBirthday surprise",
+            "button_text": "Start earning",
+            "highlight": false
+          }
+        }
+      },
+      "block_order": [
+        "tier_1",
+        "tier_2",
+        "tier_3"
+      ],
+      "settings": {
+        "heading": "Choose your glow journey",
+        "subheading": "The more you glow, the more you unlock.",
+        "background_color": "#fff4ef",
+        "card_background": "#fff4f3",
+        "card_text_color": "#171012",
+        "highlight_background": "#b64b70",
+        "highlight_text_color": "#ffffff",
+        "heading_size": 36,
+        "subheading_size": 16,
+        "body_size": 15,
+        "card_alignment": "left",
+        "card_gap": 18,
+        "padding_top": 32,
+        "padding_bottom": 48
+      }
+    },
+    "aura_beauty_community": {
+      "type": "aura-beauty-community",
+      "blocks": {
+        "testimonial_1": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Aura Society rewards made every purchase feel even more exciting.",
+            "author": "Olivia P.",
+            "rating": 5
+          }
+        },
+        "testimonial_2": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "I love the early access and birthday gift. It feels so elevated.",
+            "author": "Sonia M.",
+            "rating": 5
+          }
+        },
+        "testimonial_3": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Referral rewards are such a fun bonus, and the products are incredible.",
+            "author": "Mia T.",
+            "rating": 5
+          }
+        },
+        "testimonial_4": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "A premium beauty experience that actually gives something back.",
+            "author": "Noa R.",
+            "rating": 5
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_1",
+        "testimonial_2",
+        "testimonial_3",
+        "testimonial_4"
+      ],
+      "settings": {
+        "eyebrow": "More than skincare",
+        "heading": "It's a beauty\ncommunity.",
+        "body": "<p>Real results, real people, real glow. See what our members are saying.</p>",
+        "button_text": "Join the community",
+        "button_link": "/",
+        "background_color": "#ffffff",
+        "card_background": "#fff3f4",
+        "card_text_color": "#171012",
+        "arrow_background": "#ffffff",
+        "arrow_color": "#813952",
+        "image_ratio": "portrait",
+        "desktop_behavior": "grid",
+        "show_arrows": true,
+        "heading_size": 36,
+        "body_size": 15,
+        "card_gap": 18,
+        "padding_top": 32,
+        "padding_bottom": 48
+      }
+    },
+    "aura_how_it_works": {
+      "type": "aura-how-it-works",
+      "blocks": {
+        "step_1": {
+          "type": "step",
+          "settings": {
+            "icon": "sparkle",
+            "step_number": "1. Join",
+            "heading": "Join",
+            "text": "Sign up for free and start collecting points instantly."
+          }
+        },
+        "step_2": {
+          "type": "step",
+          "settings": {
+            "icon": "bag",
+            "step_number": "2. Shop & earn",
+            "heading": "Shop & earn",
+            "text": "Earn points every time you purchase your skincare favorites."
+          }
+        },
+        "step_3": {
+          "type": "step",
+          "settings": {
+            "icon": "crown",
+            "step_number": "3. Unlock perks",
+            "heading": "Unlock perks",
+            "text": "Move up tiers to unlock exclusive beauty experiences."
+          }
+        },
+        "step_4": {
+          "type": "step",
+          "settings": {
+            "icon": "gift",
+            "step_number": "4. Redeem rewards",
+            "heading": "Redeem rewards",
+            "text": "Use your points for curated rewards, credits, and gifts."
+          }
+        }
+      },
+      "block_order": [
+        "step_1",
+        "step_2",
+        "step_3",
+        "step_4"
+      ],
+      "settings": {
+        "heading": "How Aura Society works",
+        "show_connector_line": true,
+        "mobile_stacked": true,
+        "background_color": "#fff8f5",
+        "icon_background": "#fff0f3",
+        "icon_color": "#dd6f8e",
+        "line_color": "#e0b4c3",
+        "heading_size": 30,
+        "body_size": 15,
+        "step_gap": 18,
+        "padding_top": 28,
+        "padding_bottom": 44
+      }
+    },
+    "aura_mobile_app": {
+      "type": "aura-mobile-app",
+      "blocks": {
+        "feature_1": {
+          "type": "feature",
+          "settings": {
+            "icon": "points",
+            "text": "Track your points and tier progress"
+          }
+        },
+        "feature_2": {
+          "type": "feature",
+          "settings": {
+            "icon": "gift",
+            "text": "Discover exclusive rewards and beauty drops"
+          }
+        },
+        "feature_3": {
+          "type": "feature",
+          "settings": {
+            "icon": "community",
+            "text": "Refer friends and unlock more perks"
+          }
+        }
+      },
+      "block_order": [
+        "feature_1",
+        "feature_2",
+        "feature_3"
+      ],
+      "settings": {
+        "image_position": "left",
+        "background_style": "gradient",
+        "background_color": "#fff8f5",
+        "accent_color": "#ffdfe7",
+        "eyebrow": "Your rewards, anytime",
+        "heading": "The Aura Society experience\nright in your pocket",
+        "body": "<p>Track your points, refer friends, unlock VIP moments, and discover curated rewards in one elegant place.</p>",
+        "app_store_link": "/",
+        "google_play_link": "/",
+        "heading_size": 34,
+        "body_size": 15,
+        "padding_top": 40,
+        "padding_bottom": 48
+      }
+    },
+    "aura_cta": {
+      "type": "aura-cta",
+      "settings": {
+        "background_style": "gradient",
+        "background_color": "#d86f8a",
+        "accent_color": "#9d3a63",
+        "overlay_color": "#6a3248",
+        "overlay_opacity": 25,
+        "alignment": "center",
+        "section_height": "large",
+        "heading": "Ready to unlock\nyour glow?",
+        "subheading": "<p>Join Aura Society and discover rewards for every beauty ritual.</p>",
+        "button_text": "Join Aura Society free",
+        "button_link": "/collections/all",
+        "secondary_link_text": "Learn about membership",
+        "secondary_link_url": "/",
+        "heading_size": 42,
+        "subheading_size": 16,
+        "button_background": "#ffffff",
+        "button_text_color": "#7b3f58",
+        "link_color": "#ffffff",
+        "padding_top": 52,
+        "padding_bottom": 52
+      }
     }
   },
   "order": [
-    "main"
+    "aura_hero_banner",
+    "aura_benefits",
+    "aura_product_earn",
+    "aura_glow_journey",
+    "aura_beauty_community",
+    "aura_how_it_works",
+    "aura_mobile_app",
+    "aura_cta"
   ]
 }

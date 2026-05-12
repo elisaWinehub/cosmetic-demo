@@ -1,0 +1,1003 @@
+{% liquid
+  if section.settings.background_style == 'gradient'
+    capture section_background
+      echo 'radial-gradient(circle at 83% 40%, rgba(219, 112, 137, 0.38), transparent 28%), radial-gradient(circle at 70% 18%, rgba(255, 185, 198, 0.7), transparent 34%), linear-gradient(100deg, '
+      echo section.settings.background_color
+      echo ' 0%, '
+      echo section.settings.accent_color
+      echo ' 56%, #ffdfe7 100%)'
+    endcapture
+  else
+    assign section_background = section.settings.background_color
+  endif
+
+  assign hero_class = 'aura-hero-' | append: section.id
+%}
+
+<section
+  class="aura-hero full-width {{ hero_class }}{% if section.settings.reverse_layout %} aura-hero--reverse{% endif %} aura-hero--{{ section.settings.text_alignment }}"
+  style="
+    --aura-hero-background: {{ section_background }};
+    --aura-hero-content-width: {{ section.settings.content_width }}px;
+    --aura-hero-padding-top: {{ section.settings.padding_top_desktop }}px;
+    --aura-hero-padding-bottom: {{ section.settings.padding_bottom_desktop }}px;
+    --aura-hero-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --aura-hero-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --aura-hero-heading-size: {{ section.settings.heading_font_size }}px;
+    --aura-hero-heading-weight: {{ section.settings.heading_font_weight }};
+    --aura-hero-heading-line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }};
+    --aura-hero-heading-letter-spacing: {{ section.settings.heading_letter_spacing }}px;
+    --aura-hero-body-size: {{ section.settings.body_font_size }}px;
+    --aura-hero-body-weight: {{ section.settings.body_font_weight }};
+    --aura-hero-body-line-height: {{ section.settings.body_line_height | divided_by: 100.0 }};
+    --aura-hero-body-letter-spacing: {{ section.settings.body_letter_spacing }}px;
+    --aura-hero-button-size: {{ section.settings.button_font_size }}px;
+    --aura-hero-button-weight: {{ section.settings.button_font_weight }};
+    --aura-hero-button-letter-spacing: {{ section.settings.button_letter_spacing }}px;
+    --aura-hero-card-background: {{ section.settings.card_background }};
+    --aura-hero-card-foreground: {{ section.settings.card_foreground }};
+    --aura-hero-button-background: {{ section.settings.primary_button_background }};
+    --aura-hero-button-foreground: {{ section.settings.primary_button_foreground }};
+    --aura-hero-secondary-background: {{ section.settings.secondary_button_background }};
+    --aura-hero-secondary-foreground: {{ section.settings.secondary_button_foreground }};
+    --aura-hero-min-height: {{ section.settings.min_height_desktop }}px;
+    --aura-hero-min-height-mobile: {{ section.settings.min_height_mobile }}px;
+  "
+>
+  <div class="aura-hero__shell">
+    <div class="aura-hero__grid">
+      <div class="aura-hero__content">
+        {% if section.settings.eyebrow != blank %}
+          <p class="aura-hero__eyebrow">
+            <span class="aura-hero__eyebrow-icon">{% render 'aura-icon', icon: 'sparkle' %}</span>
+            {{ section.settings.eyebrow | escape }}
+          </p>
+        {% endif %}
+
+        {% if section.settings.heading != blank %}
+          <h1 class="aura-hero__heading">{{ section.settings.heading | escape | newline_to_br }}</h1>
+        {% endif %}
+
+        {% if section.settings.body != blank %}
+          <div class="aura-hero__body rte">{{ section.settings.body }}</div>
+        {% endif %}
+
+        <div class="aura-hero__actions">
+          {% if section.settings.primary_button_text != blank %}
+            <a class="aura-hero__button aura-hero__button--primary" href="{{ section.settings.primary_button_link | default: '#' }}">
+              {{ section.settings.primary_button_text | escape }}
+            </a>
+          {% endif %}
+
+          {% if section.settings.secondary_button_text != blank %}
+            <a class="aura-hero__button aura-hero__button--secondary" href="{{ section.settings.secondary_button_link | default: '#' }}">
+              {{ section.settings.secondary_button_text | escape }}
+            </a>
+          {% endif %}
+        </div>
+
+        {% if section.settings.social_proof != blank %}
+          <div class="aura-hero__social-proof">
+            <div class="aura-hero__avatars" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="aura-hero__social-text rte">{{ section.settings.social_proof }}</div>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="aura-hero__media">
+        <div class="aura-hero__media-shell">
+          <div class="aura-hero__stage"></div>
+          <div class="aura-hero__orb aura-hero__orb--one"></div>
+          <div class="aura-hero__orb aura-hero__orb--two"></div>
+
+          {% if section.settings.desktop_image != blank %}
+            <picture class="aura-hero__picture">
+              {% if section.settings.mobile_image != blank %}
+                <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 960 }}">
+              {% endif %}
+              {{ section.settings.desktop_image | image_url: width: 1800 | image_tag: class: 'aura-hero__image', loading: 'eager' }}
+            </picture>
+          {% else %}
+            <div class="aura-hero__mock-products" aria-hidden="true">
+              <div class="aura-hero__product aura-hero__product--bottle">
+                <span>Aura<br>Society</span>
+              </div>
+              <div class="aura-hero__product aura-hero__product--tube">
+                <span>Aura<br>Society</span>
+              </div>
+              <div class="aura-hero__product aura-hero__product--jar">
+                <span>Aura Society</span>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if section.settings.show_floating_cards and section.blocks.size > 0 %}
+            <div class="aura-hero__floating-cards">
+              {% for block in section.blocks %}
+                <div class="aura-hero__floating-card aura-hero__floating-card--{{ block.settings.position }}" {{ block.shopify_attributes }}>
+                  <div class="aura-hero__floating-icon">
+                    {% render 'aura-icon', icon: block.settings.icon %}
+                  </div>
+                  <div class="aura-hero__floating-copy">
+                    {% if block.settings.eyebrow != blank %}
+                      <p class="aura-hero__floating-eyebrow">{{ block.settings.eyebrow | escape }}</p>
+                    {% endif %}
+                    {% if block.settings.heading != blank %}
+                      <p class="aura-hero__floating-heading">{{ block.settings.heading | escape }}</p>
+                    {% endif %}
+                    {% if block.settings.text != blank %}
+                      <p class="aura-hero__floating-text">{{ block.settings.text | escape }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  .{{ hero_class }} {
+    background: var(--aura-hero-background);
+    color: #171012;
+    overflow: hidden;
+  }
+
+  .{{ hero_class }} .aura-hero__shell {
+    width: min(1160px, calc(100% - 48px));
+    margin: 0 auto;
+    padding-top: var(--aura-hero-padding-top);
+    padding-bottom: var(--aura-hero-padding-bottom);
+  }
+
+  .{{ hero_class }} .aura-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
+    align-items: center;
+    gap: clamp(2rem, 4vw, 4rem);
+    min-height: var(--aura-hero-min-height);
+  }
+
+  .{{ hero_class }}.aura-hero--reverse .aura-hero__grid {
+    grid-template-columns: minmax(0, 0.55fr) minmax(0, 0.45fr);
+  }
+
+  .{{ hero_class }} .aura-hero__content {
+    max-width: min(100%, var(--aura-hero-content-width));
+  }
+
+  .{{ hero_class }} .aura-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.6rem 0.95rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.68);
+    color: #dd6f8e;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .{{ hero_class }} .aura-hero__eyebrow-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .{{ hero_class }} .aura-hero__heading {
+    margin: 1.6rem 0 1.3rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(3.5rem, var(--aura-hero-heading-size), 5.9rem);
+    font-weight: var(--aura-hero-heading-weight);
+    line-height: var(--aura-hero-heading-line-height);
+    letter-spacing: var(--aura-hero-heading-letter-spacing);
+    color: #171012;
+    text-wrap: balance;
+  }
+
+  .{{ hero_class }} .aura-hero__body {
+    max-width: 34rem;
+    color: #3c3035;
+    font-size: var(--aura-hero-body-size);
+    font-weight: var(--aura-hero-body-weight);
+    line-height: var(--aura-hero-body-line-height);
+    letter-spacing: var(--aura-hero-body-letter-spacing);
+  }
+
+  .{{ hero_class }} .aura-hero__body p + p {
+    margin-top: 0.8rem;
+  }
+
+  .{{ hero_class }} .aura-hero__actions {
+    display: flex;
+    gap: 1rem;
+    margin: 1.8rem 0 1.9rem;
+    flex-wrap: wrap;
+  }
+
+  .{{ hero_class }} .aura-hero__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    padding: 0 2rem;
+    border-radius: 0.3rem;
+    border: 1px solid #b64b70;
+    font-size: var(--aura-hero-button-size);
+    font-weight: 900;
+    letter-spacing: var(--aura-hero-button-letter-spacing);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .{{ hero_class }} .aura-hero__button:hover {
+    transform: translateY(-1px);
+  }
+
+  .{{ hero_class }} .aura-hero__button--primary {
+    background: var(--aura-hero-button-background);
+    color: var(--aura-hero-button-foreground);
+    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.16);
+  }
+
+  .{{ hero_class }} .aura-hero__button--secondary {
+    background: var(--aura-hero-secondary-background);
+    color: var(--aura-hero-secondary-foreground);
+  }
+
+  .{{ hero_class }} .aura-hero__social-proof {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #6f5b63;
+    font-size: 0.9rem;
+  }
+
+  .{{ hero_class }} .aura-hero__avatars {
+    display: flex;
+  }
+
+  .{{ hero_class }} .aura-hero__avatars span {
+    width: 2.2rem;
+    height: 2.2rem;
+    margin-left: -0.5rem;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: linear-gradient(135deg, #6d3b2e, #f2c3b1);
+    box-shadow: 0 8px 18px rgba(129, 57, 82, 0.12);
+  }
+
+  .{{ hero_class }} .aura-hero__avatars span:first-child {
+    margin-left: 0;
+  }
+
+  .{{ hero_class }} .aura-hero__avatars span:nth-child(2) {
+    background: linear-gradient(135deg, #8b4d3f, #f3d0c3);
+  }
+
+  .{{ hero_class }} .aura-hero__avatars span:nth-child(3) {
+    background: linear-gradient(135deg, #5a2f27, #f4b1ac);
+  }
+
+  .{{ hero_class }} .aura-hero__avatars span:nth-child(4) {
+    background: linear-gradient(135deg, #7d4a42, #f0c9be);
+  }
+
+  .{{ hero_class }} .aura-hero__social-text strong {
+    color: #171012;
+  }
+
+  .{{ hero_class }} .aura-hero__media {
+    min-width: 0;
+  }
+
+  .{{ hero_class }} .aura-hero__media-shell {
+    position: relative;
+    min-height: 30rem;
+    isolation: isolate;
+  }
+
+  .{{ hero_class }} .aura-hero__stage {
+    position: absolute;
+    inset: 4.4rem 2.5rem 0 1.25rem;
+    border-radius: 50% 50% 18% 18%;
+    background: radial-gradient(circle at 45% 35%, rgba(255, 255, 255, 0.82), transparent 25%), linear-gradient(135deg, rgba(206, 92, 124, 0.22), rgba(255, 255, 255, 0.14));
+  }
+
+  .{{ hero_class }} .aura-hero__orb {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(198, 58, 102, 0.72), rgba(255, 214, 220, 0.7));
+    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
+    z-index: 1;
+  }
+
+  .{{ hero_class }} .aura-hero__orb--one {
+    width: 9.8rem;
+    height: 9.8rem;
+    left: 3rem;
+    bottom: 3.8rem;
+  }
+
+  .{{ hero_class }} .aura-hero__orb--two {
+    width: 12rem;
+    height: 12rem;
+    right: 0;
+    top: 8rem;
+    opacity: 0.78;
+  }
+
+  .{{ hero_class }} .aura-hero__picture {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    max-width: 38rem;
+    margin: 0 auto;
+  }
+
+  .{{ hero_class }} .aura-hero__image {
+    width: 100%;
+    max-height: 35rem;
+    object-fit: contain;
+    filter: drop-shadow(0 28px 60px rgba(80, 40, 45, 0.16));
+  }
+
+  .{{ hero_class }} .aura-hero__mock-products {
+    position: relative;
+    z-index: 2;
+    min-height: 30rem;
+  }
+
+  .{{ hero_class }} .aura-hero__product {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(134, 72, 74, 0.16);
+    color: rgba(60, 25, 30, 0.62);
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 0.12em;
+    text-align: center;
+    background: linear-gradient(90deg, #f7c1b4, #fff6ee 38%, #c77d73 100%);
+    box-shadow: 0 30px 70px rgba(80, 40, 45, 0.16);
+  }
+
+  .{{ hero_class }} .aura-hero__product span {
+    pointer-events: none;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .{{ hero_class }} .aura-hero__product--bottle {
+    width: 6.75rem;
+    height: 16rem;
+    left: 8.5rem;
+    bottom: 3.6rem;
+    border-radius: 1.1rem 1.1rem 1.7rem 1.7rem;
+  }
+
+  .{{ hero_class }} .aura-hero__product--bottle::before {
+    content: "";
+    position: absolute;
+    top: -4.35rem;
+    width: 2.9rem;
+    height: 4.4rem;
+    border-radius: 1.45rem 1.45rem 0 0;
+    background: linear-gradient(90deg, #be8d62, #fff0d6, #9f6744);
+  }
+
+  .{{ hero_class }} .aura-hero__product--tube {
+    width: 8.2rem;
+    height: 20rem;
+    left: 17.1rem;
+    bottom: 4.7rem;
+    border-radius: 4.3rem 4.3rem 1.35rem 1.35rem;
+    background: linear-gradient(90deg, #d08382, #f8c4bb, #b46568);
+  }
+
+  .{{ hero_class }} .aura-hero__product--jar {
+    width: 15rem;
+    height: 7.4rem;
+    right: 4.5rem;
+    bottom: 4.35rem;
+    border-radius: 1.45rem 1.45rem 2.8rem 2.8rem;
+    background: linear-gradient(90deg, #f8d8c8, #fff9f3, #d7a786);
+  }
+
+  .{{ hero_class }} .aura-hero__product--jar::before {
+    content: "";
+    position: absolute;
+    top: -2.15rem;
+    width: 13.7rem;
+    height: 2.9rem;
+    border-radius: 1rem;
+    background: linear-gradient(90deg, #a8754f, #ffe8bd, #8d5b40);
+  }
+
+  .{{ hero_class }} .aura-hero__floating-cards {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card {
+    position: absolute;
+    min-width: 11rem;
+    max-width: 13.5rem;
+    padding: 1rem 1.15rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: var(--aura-hero-card-background);
+    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
+    backdrop-filter: blur(12px);
+    color: var(--aura-hero-card-foreground);
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--top-right {
+    top: 1.5rem;
+    right: 3.75rem;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--middle-left {
+    top: 10.75rem;
+    right: 3.95rem;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--bottom-right {
+    right: 0;
+    bottom: 4.7rem;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--bottom-left {
+    left: 0;
+    bottom: 3rem;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-icon {
+    width: 1.65rem;
+    height: 1.65rem;
+    margin-bottom: 0.45rem;
+    color: #b64b70;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-eyebrow {
+    color: #dd6f8e;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-heading {
+    margin-top: 0.15rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.9rem;
+    line-height: 1;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--middle-left .aura-hero__floating-heading,
+  .{{ hero_class }} .aura-hero__floating-card--bottom-right .aura-hero__floating-heading,
+  .{{ hero_class }} .aura-hero__floating-card--bottom-left .aura-hero__floating-heading {
+    font-family: var(--font-primary--family);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-text {
+    margin-top: 0.1rem;
+    color: #6f5b63;
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 989px) {
+    .{{ hero_class }} .aura-hero__grid,
+    .{{ hero_class }}.aura-hero--reverse .aura-hero__grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      min-height: auto;
+    }
+
+    .{{ hero_class }} .aura-hero__content {
+      max-width: none;
+    }
+
+    .{{ hero_class }} .aura-hero__media-shell {
+      min-height: 26rem;
+    }
+
+    .{{ hero_class }} .aura-hero__product--bottle {
+      left: 4.2rem;
+    }
+
+    .{{ hero_class }} .aura-hero__product--tube {
+      left: 12.5rem;
+    }
+
+    .{{ hero_class }} .aura-hero__product--jar {
+      right: 2rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card--middle-left {
+      top: 9.75rem;
+      right: 1rem;
+      left: auto;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .{{ hero_class }} .aura-hero__shell {
+      width: min(1160px, calc(100% - 32px));
+      padding-top: var(--aura-hero-padding-top-mobile);
+      padding-bottom: var(--aura-hero-padding-bottom-mobile);
+    }
+
+    .{{ hero_class }} .aura-hero__grid {
+      min-height: var(--aura-hero-min-height-mobile);
+    }
+
+    .{{ hero_class }} .aura-hero__heading {
+      font-size: min(calc(var(--aura-hero-heading-size) * 0.7), 4rem);
+    }
+
+    .{{ hero_class }} .aura-hero__button {
+      width: 100%;
+    }
+
+    .{{ hero_class }} .aura-hero__social-proof {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .{{ hero_class }} .aura-hero__media-shell {
+      min-height: 20rem;
+      transform: scale(0.9);
+      transform-origin: top center;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-cards {
+      display: none;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Aura hero banner",
+  "tag": "section",
+  "class": "section-aura-hero-banner",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "Loyalty. Rewards. Beauty."
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Glow more.\nEarn more."
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Rich text",
+      "default": "<p>Join Aura Society and unlock exclusive rewards, VIP perks, birthday gifts, referrals, and member-only beauty drops.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "social_proof",
+      "label": "Member social proof",
+      "default": "<p>Join 20,000+ members and start earning rewards today.</p>"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_text",
+      "label": "Primary button text",
+      "default": "Join Aura Society"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "label": "Secondary button text",
+      "default": "Explore products"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "label": "Secondary button link"
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_floating_cards",
+      "label": "Show floating cards",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "reverse_layout",
+      "label": "Reverse layout",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Content width",
+      "min": 360,
+      "max": 760,
+      "step": 20,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "min_height_desktop",
+      "label": "Minimum height desktop",
+      "min": 540,
+      "max": 860,
+      "step": 10,
+      "unit": "px",
+      "default": 650
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "label": "Minimum height mobile",
+      "min": 420,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "default": 520
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "select",
+      "id": "background_style",
+      "label": "Background style",
+      "default": "gradient",
+      "options": [
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "solid", "label": "Solid" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fbf1f3"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#f4d7df"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Floating card background",
+      "default": "#fff8f8"
+    },
+    {
+      "type": "color",
+      "id": "card_foreground",
+      "label": "Floating card text color",
+      "default": "#4a2a38"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_background",
+      "label": "Primary button background",
+      "default": "#8a3f5c"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_foreground",
+      "label": "Primary button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_background",
+      "label": "Secondary button background",
+      "default": "#fff6f7"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_foreground",
+      "label": "Secondary button text",
+      "default": "#633348"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "min": 36,
+      "max": 90,
+      "step": 2,
+      "unit": "px",
+      "default": 68
+    },
+    {
+      "type": "range",
+      "id": "heading_font_weight",
+      "label": "Heading weight",
+      "min": 400,
+      "max": 800,
+      "step": 100,
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "label": "Heading line height",
+      "min": 80,
+      "max": 140,
+      "step": 5,
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "heading_letter_spacing",
+      "label": "Heading letter spacing",
+      "min": -2,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "default": -1
+    },
+    {
+      "type": "range",
+      "id": "body_font_size",
+      "label": "Body size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "body_font_weight",
+      "label": "Body weight",
+      "min": 300,
+      "max": 700,
+      "step": 100,
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "body_line_height",
+      "label": "Body line height",
+      "min": 120,
+      "max": 200,
+      "step": 5,
+      "default": 160
+    },
+    {
+      "type": "range",
+      "id": "body_letter_spacing",
+      "label": "Body letter spacing",
+      "min": -1,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Button size",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "button_font_weight",
+      "label": "Button weight",
+      "min": 400,
+      "max": 800,
+      "step": 100,
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "button_letter_spacing",
+      "label": "Button letter spacing",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Top padding desktop",
+      "min": 24,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Bottom padding desktop",
+      "min": 24,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding mobile",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding mobile",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "reward_card",
+      "name": "Floating reward card",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "gift",
+          "options": [
+            { "value": "points", "label": "Points" },
+            { "value": "crown", "label": "Crown" },
+            { "value": "gift", "label": "Gift" },
+            { "value": "heart", "label": "Heart" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow",
+          "default": "Rewards"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "250 points"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Glow points earned"
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "Desktop position",
+          "default": "top-right",
+          "options": [
+            { "value": "top-right", "label": "Top right" },
+            { "value": "middle-left", "label": "Middle left" },
+            { "value": "bottom-right", "label": "Bottom right" },
+            { "value": "bottom-left", "label": "Bottom left" }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Aura hero banner",
+      "blocks": [
+        {
+          "type": "reward_card",
+          "settings": {
+            "icon": "points",
+            "eyebrow": "You earned",
+            "heading": "250 glow points",
+            "text": "From your latest order",
+            "position": "top-right"
+          }
+        },
+        {
+          "type": "reward_card",
+          "settings": {
+            "icon": "crown",
+            "eyebrow": "VIP tier",
+            "heading": "Unlocked",
+            "text": "Welcome to Muse",
+            "position": "middle-left"
+          }
+        },
+        {
+          "type": "reward_card",
+          "settings": {
+            "icon": "gift",
+            "eyebrow": "Refer a friend",
+            "heading": "Get $20",
+            "text": "Reward credit for every referral",
+            "position": "bottom-right"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

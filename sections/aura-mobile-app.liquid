@@ -1,0 +1,488 @@
+{% liquid
+  if section.settings.background_style == 'gradient'
+    capture section_background
+      echo 'linear-gradient(100deg, '
+      echo section.settings.background_color
+      echo ', '
+      echo section.settings.accent_color
+      echo ')'
+    endcapture
+  else
+    assign section_background = section.settings.background_color
+  endif
+
+  assign mobile_class = 'aura-mobile-app-' | append: section.id
+%}
+
+<section
+  class="aura-mobile-app full-width {{ mobile_class }}{% if section.settings.image_position == 'right' %} aura-mobile-app--reverse{% endif %}"
+  style="
+    --aura-mobile-app-background: {{ section_background }};
+    --aura-mobile-app-heading-size: {{ section.settings.heading_size }}px;
+    --aura-mobile-app-body-size: {{ section.settings.body_size }}px;
+    --aura-mobile-app-padding-top: {{ section.settings.padding_top }}px;
+    --aura-mobile-app-padding-bottom: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="aura-mobile-app__inner">
+    <div class="aura-mobile-app__media">
+      <div class="aura-mobile-app__media-shell">
+        {% if section.settings.image != blank %}
+          {{ section.settings.image | image_url: width: 1200 | image_tag: class: 'aura-mobile-app__image' }}
+        {% else %}
+          <div class="aura-mobile-app__phones" aria-hidden="true">
+            <div class="aura-mobile-app__phone">
+              <div class="aura-mobile-app__screen">
+                <strong>Hello, Glow Getter</strong>
+                <div class="aura-mobile-app__points-big">2,450</div>
+                <span>Glow points</span>
+                <hr>
+                <p>Recent activity</p>
+                <p>Order #1134 +250 pts</p>
+              </div>
+            </div>
+            <div class="aura-mobile-app__phone">
+              <div class="aura-mobile-app__screen">
+                <strong>Rewards</strong>
+                <p>Ready to redeem</p>
+                <hr>
+                <p>$10 Off treatment</p>
+                <p>5,000 Points</p>
+                <p>Free shipping</p>
+                <p>750 Points</p>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="aura-mobile-app__content">
+      {% if section.settings.eyebrow != blank %}
+        <p class="aura-mobile-app__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2 class="aura-mobile-app__heading">{{ section.settings.heading | escape | newline_to_br }}</h2>
+      {% endif %}
+
+      {% if section.settings.body != blank %}
+        <div class="aura-mobile-app__body rte">{{ section.settings.body }}</div>
+      {% endif %}
+
+      <ul class="aura-mobile-app__features" role="list">
+        {% for block in section.blocks %}
+          <li class="aura-mobile-app__feature" {{ block.shopify_attributes }}>
+            <span class="aura-mobile-app__feature-icon">
+              {% if block.settings.custom_svg != blank %}
+                {{ block.settings.custom_svg }}
+              {% else %}
+                {% render 'aura-icon', icon: block.settings.icon %}
+              {% endif %}
+            </span>
+            <span>{{ block.settings.text | escape }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="aura-mobile-app__badges">
+        {% if section.settings.app_store_link != blank %}
+          <a class="aura-mobile-app__badge" href="{{ section.settings.app_store_link }}">
+            {% if section.settings.app_store_badge != blank %}
+              {{ section.settings.app_store_badge | image_url: width: 320 | image_tag: class: 'aura-mobile-app__badge-image' }}
+            {% else %}
+              <span>{{ 'sections.aura_mobile_app.app_store' | t }}</span>
+            {% endif %}
+          </a>
+        {% endif %}
+
+        {% if section.settings.google_play_link != blank %}
+          <a class="aura-mobile-app__badge" href="{{ section.settings.google_play_link }}">
+            {% if section.settings.google_play_badge != blank %}
+              {{ section.settings.google_play_badge | image_url: width: 320 | image_tag: class: 'aura-mobile-app__badge-image' }}
+            {% else %}
+              <span>{{ 'sections.aura_mobile_app.google_play' | t }}</span>
+            {% endif %}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  .{{ mobile_class }} {
+    background: var(--aura-mobile-app-background);
+    overflow: hidden;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: center;
+    width: min(1160px, calc(100% - 48px));
+    margin: 0 auto;
+    padding-top: var(--aura-mobile-app-padding-top);
+    padding-bottom: var(--aura-mobile-app-padding-bottom);
+  }
+
+  .{{ mobile_class }}.aura-mobile-app--reverse .aura-mobile-app__media {
+    order: 2;
+  }
+
+  .{{ mobile_class }}.aura-mobile-app--reverse .aura-mobile-app__content {
+    order: 1;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__media-shell {
+    position: relative;
+    min-height: 22.5rem;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__image {
+    width: 100%;
+    border-radius: 1.5rem;
+    object-fit: cover;
+    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__phones {
+    height: 22.5rem;
+    position: relative;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__phone {
+    position: absolute;
+    width: 12.8rem;
+    height: 21.8rem;
+    padding: 0.75rem;
+    border-radius: 2rem;
+    background: #171012;
+    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
+    transform: rotate(-9deg);
+    left: 4rem;
+    top: 0.8rem;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__phone:nth-child(2) {
+    left: 13.7rem;
+    top: 2.2rem;
+    transform: rotate(3deg);
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__screen {
+    height: 100%;
+    padding: 1.2rem 1rem;
+    border-radius: 1.45rem;
+    background: #fff7f7;
+    color: #171012;
+    font-size: 0.82rem;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__screen strong {
+    display: block;
+    margin-bottom: 0.55rem;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__screen hr {
+    border: 0;
+    border-top: 1px solid rgba(129, 57, 82, 0.14);
+    margin: 0.9rem 0;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__screen p {
+    margin: 0.2rem 0;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__points-big {
+    margin: 1.25rem 0 0.4rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2.6rem;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__eyebrow {
+    color: #dd6f8e;
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__heading {
+    margin-top: 0.9rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--aura-mobile-app-heading-size);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: #171012;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__body {
+    margin-top: 0.9rem;
+    color: #382b31;
+    font-size: var(--aura-mobile-app-body-size);
+    line-height: 1.65;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__features {
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__feature {
+    display: flex;
+    gap: 0.75rem;
+    line-height: 2;
+    color: #382b31;
+    font-weight: 600;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__feature-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.5rem;
+    color: #dd6f8e;
+    flex: 0 0 auto;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__badges {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0.7rem 1rem;
+    border-radius: 0.45rem;
+    background: #080808;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .{{ mobile_class }} .aura-mobile-app__badge-image {
+    max-height: 2.6rem;
+    width: auto;
+  }
+
+  @media (max-width: 989px) {
+    .{{ mobile_class }} .aura-mobile-app__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .{{ mobile_class }} .aura-mobile-app__inner {
+      width: min(1160px, calc(100% - 32px));
+    }
+
+    .{{ mobile_class }} .aura-mobile-app__heading {
+      font-size: min(calc(var(--aura-mobile-app-heading-size) * 0.84), 2.3rem);
+    }
+
+    .{{ mobile_class }} .aura-mobile-app__phones {
+      transform: scale(0.82);
+      transform-origin: top left;
+    }
+
+    .{{ mobile_class }} .aura-mobile-app__badges {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Aura mobile app",
+  "tag": "section",
+  "class": "section-aura-mobile-app",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "background_style",
+      "label": "Background style",
+      "default": "gradient",
+      "options": [
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "solid", "label": "Solid" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fdf3f4"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#f3d0db"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Phone image"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Your rewards, anytime"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The Aura Society experience\nright in your pocket"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body",
+      "default": "<p>Track your points, refer friends, unlock VIP moments, and discover curated rewards in one elegant place.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "app_store_badge",
+      "label": "App Store badge image"
+    },
+    {
+      "type": "url",
+      "id": "app_store_link",
+      "label": "App Store link"
+    },
+    {
+      "type": "image_picker",
+      "id": "google_play_badge",
+      "label": "Google Play badge image"
+    },
+    {
+      "type": "url",
+      "id": "google_play_link",
+      "label": "Google Play link"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "label": "Body size",
+      "min": 13,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Bullet item",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "check",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "sparkle", "label": "Sparkle" },
+            { "value": "gift", "label": "Gift" },
+            { "value": "points", "label": "Points" },
+            { "value": "community", "label": "Community" }
+          ]
+        },
+        {
+          "type": "textarea",
+          "id": "custom_svg",
+          "label": "Custom SVG code"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Track your points and tier status in real time"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Aura mobile app",
+      "blocks": [
+        {
+          "type": "feature",
+          "settings": {
+            "icon": "points",
+            "text": "Track your points and tier progress"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "icon": "gift",
+            "text": "Discover exclusive rewards and beauty drops"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "icon": "community",
+            "text": "Refer friends and unlock more perks"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
