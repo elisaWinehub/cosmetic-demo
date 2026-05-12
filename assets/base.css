@@ -1278,6 +1278,7 @@ button.shopify-payment-button__button--unbranded {
   text-align: var(--text-align);
   color: var(--button-color);
   appearance: none;
+  background: var(--button-background, var(--button-background-color));
   background-color: var(--button-background-color);
   border: none;
   font-family: var(--font-paragraph--family);
@@ -1348,20 +1349,23 @@ input:not(:placeholder-shown)::placeholder {
 .button,
 button.shopify-payment-button__button--unbranded {
   --button-color: var(--color-primary-button-text);
+  --button-background: var(--aura-primary-button-background);
   --button-background-color: var(--color-primary-button-background);
-  --button-border-color: var(--color-primary-button-border);
+  --button-border-color: transparent;
   --button-border-width: var(--style-border-width-primary);
 }
 
 .button:hover,
 button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
   --button-color: var(--color-primary-button-hover-text);
+  --button-background: var(--aura-primary-button-hover-background);
   --button-background-color: var(--color-primary-button-hover-background);
-  --button-border-color: var(--color-primary-button-hover-border);
+  --button-border-color: transparent;
 }
 
 .button-secondary {
   --button-color: var(--color-secondary-button-text);
+  --button-background: var(--color-secondary-button-background);
   --button-background-color: var(--color-secondary-button-background);
   --button-border-color: var(--color-secondary-button-border);
   --button-border-width: var(--style-border-width-secondary);
@@ -1369,6 +1373,7 @@ button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
 
 .button-secondary:hover {
   --button-color: var(--color-secondary-button-hover-text);
+  --button-background: var(--color-secondary-button-hover-background);
   --button-background-color: var(--color-secondary-button-hover-background);
   --button-border-color: var(--color-secondary-button-hover-border);
 }

@@ -74,6 +74,9 @@
     --aura-primary-color-40: {{ aura_primary_color | color_modify: 'alpha', 0.4 }};
     --aura-secondary-color: {{ aura_secondary_color }};
     --aura-accent-color: {{ aura_accent_color }};
+    --aura-primary-gradient: linear-gradient(135deg, var(--aura-secondary-color), var(--aura-primary-color));
+    --aura-primary-button-background: var(--aura-primary-gradient);
+    --aura-primary-button-hover-background: var(--aura-primary-gradient);
     --aura-heading-color: {{ aura_heading_color }};
     --color-foreground-heading: {{ aura_heading_color }};
     --font-h1--color: {{ aura_heading_color }};
