@@ -1,13 +1,47 @@
-<header>
-  <h2 class="header__title">
-    {{ shop.name | link_to: routes.root_url }}
-  </h2>
+{% liquid
+  assign desktop_logo = settings.logo
+  if desktop_logo == blank
+    assign desktop_logo = settings.logo_mobile
+  endif
 
-  <div class="header__menu">
+  assign mobile_logo = settings.logo_mobile
+  if mobile_logo == blank
+    assign mobile_logo = desktop_logo
+  endif
+
+  assign logo_alt_text = settings.logo_alt_text | default: shop.name
+  assign logo_width_desktop = settings.logo_width | default: 180
+  assign logo_width_mobile = settings.logo_width_mobile | default: 132
+  assign logo_width_desktop_2x = logo_width_desktop | times: 2
+  assign logo_width_mobile_2x = logo_width_mobile | times: 2
+%}
+
+<header class="site-header">
+  <div class="header__brand">
+    <a
+      class="header__logo-link"
+      href="{{ routes.root_url }}"
+      aria-label="{{ shop.name | escape }}"
+      style="--header-logo-width: {{ logo_width_desktop }}px; --header-logo-width-mobile: {{ logo_width_mobile }}px;"
+    >
+      {% if desktop_logo != blank %}
+        <picture class="header__logo-picture">
+          {% if settings.logo_mobile != blank %}
+            <source media="(max-width: 749px)" srcset="{{ mobile_logo | image_url: width: logo_width_mobile_2x }}">
+          {% endif %}
+          {{ desktop_logo | image_url: width: logo_width_desktop_2x | image_tag: class: 'header__logo-image', alt: logo_alt_text }}
+        </picture>
+      {% else %}
+        <span class="header__logo-text">{{ shop.name }}</span>
+      {% endif %}
+    </a>
+  </div>
+
+  <nav class="header__menu" aria-label="Main navigation">
     {% for link in section.settings.menu.links %}
       {{ link.title | link_to: link.url }}
     {% endfor %}
-  </div>
+  </nav>
 
   <div class="header__icons">
     {% if shop.customer_accounts_enabled %}
@@ -27,13 +61,15 @@
 </header>
 
 {% stylesheet %}
-  header {
-    height: 5rem;
+  .site-header {
+    min-height: 5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1rem;
   }
-  header a {
+
+  .site-header a {
     position: relative;
     text-decoration: none;
     color: var(--color-foreground);
@@ -41,19 +77,75 @@
     align-items: center;
     justify-content: center;
   }
-  header a sup {
+
+  .site-header a sup {
     position: absolute;
     left: 100%;
     overflow: hidden;
     max-width: var(--page-margin);
   }
-  header svg {
+
+  .site-header svg {
     width: 2rem;
   }
-  header .header__menu,
-  header .header__icons {
+
+  .site-header .header__brand {
+    flex: 0 0 auto;
+  }
+
+  .site-header .header__logo-link {
+    justify-content: flex-start;
+  }
+
+  .site-header .header__logo-picture {
     display: flex;
+    align-items: center;
+  }
+
+  .site-header .header__logo-image {
+    width: var(--header-logo-width-mobile);
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+
+    @media screen and (min-width: 750px) {
+      width: var(--header-logo-width);
+    }
+  }
+
+  .site-header .header__logo-text {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.4rem, 2vw, 1.8rem);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .site-header .header__menu,
+  .site-header .header__icons {
+    display: flex;
+    align-items: center;
     gap: 1rem;
+  }
+
+  .site-header .header__menu {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  @media screen and (max-width: 749px) {
+    .site-header {
+      gap: 0.75rem;
+    }
+
+    .site-header .header__menu {
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .site-header .header__icons {
+      gap: 0.6rem;
+    }
   }
 {% endstylesheet %}
 

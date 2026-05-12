@@ -2,6 +2,9 @@
   assign primary_font_family = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
   assign primary_font_style = 'normal'
   assign primary_font_weight = 400
+  assign aura_primary_color = settings.aura_primary_color | default: '#EC008C'
+  assign aura_secondary_color = settings.aura_secondary_color | default: '#813952'
+  assign aura_accent_color = settings.aura_accent_color | default: '#FFD6EA'
 
   if settings.type_primary_font.family != blank
     capture primary_font_family
@@ -33,5 +36,12 @@
     --color-background: {{ settings.background_color | default: '#FFFFFF' }};
     --color-foreground: {{ settings.foreground_color | default: '#333333' }};
     --style-border-radius-inputs: {{ settings.input_corner_radius | default: 4 }}px;
+    --aura-primary-color: {{ aura_primary_color }};
+    --aura-primary-color-08: {{ aura_primary_color | color_modify: 'alpha', 0.08 }};
+    --aura-primary-color-12: {{ aura_primary_color | color_modify: 'alpha', 0.12 }};
+    --aura-primary-color-16: {{ aura_primary_color | color_modify: 'alpha', 0.16 }};
+    --aura-primary-color-40: {{ aura_primary_color | color_modify: 'alpha', 0.4 }};
+    --aura-secondary-color: {{ aura_secondary_color }};
+    --aura-accent-color: {{ aura_accent_color }};
   }
 {% endstyle %}

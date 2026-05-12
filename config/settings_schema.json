@@ -54,6 +54,47 @@
     ]
   },
   {
+    "name": "Header",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Desktop logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo_mobile",
+        "label": "Mobile logo"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "min": 80,
+        "max": 360,
+        "step": 4,
+        "unit": "px",
+        "label": "Logo width desktop",
+        "default": 180
+      },
+      {
+        "type": "range",
+        "id": "logo_width_mobile",
+        "min": 60,
+        "max": 280,
+        "step": 4,
+        "unit": "px",
+        "label": "Logo width mobile",
+        "default": 132
+      },
+      {
+        "type": "text",
+        "id": "logo_alt_text",
+        "label": "Logo alt text",
+        "info": "Falls back to the store name when empty."
+      }
+    ]
+  },
+  {
     "name": "t:general.colors",
     "settings": [
       {
@@ -77,6 +118,24 @@
         "unit": "px",
         "label": "t:labels.input_corner_radius",
         "default": 4
+      },
+      {
+        "type": "color",
+        "id": "aura_primary_color",
+        "default": "#EC008C",
+        "label": "Primary brand color"
+      },
+      {
+        "type": "color",
+        "id": "aura_secondary_color",
+        "default": "#813952",
+        "label": "Secondary brand color"
+      },
+      {
+        "type": "color",
+        "id": "aura_accent_color",
+        "default": "#FFD6EA",
+        "label": "Accent color"
       }
     ]
   }
