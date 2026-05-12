@@ -1312,7 +1312,7 @@ button.shopify-payment-button__button--unbranded {
     linear-gradient(var(--aura-primary-color), var(--aura-primary-color)),
     var(--button-background, var(--button-background-color));
   background-repeat: no-repeat;
-  background-position: center, center;
+  background-position: right center, center;
   background-size: 0% 100%, 100% 100%;
 }
 

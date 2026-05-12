@@ -76,7 +76,7 @@
     --aura-accent-color: {{ aura_accent_color }};
     --aura-primary-gradient: linear-gradient(135deg, var(--aura-secondary-color), var(--aura-primary-color));
     --aura-primary-button-background: var(--aura-primary-gradient);
-    --aura-primary-button-hover-background: var(--aura-primary-gradient);
+    --aura-primary-button-hover-background: linear-gradient(var(--aura-primary-color), var(--aura-primary-color));
     --aura-heading-color: {{ aura_heading_color }};
     --color-foreground-heading: {{ aura_heading_color }};
     --font-h1--color: {{ aura_heading_color }};
@@ -85,11 +85,11 @@
     --font-h4--color: {{ aura_heading_color }};
     --font-h5--color: {{ aura_heading_color }};
     --font-h6--color: {{ aura_heading_color }};
-    --color-secondary-button-text: {{ aura_secondary_color }};
-    --color-secondary-button-background: transparent;
-    --color-secondary-button-border: {{ aura_secondary_color }};
+    --color-secondary-button-text: #ffffff;
+    --color-secondary-button-background: {{ aura_heading_color }};
+    --color-secondary-button-border: {{ aura_heading_color }};
     --color-secondary-button-hover-text: #ffffff;
-    --color-secondary-button-hover-background: {{ aura_secondary_color }};
-    --color-secondary-button-hover-border: {{ aura_secondary_color }};
+    --color-secondary-button-hover-background: {{ aura_heading_color }};
+    --color-secondary-button-hover-border: {{ aura_heading_color }};
   }
 {% endstyle %}

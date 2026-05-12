@@ -272,7 +272,7 @@
     overflow: hidden;
     min-height: 3.25rem;
     padding: 0 2rem;
-    border-radius: 0.3rem;
+    border-radius: var(--style-border-radius-buttons-primary);
     border: 1px solid transparent;
     font-size: var(--aura-hero-button-size);
     font-weight: 900;
@@ -292,7 +292,7 @@
       linear-gradient(var(--aura-primary-color), var(--aura-primary-color)),
       var(--aura-primary-gradient);
     background-repeat: no-repeat;
-    background-position: center, center;
+    background-position: right center, center;
     background-size: 0% 100%, 100% 100%;
     color: var(--aura-hero-button-foreground);
     border-color: transparent;
@@ -306,7 +306,12 @@
   .{{ hero_class }} .aura-hero__button--secondary {
     background: var(--aura-hero-secondary-background);
     color: var(--aura-hero-secondary-foreground);
-    border-color: var(--aura-hero-secondary-foreground);
+    border-color: transparent;
+    border-radius: var(--style-border-radius-buttons-secondary);
+  }
+
+  .{{ hero_class }} .aura-hero__button--secondary:hover {
+    color: #ffffff;
   }
 
   .{{ hero_class }} .aura-hero__social-proof {
@@ -1026,13 +1031,13 @@
       "type": "color",
       "id": "secondary_button_background",
       "label": "Secondary button background",
-      "default": "rgba(0,0,0,0)"
+      "default": "#1B2C58"
     },
     {
       "type": "color",
       "id": "secondary_button_foreground",
       "label": "Secondary button text",
-      "default": "#43318F"
+      "default": "#ffffff"
     },
     {
       "type": "header",
