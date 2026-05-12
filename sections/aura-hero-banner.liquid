@@ -305,15 +305,21 @@
 
   .{{ hero_class }} .aura-hero__button--secondary {
     background: var(--aura-hero-secondary-background);
+    background-image:
+      linear-gradient(var(--aura-hero-secondary-foreground), var(--aura-hero-secondary-foreground)),
+      linear-gradient(var(--aura-hero-secondary-background), var(--aura-hero-secondary-background));
+    background-repeat: no-repeat;
+    background-position: right center, center;
+    background-size: 0% 100%, 100% 100%;
     color: var(--aura-hero-secondary-foreground);
     border-color: var(--aura-hero-secondary-foreground);
     border-radius: 0.3rem;
   }
 
   .{{ hero_class }} .aura-hero__button--secondary:hover {
-    background: var(--aura-hero-secondary-foreground);
     border-color: var(--aura-hero-secondary-foreground);
     color: #ffffff;
+    background-size: 100% 100%, 100% 100%;
   }
 
   .{{ hero_class }} .aura-hero__social-proof {

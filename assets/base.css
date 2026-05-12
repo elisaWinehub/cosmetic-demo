@@ -1320,6 +1320,14 @@ button.shopify-payment-button__button--unbranded {
   font-family: var(--button-font-family-secondary);
   text-transform: var(--button-text-case-secondary);
   border-radius: 0.3rem;
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(var(--color-secondary-button-hover-background), var(--color-secondary-button-hover-background)),
+    var(--button-background, var(--button-background-color));
+  background-repeat: no-repeat;
+  background-position: right center, center;
+  background-size: 0% 100%, 100% 100%;
 }
 
 button.shopify-payment-button__button--unbranded {
@@ -1390,6 +1398,7 @@ button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
   --button-background: var(--color-secondary-button-hover-background);
   --button-background-color: var(--color-secondary-button-hover-background);
   --button-border-color: var(--color-secondary-button-hover-border);
+  background-size: 100% 100%, 100% 100%;
 }
 
 /* Needed to override the default Shopify styles */
