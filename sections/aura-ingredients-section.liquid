@@ -1,20 +1,57 @@
+{% capture type_ing_heading %}
+  {%- render 'aura-product-type-fallback', product: product, part: 'ingredients_heading' -%}
+{% endcapture %}
+{% capture type_ing_intro %}
+  {%- render 'aura-product-type-fallback', product: product, part: 'ingredients_intro' -%}
+{% endcapture %}
+{% capture type_ing_list_raw %}
+  {%- render 'aura-product-type-fallback', product: product, part: 'ingredients_list' -%}
+{% endcapture %}
+{% assign type_ing_heading = type_ing_heading | strip %}
+{% assign type_ing_intro = type_ing_intro | strip %}
+{% assign type_ing_list_stripped = type_ing_list_raw | strip %}
 {% liquid
-  assign ing_class = 'aura-ingredients-' | append: section.id
-
-  assign heading = section.settings.fallback_heading
-  if product.metafields.custom.ingredients_heading.value != blank
-    assign heading = product.metafields.custom.ingredients_heading.value
+  assign serum_default_list = 'Niacinamide — Helps even skin tone and reduce the look of dark spots.||Hyaluronic Acid — Deeply hydrates and locks in moisture for plump, glowing skin.||Peony Extract — Helps soothe, brighten, and improve skin clarity.' | split: '||'
+  if type_ing_list_stripped == blank
+    assign fallback_lines = serum_default_list
+  else
+    assign fallback_lines = type_ing_list_stripped | split: '||'
   endif
 
-  assign intro = section.settings.fallback_intro
-  if product.metafields.custom.ingredients_intro.value != blank
-    assign intro = product.metafields.custom.ingredients_intro.value
+  assign ing_class = 'aura-ingredients-' | append: section.id
+
+  assign mf_heading = product.metafields.custom.ingredients_heading
+  assign heading = blank
+  if mf_heading.value != blank
+    assign heading = mf_heading.value
+  elsif mf_heading != blank
+    assign heading = mf_heading | metafield_text
+  endif
+
+  assign mf_intro = product.metafields.custom.ingredients_intro
+  assign intro = blank
+  if mf_intro.value != blank
+    assign intro = mf_intro.value
+  elsif mf_intro != blank
+    assign intro = mf_intro | metafield_text
+  endif
+
+  if heading == blank
+    assign heading = type_ing_heading
+  endif
+  if heading == blank
+    assign heading = section.settings.fallback_heading
+  endif
+
+  if intro == blank
+    assign intro = type_ing_intro
+  endif
+  if intro == blank
+    assign intro = section.settings.fallback_intro
   endif
 
   assign list_meta = product.metafields.custom.ingredients_list
   assign image_meta = product.metafields.custom.ingredients_image
-
-  assign fallback_lines = 'Niacinamide — Helps even skin tone and reduce the look of dark spots.||Hyaluronic Acid — Deeply hydrates and locks in moisture for plump, glowing skin.||Peony Extract — Helps soothe, brighten, and improve skin clarity.' | split: '||'
 
   assign ingredients_rendered = false
 %}

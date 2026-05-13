@@ -29,7 +29,24 @@
       endif
     endfor
   endif
+
+  assign product_subtitle_meta = product.metafields.custom.product_subtitle
+  assign display_subtitle = blank
+  if product_subtitle_meta.value != blank
+    assign display_subtitle = product_subtitle_meta.value | strip
+  elsif product_subtitle_meta != blank
+    assign display_subtitle = product_subtitle_meta | metafield_text | strip
+  endif
 %}
+{% if display_subtitle == blank %}
+  {% capture display_subtitle %}
+    {%- render 'aura-product-type-fallback', product: product, part: 'subtitle' -%}
+  {% endcapture %}
+  {% assign display_subtitle = display_subtitle | strip %}
+{% endif %}
+{% if display_subtitle == blank %}
+  {% assign display_subtitle = section.settings.subtitle %}
+{% endif %}
 
 <section
   class="aura-product-main {{ root_class }}"
@@ -175,8 +192,8 @@
 
         <h1 class="aura-product-main__title">{{ product.title | escape }}</h1>
 
-        {% if section.settings.subtitle != blank %}
-          <p class="aura-product-main__subtitle">{{ section.settings.subtitle | escape }}</p>
+        {% if display_subtitle != blank %}
+          <p class="aura-product-main__subtitle">{{ display_subtitle | escape }}</p>
         {% endif %}
 
         {% if section.settings.show_rating %}
@@ -544,8 +561,6 @@
   .aura-product-main__slides {
     position: relative;
     width: 100%;
-    max-width: 535px;
-    margin-inline: auto;
     height: auto;
     box-sizing: border-box;
   }
@@ -1114,13 +1129,6 @@
     .aura-product-main__main-wrap {
       order: -1;
       width: 100%;
-    }
-
-    .aura-product-main__slides {
-      max-width: 100%;
-      width: 100%;
-      margin-inline: 0;
-      height: auto;
     }
 
     .aura-product-main__thumbs {
