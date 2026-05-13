@@ -29,6 +29,8 @@
         "points_label": "Glow Points",
         "gallery_radius": 16,
         "thumbnail_radius": 12,
+        "thumbnail_size": 90,
+        "thumbnail_object_fit": "cover",
         "button_radius": 8,
         "title_size_desktop": 52,
         "title_size_mobile": 36,

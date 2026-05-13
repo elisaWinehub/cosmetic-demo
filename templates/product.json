@@ -1,20 +1,274 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "main": {
-      "type": "product",
-      "settings": {}
+    "aura_product_main": {
+      "type": "aura-product-main",
+      "settings": {
+        "section_width": 1240,
+        "background_color": "#ffffff",
+        "text_color": "#171012",
+        "heading_color": "#1B2C58",
+        "accent_color": "#EC008C",
+        "border_color": "#ead8d2",
+        "button_gradient_start": "#43318F",
+        "button_gradient_end": "#EC008C",
+        "star_color": "#EC008C",
+        "show_breadcrumbs": true,
+        "show_badge": true,
+        "badge_text": "Best seller",
+        "show_zoom_icon": true,
+        "subtitle": "Brightening • Hydrating • Radiant",
+        "show_rating": true,
+        "rating_value": "4.8",
+        "review_count": "124 reviews",
+        "show_benefits": true,
+        "benefits_metafield_namespace": "custom",
+        "benefits_metafield_key": "benefits",
+        "show_dynamic_checkout": true,
+        "show_points": true,
+        "points_multiplier": 1,
+        "points_label": "Glow Points",
+        "gallery_radius": 16,
+        "thumbnail_radius": 12,
+        "thumbnail_size": 90,
+        "thumbnail_object_fit": "cover",
+        "button_radius": 8,
+        "title_size_desktop": 52,
+        "title_size_mobile": 36,
+        "body_size": 16,
+        "button_font_size": 15,
+        "padding_top_desktop": 8,
+        "padding_bottom_desktop": 40,
+        "padding_top_mobile": 4,
+        "padding_bottom_mobile": 28
+      }
+    },
+    "aura_trust_strip": {
+      "type": "aura-trust-strip",
+      "blocks": {
+        "trust_1": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "heart",
+            "heading": "Clean & effective",
+            "text": "Thoughtfully formulated with safe ingredients."
+          }
+        },
+        "trust_2": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "community",
+            "heading": "Dermatologist tested",
+            "text": "Gentle and effective for daily use."
+          }
+        },
+        "trust_3": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "sparkle",
+            "heading": "Cruelty free",
+            "text": "Never tested on animals. Always ethical."
+          }
+        },
+        "trust_4": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "diamond",
+            "heading": "Vegan friendly",
+            "text": "No animal-derived ingredients."
+          }
+        }
+      },
+      "block_order": ["trust_1", "trust_2", "trust_3", "trust_4"],
+      "settings": {
+        "background_color": "#ffffff",
+        "icon_background": "#fff1f8",
+        "icon_color": "#EC008C",
+        "heading_color": "#1B2C58",
+        "text_color": "#626b7d",
+        "columns_desktop": "4",
+        "columns_tablet": "2",
+        "columns_mobile": "1",
+        "heading_size": 15,
+        "body_size": 13,
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "aura_ingredients": {
+      "type": "aura-ingredients-section",
+      "settings": {
+        "background_color": "#fffaf7",
+        "gradient_end_color": "#ffffff",
+        "heading_color": "#1B2C58",
+        "text_color": "#626b7d",
+        "icon_background": "#fff1f8",
+        "icon_color": "#EC008C",
+        "fallback_heading": "What makes it powerful",
+        "fallback_intro": "A blend of clinically loved ingredients that work together to brighten, hydrate, and revitalize your skin.",
+        "placeholder_label": "Lifestyle image",
+        "image_radius": 14,
+        "title_size": 34,
+        "body_size": 16,
+        "item_title_size": 16,
+        "padding_top": 52,
+        "padding_bottom": 52
+      }
+    },
+    "aura_product_reviews": {
+      "type": "aura-product-reviews",
+      "blocks": {
+        "rev_1": {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "text": "My skin looks brighter and more even after just a week. Love the lightweight feel!",
+            "author": "Olivia P."
+          }
+        },
+        "rev_2": {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "text": "So hydrating and gentle. It layers perfectly under my moisturizer.",
+            "author": "Jenna R."
+          }
+        },
+        "rev_3": {
+          "type": "review",
+          "settings": {
+            "rating": 4,
+            "text": "I've tried so many serums and this is definitely one of my favorites.",
+            "author": "Mia T."
+          }
+        }
+      },
+      "block_order": ["rev_1", "rev_2", "rev_3"],
+      "settings": {
+        "background_color": "#ffffff",
+        "heading_color": "#1B2C58",
+        "text_color": "#596173",
+        "score_color": "#9f3b2e",
+        "star_color": "#EC008C",
+        "bar_track_color": "#f8e6ef",
+        "bar_fill_color": "#d12c9b",
+        "card_background": "#ffffff",
+        "card_border_color": "#eeded8",
+        "button_border_color": "#dac8c3",
+        "button_text_color": "#252b36",
+        "heading": "Real results. Real glow.",
+        "score": "4.8",
+        "based_on": "Based on 124 reviews",
+        "button_label": "Write a review",
+        "bar_5": 86,
+        "bar_4": 10,
+        "bar_3": 3,
+        "bar_2": 1,
+        "bar_1": 0,
+        "mobile_scroll": false,
+        "heading_size": 34,
+        "score_size": 34,
+        "body_size": 16,
+        "padding_top": 44,
+        "padding_bottom": 44
+      }
+    },
+    "aura_recommend_products": {
+      "type": "aura-recommend-products",
+      "settings": {
+        "heading": "You may also love",
+        "product_limit": 6,
+        "points_multiplier": 1,
+        "points_label": "Glow Points",
+        "show_image": true,
+        "show_title": true,
+        "show_price": true,
+        "show_points_badge": true,
+        "mobile_scroll": true,
+        "background_color": "#ffffff",
+        "heading_color": "#1B2C58",
+        "accent_color": "#EC008C",
+        "badge_background": "#ffffff",
+        "points_badge_color": "#EC008C",
+        "image_ratio": "1 / 1",
+        "image_radius": 10,
+        "columns_desktop": "6",
+        "columns_tablet": "3",
+        "columns_mobile": "2",
+        "grid_gap": 24,
+        "heading_size": 34,
+        "card_title_size": 13,
+        "price_size": 13,
+        "padding_top": 40,
+        "padding_bottom": 52,
+        "placeholder_title": "Aura favorite"
+      }
+    },
+    "aura_rewards_cta": {
+      "type": "aura-rewards-cta",
+      "blocks": {
+        "perk_1": {
+          "type": "perk",
+          "settings": {
+            "icon": "sparkle",
+            "heading": "Earn points",
+            "text": "On every order"
+          }
+        },
+        "perk_2": {
+          "type": "perk",
+          "settings": {
+            "icon": "crown",
+            "heading": "Unlock perks",
+            "text": "VIP access & surprises"
+          }
+        },
+        "perk_3": {
+          "type": "perk",
+          "settings": {
+            "icon": "gift",
+            "heading": "Birthday gifts",
+            "text": "Celebrate with rewards"
+          }
+        },
+        "perk_4": {
+          "type": "perk",
+          "settings": {
+            "icon": "bag",
+            "heading": "Members only",
+            "text": "Exclusive drops"
+          }
+        }
+      },
+      "block_order": ["perk_1", "perk_2", "perk_3", "perk_4"],
+      "settings": {
+        "background_start": "#fff6f2",
+        "background_end": "#fff0f8",
+        "heading_color": "#1B2C58",
+        "text_color": "#626b7d",
+        "primary_button_start": "#43318F",
+        "primary_button_end": "#EC008C",
+        "primary_button_text": "#ffffff",
+        "secondary_button_border": "#dac8c3",
+        "secondary_button_text": "#252b36",
+        "icon_background": "#fff1f8",
+        "icon_color": "#EC008C",
+        "heading": "More glow. More rewards.",
+        "text": "Join Aura Society for exclusive perks, member-only rewards, and more.",
+        "primary_label": "Join Aura Society",
+        "secondary_label": "Learn more",
+        "heading_size": 32,
+        "body_size": 16,
+        "padding_top": 44,
+        "padding_bottom": 44
+      }
     }
   },
   "order": [
-    "main"
+    "aura_product_main",
+    "aura_trust_strip",
+    "aura_ingredients",
+    "aura_product_reviews",
+    "aura_recommend_products",
+    "aura_rewards_cta"
   ]
 }
