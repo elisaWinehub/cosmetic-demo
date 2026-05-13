@@ -67,6 +67,27 @@
     "aura_mobile_app": {
       "app_store": "App Store",
       "google_play": "Google Play"
+    },
+    "aura_product_main": {
+      "breadcrumb_aria": "Breadcrumb",
+      "home": "Home",
+      "view_image": "View image {{ index }}",
+      "media": "Media",
+      "placeholder": "Image",
+      "main_placeholder": "Product image",
+      "previous": "Previous image",
+      "next": "Next image",
+      "zoom": "Open image",
+      "lightbox_close": "Close enlarged image",
+      "lightbox_previous": "Previous image",
+      "lightbox_next": "Next image",
+      "one_time": "One-time purchase",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "quantity": "Quantity",
+      "add_to_cart": "Add to cart",
+      "sold_out": "Sold out",
+      "points_earn": "Earn {{ points }} {{ label }} with this purchase"
     }
   }
 }
