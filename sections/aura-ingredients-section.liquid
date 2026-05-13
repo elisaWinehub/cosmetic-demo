@@ -1,0 +1,393 @@
+{% liquid
+  assign ing_class = 'aura-ingredients-' | append: section.id
+
+  assign heading = section.settings.fallback_heading
+  if product.metafields.custom.ingredients_heading.value != blank
+    assign heading = product.metafields.custom.ingredients_heading.value
+  endif
+
+  assign intro = section.settings.fallback_intro
+  if product.metafields.custom.ingredients_intro.value != blank
+    assign intro = product.metafields.custom.ingredients_intro.value
+  endif
+
+  assign list_meta = product.metafields.custom.ingredients_list
+  assign image_meta = product.metafields.custom.ingredients_image
+
+  assign fallback_lines = 'Niacinamide — Helps even skin tone and reduce the look of dark spots.||Hyaluronic Acid — Deeply hydrates and locks in moisture for plump, glowing skin.||Peony Extract — Helps soothe, brighten, and improve skin clarity.' | split: '||'
+
+  assign ingredients_rendered = false
+%}
+
+<section
+  class="aura-ingredients full-width {{ ing_class }}"
+  style="
+    --ai-background: {{ section.settings.background_color }};
+    --ai-gradient-end: {{ section.settings.gradient_end_color }};
+    --ai-heading: {{ section.settings.heading_color }};
+    --ai-text: {{ section.settings.text_color }};
+    --ai-icon-bg: {{ section.settings.icon_background }};
+    --ai-icon: {{ section.settings.icon_color }};
+    --ai-radius: {{ section.settings.image_radius }}px;
+    --ai-padding-t: {{ section.settings.padding_top }}px;
+    --ai-padding-b: {{ section.settings.padding_bottom }}px;
+    --ai-title-size: {{ section.settings.title_size }}px;
+    --ai-body-size: {{ section.settings.body_size }}px;
+    --ai-item-title: {{ section.settings.item_title_size }}px;
+  "
+>
+  <div class="aura-ingredients__inner">
+    <div class="aura-ingredients__grid">
+      <div class="aura-ingredients__copy">
+        {% if heading != blank %}
+          <h2 class="aura-ingredients__heading">{{ heading | escape }}</h2>
+        {% endif %}
+        {% if intro != blank %}
+          <p class="aura-ingredients__intro">{{ intro | escape | newline_to_br }}</p>
+        {% endif %}
+
+        <div class="aura-ingredients__list">
+          {% if list_meta != blank %}
+            {% if list_meta.type contains 'list' %}
+              {% if list_meta.value %}
+                {% for row in list_meta.value %}
+                  {% assign ingredients_rendered = true %}
+                  {% assign parts = row | split: '|' %}
+                  {% assign iname = parts | first | strip %}
+                  {% assign idesc = parts | last | strip %}
+                  <div class="aura-ingredients__item">
+                    <div class="aura-ingredients__item-icon" aria-hidden="true">✧</div>
+                    <div>
+                      <strong class="aura-ingredients__item-title">{{ iname | escape }}</strong>
+                      {% if idesc != iname %}
+                        <p class="aura-ingredients__item-text">{{ idesc | escape }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endif %}
+            {% if ingredients_rendered == false and list_meta.value != blank %}
+              {% assign lines = list_meta.value | newline_to_br | split: '<br />' %}
+              {% for line in lines %}
+                {% assign row = line | strip | strip_html %}
+                {% if row != blank %}
+                  {% assign ingredients_rendered = true %}
+                  {% if row contains '|' %}
+                    {% assign parts = row | split: '|' %}
+                    {% assign iname = parts | first | strip %}
+                    {% assign idesc = parts | last | strip %}
+                  {% else %}
+                    {% if row contains '—' %}
+                      {% assign parts = row | split: '—' %}
+                      {% assign iname = parts | first | strip %}
+                      {% assign idesc = parts | last | strip %}
+                    {% else %}
+                      {% assign iname = row %}
+                      {% assign idesc = '' %}
+                    {% endif %}
+                  {% endif %}
+                  <div class="aura-ingredients__item">
+                    <div class="aura-ingredients__item-icon" aria-hidden="true">✧</div>
+                    <div>
+                      <strong class="aura-ingredients__item-title">{{ iname | escape }}</strong>
+                      {% if idesc != blank %}
+                        <p class="aura-ingredients__item-text">{{ idesc | escape }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% endif %}
+
+          {% if ingredients_rendered == false %}
+            {% for row in fallback_lines %}
+              {% if row contains '—' %}
+                {% assign parts = row | split: '—' %}
+                {% assign iname = parts | first | strip %}
+                {% assign idesc = parts | last | strip %}
+              {% else %}
+                {% assign iname = row %}
+                {% assign idesc = '' %}
+              {% endif %}
+              <div class="aura-ingredients__item">
+                <div class="aura-ingredients__item-icon" aria-hidden="true">✧</div>
+                <div>
+                  <strong class="aura-ingredients__item-title">{{ iname | escape }}</strong>
+                  {% if idesc != blank %}
+                    <p class="aura-ingredients__item-text">{{ idesc | escape }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="aura-ingredients__media">
+        {% if image_meta != blank %}
+          {% if image_meta.value %}
+            {{ image_meta.value | image_url: width: 1400 | image_tag: loading: 'lazy', alt: heading, class: 'aura-ingredients__image' }}
+          {% else %}
+            {{ image_meta | image_url: width: 1400 | image_tag: loading: 'lazy', alt: heading, class: 'aura-ingredients__image' }}
+          {% endif %}
+        {% elsif section.settings.fallback_image != blank %}
+          {{ section.settings.fallback_image | image_url: width: 1400 | image_tag: loading: 'lazy', alt: heading, class: 'aura-ingredients__image' }}
+        {% else %}
+          <div class="aura-ingredients__placeholder" role="img" aria-label="{{ 'sections.aura_ingredients.placeholder_aria' | t }}">
+            {{ section.settings.placeholder_label | escape }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .{{ ing_class }} {
+    background: linear-gradient(180deg, var(--ai-background), var(--ai-gradient-end));
+    border-bottom: 1px solid #eee1dc;
+  }
+
+  .{{ ing_class }} .aura-ingredients__inner {
+    width: min(1240px, calc(100% - 48px));
+    margin: 0 auto;
+    padding-top: var(--ai-padding-t);
+    padding-bottom: var(--ai-padding-b);
+  }
+
+  .{{ ing_class }} .aura-ingredients__grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.6fr;
+    gap: clamp(2rem, 5vw, 4.4rem);
+    align-items: center;
+  }
+
+  .{{ ing_class }} .aura-ingredients__heading {
+    font-family: var(--font-heading--family, Georgia, serif);
+    font-size: var(--ai-title-size);
+    font-weight: 500;
+    color: var(--ai-heading);
+    margin: 0 0 0.85rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .{{ ing_class }} .aura-ingredients__intro {
+    margin: 0 0 1.5rem;
+    color: #596173;
+    font-size: var(--ai-body-size);
+    line-height: 1.55;
+    max-width: 520px;
+  }
+
+  .{{ ing_class }} .aura-ingredients__list {
+    display: grid;
+    gap: 1.35rem;
+    margin-top: 0.25rem;
+  }
+
+  .{{ ing_class }} .aura-ingredients__item {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .{{ ing_class }} .aura-ingredients__item-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ai-icon-bg);
+    color: var(--ai-icon);
+    font-weight: 900;
+    font-size: 1.1rem;
+  }
+
+  .{{ ing_class }} .aura-ingredients__item-title {
+    display: block;
+    color: var(--ai-heading);
+    font-size: var(--ai-item-title);
+    margin-bottom: 0.2rem;
+  }
+
+  .{{ ing_class }} .aura-ingredients__item-text {
+    margin: 0;
+    color: var(--ai-text);
+    font-size: calc(var(--ai-body-size) - 1px);
+    line-height: 1.45;
+  }
+
+  .{{ ing_class }} .aura-ingredients__image {
+    width: 100%;
+    border-radius: var(--ai-radius);
+    display: block;
+    box-shadow: 0 18px 45px rgba(68, 36, 58, 0.08);
+  }
+
+  .{{ ing_class }} .aura-ingredients__placeholder {
+    min-height: 360px;
+    border-radius: var(--ai-radius);
+    background: linear-gradient(135deg, #f7bfb1, #ffede8);
+    border: 1px solid #efc9c0;
+    display: grid;
+    place-items: center;
+    color: #b67870;
+    font-size: 1.125rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 980px) {
+    .{{ ing_class }} .aura-ingredients__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .{{ ing_class }} .aura-ingredients__inner {
+      width: min(100% - 28px, 1240px);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Aura ingredients",
+  "tag": "section",
+  "class": "aura-ingredients-section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background (top)",
+      "default": "#fffaf7"
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Background (bottom)",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1B2C58"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body / ingredient text",
+      "default": "#626b7d"
+    },
+    {
+      "type": "color",
+      "id": "icon_background",
+      "label": "Icon background",
+      "default": "#fff1f8"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#EC008C"
+    },
+    {
+      "type": "text",
+      "id": "fallback_heading",
+      "label": "Heading fallback",
+      "default": "What makes it powerful"
+    },
+    {
+      "type": "textarea",
+      "id": "fallback_intro",
+      "label": "Intro fallback",
+      "default": "A blend of clinically loved ingredients that work together to brighten, hydrate, and revitalize your skin."
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image",
+      "label": "Fallback image"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_label",
+      "label": "Placeholder label (no image)",
+      "default": "Lifestyle image"
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Image radius",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 24,
+      "max": 44,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "min": 13,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Body size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "item_title_size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Ingredient name size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 24,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 52
+    }
+  ],
+  "presets": [
+    {
+      "name": "Aura ingredients"
+    }
+  ]
+}
+{% endschema %}

@@ -67,6 +67,30 @@
     "aura_mobile_app": {
       "app_store": "App Store",
       "google_play": "Google Play"
+    },
+    "aura_product_main": {
+      "breadcrumb_aria": "Breadcrumb",
+      "home": "Home",
+      "view_image": "View image {{ index }}",
+      "media": "Media",
+      "placeholder": "Image",
+      "main_placeholder": "Product image",
+      "previous": "Previous image",
+      "next": "Next image",
+      "zoom": "Open image",
+      "one_time": "One-time purchase",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "quantity": "Quantity",
+      "add_to_cart": "Add to cart",
+      "sold_out": "Sold out",
+      "points_earn": "Earn {{ points }} {{ label }} with this purchase"
+    },
+    "aura_ingredients": {
+      "placeholder_aria": "Ingredient lifestyle image placeholder"
+    },
+    "aura_recommend_products": {
+      "earn_points": "Earn {{ points }} {{ label }}"
     }
   }
 }
