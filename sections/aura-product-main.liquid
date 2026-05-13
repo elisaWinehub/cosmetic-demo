@@ -1,0 +1,1773 @@
+{% comment %}
+  Aura Society — product hero (PDP). Uses product object; enable on product templates only.
+{% endcomment %}
+{% liquid
+  assign root_class = 'aura-product-main-' | append: section.id
+  assign current_variant = product.selected_or_first_available_variant
+  assign media_list = product.media
+  assign first_media = media_list | first
+  assign eyebrow = product.type
+  if section.settings.eyebrow_override != blank
+    assign eyebrow = section.settings.eyebrow_override
+  endif
+
+  assign mf_ns = section.settings.benefits_metafield_namespace | default: 'custom'
+  assign mf_key = section.settings.benefits_metafield_key | default: 'benefits'
+  assign benefits_meta = blank
+  if mf_ns != blank and mf_key != blank and product.metafields[mf_ns][mf_key] != blank
+    assign benefits_meta = product.metafields[mf_ns][mf_key]
+  endif
+
+  assign fallback_benefits = 'Boosts natural glow||Improves texture and radiance||Hydrates and soothes||Safe for sensitive skin' | split: '||'
+
+  assign gallery_has_image = false
+  if media_list.size > 0
+    for media in media_list
+      if media.media_type == 'image'
+        assign gallery_has_image = true
+        break
+      endif
+    endfor
+  endif
+
+  assign product_subtitle_meta = product.metafields.custom.product_subtitle
+  assign display_subtitle = blank
+  if product_subtitle_meta.value != blank
+    assign display_subtitle = product_subtitle_meta.value | strip
+  elsif product_subtitle_meta != blank
+    assign display_subtitle = product_subtitle_meta | metafield_text | strip
+  endif
+%}
+{% if display_subtitle == blank %}
+  {% capture display_subtitle %}
+    {%- render 'aura-product-type-fallback', product: product, part: 'subtitle' -%}
+  {% endcapture %}
+  {% assign display_subtitle = display_subtitle | strip %}
+{% endif %}
+{% if display_subtitle == blank %}
+  {% assign display_subtitle = section.settings.subtitle %}
+{% endif %}
+
+<section
+  class="aura-product-main {{ root_class }}"
+  data-aura-product-main
+  data-points-mult="{{ section.settings.points_multiplier }}"
+  data-money-format="{{ shop.money_format | escape }}"
+  style="
+    --apm-max-width: {{ section.settings.section_width }}px;
+    --apm-background: {{ section.settings.background_color }};
+    --apm-text: {{ section.settings.text_color }};
+    --apm-heading: {{ section.settings.heading_color }};
+    --apm-accent: {{ section.settings.accent_color }};
+    --apm-border: {{ section.settings.border_color }};
+    --apm-gradient: linear-gradient(90deg, {{ section.settings.button_gradient_start }} 0%, {{ section.settings.button_gradient_end }} 100%);
+    --apm-gallery-radius: {{ section.settings.gallery_radius }}px;
+    --apm-thumb-radius: {{ section.settings.thumbnail_radius }}px;
+    --apm-thumb-size: {{ section.settings.thumbnail_size }}px;
+    --apm-thumb-fit: {{ section.settings.thumbnail_object_fit }};
+    --apm-button-radius: {{ section.settings.button_radius }}px;
+    --apm-title-desktop: {{ section.settings.title_size_desktop }}px;
+    --apm-title-mobile: {{ section.settings.title_size_mobile }}px;
+    --apm-body: {{ section.settings.body_size }}px;
+    --apm-button-font: {{ section.settings.button_font_size }}px;
+    --apm-padding-top-d: {{ section.settings.padding_top_desktop }}px;
+    --apm-padding-bottom-d: {{ section.settings.padding_bottom_desktop }}px;
+    --apm-padding-top-m: {{ section.settings.padding_top_mobile }}px;
+    --apm-padding-bottom-m: {{ section.settings.padding_bottom_mobile }}px;
+    --apm-star-color: {{ section.settings.star_color }};
+  "
+>
+  <div class="aura-product-main__inner">
+    {% if section.settings.show_breadcrumbs %}
+      <nav class="aura-product-main__breadcrumb" aria-label="{{ 'sections.aura_product_main.breadcrumb_aria' | t }}">
+        <a href="{{ routes.root_url }}">{{ 'sections.aura_product_main.home' | t }}</a>
+        <span class="aura-product-main__breadcrumb-sep" aria-hidden="true">›</span>
+        {% if product.collections.size > 0 %}
+          {% assign bc_collection = product.collections.first %}
+          <a href="{{ bc_collection.url }}">{{ bc_collection.title | escape }}</a>
+          <span class="aura-product-main__breadcrumb-sep" aria-hidden="true">›</span>
+        {% endif %}
+        <span class="aura-product-main__breadcrumb-current">{{ product.title | escape }}</span>
+      </nav>
+    {% endif %}
+
+    <div class="aura-product-main__hero">
+      <div class="aura-product-main__gallery">
+        <div class="aura-product-main__thumbs" data-aura-gallery-thumbs>
+          {% if media_list.size > 0 %}
+            {% for media in media_list %}
+              <button
+                type="button"
+                class="aura-product-main__thumb{% if forloop.first %} is-active{% endif %}"
+                data-aura-gallery-thumb
+                data-media-id="{{ media.id }}"
+                aria-label="{{ 'sections.aura_product_main.view_image' | t: index: forloop.index }}"
+              >
+                {% if media.media_type == 'video' or media.media_type == 'external_video' %}
+                  <span class="aura-product-main__thumb-video-badge" aria-hidden="true">▶</span>
+                {% endif %}
+                {% if media.preview_image %}
+                  {{ media.preview_image | image_url: width: 200 | image_tag: loading: 'lazy', alt: media.alt | default: product.title | escape }}
+                {% else %}
+                  <span class="aura-product-main__thumb-fallback">{{ 'sections.aura_product_main.media' | t }}</span>
+                {% endif %}
+              </button>
+            {% endfor %}
+          {% else %}
+            <div class="aura-product-main__thumb aura-product-main__thumb--placeholder is-active">
+              <span>{{ 'sections.aura_product_main.placeholder' | t }}</span>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="aura-product-main__main-wrap">
+          <div
+            class="aura-product-main__main"
+            data-aura-gallery-main
+            data-active-id="{% if first_media %}{{ first_media.id }}{% endif %}"
+          >
+            {% if section.settings.show_badge and section.settings.badge_text != blank %}
+              <span class="aura-product-main__badge">
+                {% render 'aura-icon', icon: 'heart', class: 'aura-product-main__badge-icon' %}
+                {{ section.settings.badge_text | escape }}
+              </span>
+            {% endif %}
+
+            <div class="aura-product-main__slides" data-aura-slides>
+              {% if media_list.size > 0 %}
+                {% for media in media_list %}
+                  <div
+                    class="aura-product-main__slide{% if forloop.first %} is-active{% endif %}"
+                    data-aura-gallery-slide
+                    data-media-id="{{ media.id }}"
+                    data-media-type="{{ media.media_type }}"
+                    {% if media.media_type == 'image' %}
+                      data-zoom-src="{{ media | image_url: width: 2400 }}"
+                      data-zoom-alt="{{ media.alt | default: product.title | escape }}"
+                    {% endif %}
+                  >
+                    {% case media.media_type %}
+                      {% when 'image' %}
+                        {{ media | image_url: width: 2000 | image_tag: loading: 'lazy', alt: media.alt | default: product.title, class: 'aura-product-main__main-img' }}
+                      {% when 'video' %}
+                        {{ media | video_tag: controls: true, class: 'aura-product-main__video' }}
+                      {% when 'external_video' %}
+                        {{ media | external_video_tag: class: 'aura-product-main__video' }}
+                      {% else %}
+                        {{ media | media_tag }}
+                    {% endcase %}
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="aura-product-main__slide is-active aura-product-main__slide--placeholder" data-aura-gallery-slide data-media-type="placeholder">
+                  <span>{{ 'sections.aura_product_main.main_placeholder' | t }}</span>
+                </div>
+              {% endif %}
+            </div>
+
+            {% if media_list.size > 1 %}
+              <button type="button" class="aura-product-main__arrow aura-product-main__arrow--prev" data-aura-gallery-prev aria-label="{{ 'sections.aura_product_main.previous' | t }}">‹</button>
+              <button type="button" class="aura-product-main__arrow aura-product-main__arrow--next" data-aura-gallery-next aria-label="{{ 'sections.aura_product_main.next' | t }}">›</button>
+            {% endif %}
+
+            {% if section.settings.show_zoom_icon and gallery_has_image %}
+              <button
+                type="button"
+                class="aura-product-main__zoom"
+                data-aura-zoom-open
+                aria-label="{{ 'sections.aura_product_main.zoom' | t }}"
+                hidden
+              >
+                ⌕
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="aura-product-main__info">
+        {% if eyebrow != blank %}
+          <p class="aura-product-main__eyebrow">{{ eyebrow | upcase | escape }}</p>
+        {% endif %}
+
+        <h1 class="aura-product-main__title">{{ product.title | escape }}</h1>
+
+        {% if display_subtitle != blank %}
+          <p class="aura-product-main__subtitle">{{ display_subtitle | escape }}</p>
+        {% endif %}
+
+        {% if section.settings.show_rating %}
+          {% liquid
+            assign rating_num = section.settings.rating_value | plus: 0
+            assign full_stars = rating_num | floor
+          %}
+          <div class="aura-product-main__rating">
+            <span class="aura-product-main__stars" aria-hidden="true">
+              {% for i in (1..5) %}
+                {% if i <= full_stars %}
+                  <span class="aura-product-main__star aura-product-main__star--full">★</span>
+                {% else %}
+                  <span class="aura-product-main__star aura-product-main__star--muted">★</span>
+                {% endif %}
+              {% endfor %}
+            </span>
+            <span class="aura-product-main__rating-meta">
+              {{ section.settings.rating_value | escape }} ({{ section.settings.review_count | escape }})
+            </span>
+          </div>
+        {% endif %}
+
+        <div class="aura-product-main__price-row">
+          <span class="aura-product-main__price" data-aura-price>{{ current_variant.price | money }}</span>
+          <span
+            class="aura-product-main__compare"
+            data-aura-compare
+            {% unless current_variant.compare_at_price > current_variant.price %}
+              hidden
+            {% endunless %}
+          >
+            {%- if current_variant.compare_at_price > current_variant.price -%}
+              {{ current_variant.compare_at_price | money }}
+            {%- endif -%}
+          </span>
+        </div>
+
+        {% if product.description != blank %}
+          <div class="aura-product-main__desc rte">{{ product.description }}</div>
+        {% endif %}
+
+        {% if section.settings.show_benefits %}
+          <ul class="aura-product-main__benefits">
+            {% if benefits_meta != blank %}
+              {% assign rendered_benefits = false %}
+              {% if benefits_meta.type contains 'list' %}
+                {% if benefits_meta.value %}
+                  {% for row in benefits_meta.value %}
+                    {% assign rendered_benefits = true %}
+                    <li>{{ row | strip | escape }}</li>
+                  {% endfor %}
+                {% endif %}
+              {% endif %}
+              {% unless rendered_benefits %}
+                {% if benefits_meta.value != blank %}
+                  {% assign benefit_lines = benefits_meta.value | newline_to_br | split: '<br />' %}
+                  {% for line in benefit_lines %}
+                    {% assign tline = line | strip | strip_html %}
+                    {% if tline != blank %}
+                      <li>{{ tline | escape }}</li>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endunless %}
+            {% else %}
+              {% for line in fallback_benefits %}
+                <li>{{ line | escape }}</li>
+              {% endfor %}
+            {% endif %}
+          </ul>
+        {% endif %}
+
+        {% assign product_form_id = 'AuraProductForm-' | append: section.id %}
+        {% form 'product', product, id: product_form_id, class: 'aura-product-main__form' %}
+          <input type="hidden" name="id" value="{{ current_variant.id }}" data-aura-variant-id>
+
+          {% if product.options_with_values.size > 0 %}
+            <div class="aura-product-main__options" data-aura-options>
+              {% for option in product.options_with_values %}
+                <div class="aura-product-main__option">
+                  <p class="aura-product-main__option-label">{{ option.name | escape }}</p>
+                  <div class="aura-product-main__pills">
+                    {% for value in option.values %}
+                      {% assign opt_index = forloop.parentloop.index0 %}
+                      {% liquid
+                        assign is_selected = false
+                        if option.selected_value == value
+                          assign is_selected = true
+                        endif
+                      %}
+                      <button
+                        type="button"
+                        class="aura-product-main__pill{% if is_selected %} is-active{% endif %}"
+                        data-aura-option
+                        data-option-index="{{ opt_index }}"
+                        data-value="{{ value | escape }}"
+                      >
+                        {{ value | escape }}
+                      </button>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="aura-product-main__purchase">
+            <div class="aura-product-main__purchase-row aura-product-main__purchase-row--static">
+              <span>{{ 'sections.aura_product_main.one_time' | t }}</span>
+              <strong data-aura-one-time-price>{{ current_variant.price | money }}</strong>
+            </div>
+          </div>
+
+          <div class="aura-product-main__cart-row">
+            <div class="aura-product-main__qty">
+              <button type="button" class="aura-product-main__qty-btn" data-aura-qty-dec aria-label="{{ 'sections.aura_product_main.decrease' | t }}">−</button>
+              <input
+                class="aura-product-main__qty-input"
+                name="quantity"
+                type="number"
+                value="1"
+                min="1"
+                data-aura-qty
+                aria-label="{{ 'sections.aura_product_main.quantity' | t }}"
+              >
+              <button type="button" class="aura-product-main__qty-btn" data-aura-qty-inc aria-label="{{ 'sections.aura_product_main.increase' | t }}">+</button>
+            </div>
+
+            <button
+              type="submit"
+              name="add"
+              class="aura-product-main__submit"
+              {% unless current_variant.available %}
+                disabled
+              {% endunless %}
+              data-aura-add
+              data-label-available="{{ 'sections.aura_product_main.add_to_cart' | t | escape }}"
+              data-label-soldout="{{ 'sections.aura_product_main.sold_out' | t | escape }}"
+            >
+              {% if current_variant.available %}
+                {{ 'sections.aura_product_main.add_to_cart' | t }}
+              {% else %}
+                {{ 'sections.aura_product_main.sold_out' | t }}
+              {% endif %}
+            </button>
+          </div>
+
+          {% if section.settings.show_dynamic_checkout %}
+            <div class="aura-product-main__dynamic" data-aura-dynamic-checkout>
+              {{ form | payment_button }}
+            </div>
+          {% endif %}
+        {% endform %}
+
+        {% if section.settings.show_points %}
+          {% liquid
+            assign pts_initial = current_variant.price | times: section.settings.points_multiplier | divided_by: 100.0 | round
+            assign points_tpl = 'sections.aura_product_main.points_earn' | t: points: '__POINTS__', label: section.settings.points_label
+          %}
+          {% if section.settings.points_text_override != blank %}
+            <p class="aura-product-main__points">{{ section.settings.points_text_override | escape }}</p>
+          {% else %}
+            <p
+              class="aura-product-main__points"
+              data-aura-points-wrap
+              data-points-mult="{{ section.settings.points_multiplier }}"
+              data-points-format="{{ points_tpl | escape }}"
+            >
+              <span class="aura-product-main__points-inner">
+                {% render 'aura-icon', icon: 'sparkle', class: 'aura-product-main__points-icon' %}
+                <span data-aura-points-text>{{ 'sections.aura_product_main.points_earn' | t: points: pts_initial, label: section.settings.points_label }}</span>
+              </span>
+            </p>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-aura-variant-json>
+    [
+      {% for variant in product.variants %}
+        {
+          "id": {{ variant.id }},
+          "price": {{ variant.price }},
+          "compare_at_price": {% if variant.compare_at_price %}{{ variant.compare_at_price }}{% else %}null{% endif %},
+          "available": {{ variant.available | json }},
+          "options": {{ variant.options | json }},
+          "featured_media_id": {% if variant.featured_media %}{{ variant.featured_media.id }}{% else %}null{% endif %}
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ]
+  </script>
+
+  {% if section.settings.show_zoom_icon and gallery_has_image %}
+    <div
+      class="aura-product-main__lightbox"
+      data-aura-lightbox
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="aura-product-main__lightbox-backdrop" data-aura-lightbox-close tabindex="-1"></div>
+      <div class="aura-product-main__lightbox-panel">
+        <button
+          type="button"
+          class="aura-product-main__lightbox-close"
+          data-aura-lightbox-close
+          aria-label="{{ 'sections.aura_product_main.lightbox_close' | t }}"
+        >
+          ×
+        </button>
+        <button
+          type="button"
+          class="aura-product-main__lightbox-nav aura-product-main__lightbox-nav--prev"
+          data-aura-lightbox-prev
+          aria-label="{{ 'sections.aura_product_main.lightbox_previous' | t }}"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          class="aura-product-main__lightbox-nav aura-product-main__lightbox-nav--next"
+          data-aura-lightbox-next
+          aria-label="{{ 'sections.aura_product_main.lightbox_next' | t }}"
+        >
+          ›
+        </button>
+        <div class="aura-product-main__lightbox-stage">
+          <img data-aura-lightbox-img src="" alt="" width="1600" height="1600" loading="lazy">
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% stylesheet %}
+  .aura-product-main {
+    background: var(--apm-background);
+  }
+
+  .aura-product-main__inner {
+    width: min(var(--apm-max-width), calc(100% - 48px));
+    margin: 0 auto;
+    padding-top: var(--apm-padding-top-d);
+    padding-bottom: var(--apm-padding-bottom-d);
+  }
+
+  .aura-product-main__breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+    padding: 2rem 0 1.75rem;
+    color: #7d8491;
+    font-size: 0.8125rem;
+  }
+
+  .aura-product-main__breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .aura-product-main__breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .aura-product-main__breadcrumb-current {
+    color: #4b5568;
+    font-weight: 600;
+  }
+
+  .aura-product-main__hero {
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    gap: clamp(2rem, 4vw, 4.25rem);
+    align-items: start;
+    padding-bottom: 3rem;
+  }
+
+  .aura-product-main__gallery {
+    display: grid;
+    grid-template-columns: var(--apm-thumb-size) 1fr;
+    gap: 1.35rem;
+    align-items: start;
+  }
+
+  .aura-product-main__thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: var(--apm-thumb-size);
+    max-width: 100%;
+    align-self: start;
+    flex-shrink: 0;
+  }
+
+  .aura-product-main__thumb {
+    position: relative;
+    width: var(--apm-thumb-size);
+    height: var(--apm-thumb-size);
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    border-radius: var(--apm-thumb-radius);
+    border: 2px solid var(--apm-border);
+    background: linear-gradient(135deg, #f8cfc4, #fff4ef);
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  .aura-product-main__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: var(--apm-thumb-fit);
+    object-position: center;
+    display: block;
+  }
+
+  .aura-product-main__thumb.is-active {
+    border-color: var(--apm-accent);
+    box-shadow: 0 0 0 1px rgba(236, 0, 140, 0.2);
+  }
+
+  .aura-product-main__thumb--placeholder,
+  .aura-product-main__thumb-fallback {
+    display: grid;
+    place-items: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #af8077;
+    text-align: center;
+    padding: 0.35rem;
+  }
+
+  .aura-product-main__thumb-video-badge {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    font-size: 0.65rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    padding: 2px 4px;
+    z-index: 1;
+  }
+
+  .aura-product-main__main-wrap {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .aura-product-main__main {
+    position: relative;
+    border-radius: var(--apm-gallery-radius);
+    background: #fff;
+    box-shadow: 0 18px 45px rgba(68, 36, 58, 0.08);
+    overflow: hidden;
+    display: block;
+  }
+
+  .aura-product-main__slides {
+    position: relative;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+  }
+
+  .aura-product-main__slide {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-width: 0;
+    display: block;
+    box-sizing: border-box;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.38s ease, visibility 0.38s ease;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .aura-product-main__slide.is-active {
+    position: relative;
+    left: auto;
+    top: auto;
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+    pointer-events: auto;
+  }
+
+  .aura-product-main__main-img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .aura-product-main__video,
+  .aura-product-main__slide > video {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .aura-product-main__slide .aura-product-main__video {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    display: block;
+  }
+
+  .aura-product-main__slide iframe,
+  .aura-product-main__slide .aura-product-main__video iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    max-height: 80vh;
+    border: 0;
+    display: block;
+  }
+
+  .aura-product-main__slide--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: #f7f5f3;
+    color: #6d6562;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-align: center;
+  }
+
+  .aura-product-main__badge {
+    position: absolute;
+    top: 1.75rem;
+    left: 1.75rem;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #fff;
+    color: var(--apm-heading);
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .aura-product-main__badge-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--apm-accent);
+  }
+
+  .aura-product-main__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 0;
+    background: #fff;
+    color: var(--apm-accent);
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+  }
+
+  .aura-product-main__arrow--prev {
+    left: 1.75rem;
+  }
+
+  .aura-product-main__arrow--next {
+    right: 1.75rem;
+  }
+
+  .aura-product-main__zoom {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 3;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 0;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    color: #6e4d59;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .aura-product-main__zoom:focus {
+    outline: 2px solid var(--apm-accent);
+    outline-offset: 2px;
+  }
+
+  .aura-product-main__zoom[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .aura-product-main__lightbox[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(27, 44, 88, 0.55);
+    cursor: pointer;
+  }
+
+  .aura-product-main__lightbox-panel {
+    position: relative;
+    z-index: 2;
+    max-width: min(96vw, 1200px);
+    max-height: min(92vh, 900px);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .aura-product-main__lightbox-panel > * {
+    pointer-events: auto;
+  }
+
+  .aura-product-main__lightbox-stage {
+    background: #fff8f4;
+    border-radius: var(--apm-gallery-radius);
+    padding: 0.75rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    max-width: 100%;
+    max-height: min(88vh, 860px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .aura-product-main__lightbox-stage img {
+    max-width: 100%;
+    max-height: min(82vh, 800px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transition: opacity 0.25s ease;
+  }
+
+  .aura-product-main__lightbox-close {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--apm-heading);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 3;
+  }
+
+  .aura-product-main__lightbox-close:focus {
+    outline: 2px solid var(--apm-accent);
+    outline-offset: 2px;
+  }
+
+  .aura-product-main__lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--apm-accent);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 3;
+    display: grid;
+    place-items: center;
+  }
+
+  .aura-product-main__lightbox-nav:focus {
+    outline: 2px solid var(--apm-accent);
+    outline-offset: 2px;
+  }
+
+  .aura-product-main__lightbox-nav[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__lightbox-nav--prev {
+    left: 0.25rem;
+  }
+
+  .aura-product-main__lightbox-nav--next {
+    right: 0.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .aura-product-main__lightbox-close {
+      top: 0.5rem;
+      right: 0.5rem;
+    }
+
+    .aura-product-main__lightbox-nav--prev {
+      left: 0.35rem;
+    }
+
+    .aura-product-main__lightbox-nav--next {
+      right: 0.35rem;
+    }
+
+    .aura-product-main__lightbox-stage {
+      padding: 0.5rem;
+    }
+  }
+
+  .aura-product-main__eyebrow {
+    color: var(--apm-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.5rem;
+  }
+
+  .aura-product-main__title {
+    font-family: var(--font-heading--family, Georgia, 'Times New Roman', serif);
+    color: var(--apm-heading);
+    font-size: var(--apm-title-desktop);
+    font-weight: 500;
+    line-height: 1.05;
+    margin: 0 0 0.65rem;
+    letter-spacing: -0.02em;
+  }
+
+  .aura-product-main__subtitle {
+    font-weight: 700;
+    color: var(--apm-text);
+    margin: 0 0 1.15rem;
+    font-size: calc(var(--apm-body) + 1px);
+  }
+
+  .aura-product-main__rating {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--apm-accent);
+    font-weight: 800;
+    font-size: 0.875rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .aura-product-main__stars {
+    letter-spacing: 0.05em;
+    color: var(--apm-star-color, var(--apm-accent));
+  }
+
+  .aura-product-main__star--muted {
+    opacity: 0.28;
+  }
+
+  .aura-product-main__rating-meta {
+    color: #576071;
+    font-weight: 600;
+  }
+
+  .aura-product-main__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .aura-product-main__price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--apm-heading);
+  }
+
+  .aura-product-main__compare {
+    font-size: 1rem;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  .aura-product-main__desc {
+    color: #596173;
+    font-size: var(--apm-body);
+    line-height: 1.55;
+    margin-bottom: 1.25rem;
+    max-width: 560px;
+  }
+
+  .aura-product-main__benefits {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: #51596b;
+  }
+
+  .aura-product-main__benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+  }
+
+  .aura-product-main__benefits li::before {
+    content: '';
+    width: 1.35em;
+    height: 1.35em;
+    flex: 0 0 auto;
+    margin-top: 0.1em;
+    background: var(--apm-accent);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5.5 12.5 9.6 16.6 18.5 7.7' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5.5 12.5 9.6 16.6 18.5 7.7' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  .aura-product-main__option-label {
+    font-size: 0.8125rem;
+ margin: 0 0 0.55rem;
+    color: #8d8790;
+  }
+
+  .aura-product-main__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .aura-product-main__pill {
+    min-width: 94px;
+    padding: 0.8rem 1.35rem;
+    border-radius: 7px;
+    background: #fff;
+    border: 1px solid var(--apm-border);
+    font-weight: 500;
+    color: #5b5260;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+
+  .aura-product-main__pill.is-active {
+    border-color: var(--apm-accent);
+    border-width: 2px;
+    padding: calc(0.8rem - 1px) calc(1.35rem - 1px);
+    color: var(--apm-heading);
+    font-weight: 500;
+    box-shadow: 0 0 0 1px rgba(236, 0, 140, 0.12);
+  }
+
+  .aura-product-main__purchase {
+    border: 1px solid var(--apm-border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+
+  .aura-product-main__purchase-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1rem 1.125rem;
+    border-bottom: 1px solid var(--apm-border);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .aura-product-main__purchase-row:last-child {
+    border-bottom: 0;
+  }
+
+  .aura-product-main__purchase-row--static {
+    cursor: default;
+  }
+
+  .aura-product-main__purchase-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-weight: 600;
+    color: var(--apm-text);
+  }
+
+  .aura-product-main__purchase-label small {
+    font-weight: 500;
+    color: #7b808d;
+    font-size: 0.78rem;
+  }
+
+  .aura-product-main__cart-row {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 0.875rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .aura-product-main__qty {
+    border: 1px solid var(--apm-border);
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 2fr 1.4fr 2fr;
+    align-items: center;
+    text-align: center;
+    min-height: 54px;
+    background: #fff;
+    font-weight: 800;
+  }
+
+  .aura-product-main__qty-btn {
+    border: 0;
+    background: transparent;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--apm-heading);
+  }
+
+  .aura-product-main__qty-input {
+    border: 0;
+    text-align: center;
+    font: inherit;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .aura-product-main__submit {
+    border: 0;
+    min-height: 54px;
+    border-radius: var(--apm-button-radius);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    background: var(--apm-gradient);
+    color: #fff;
+    font-size: var(--apm-button-font);
+    transition: filter 0.2s ease, transform 0.2s ease;
+  }
+
+  .aura-product-main__submit:hover:not([disabled]) {
+    filter: brightness(1.03);
+  }
+
+  .aura-product-main__submit[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .aura-product-main__dynamic {
+    margin-bottom: 1rem;
+  }
+
+  .aura-product-main__dynamic .shopify-payment-button__button--unbranded {
+    border-radius: var(--apm-button-radius) !important;
+    min-height: 54px;
+  }
+
+  .aura-product-main__points {
+    text-align: center;
+    color: #7b514f;
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+  }
+
+  .aura-product-main__points-inner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .aura-product-main__points-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--apm-accent);
+  }
+
+  @media (max-width: 980px) {
+    .aura-product-main__hero {
+      grid-template-columns: 1fr;
+    }
+
+    .aura-product-main__gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .aura-product-main__main-wrap {
+      order: -1;
+      width: 100%;
+    }
+
+    .aura-product-main__thumbs {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: visible;
+      gap: 0.65rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      padding-bottom: 0.25rem;
+    }
+
+    .aura-product-main__thumb {
+      flex: 0 0 var(--apm-thumb-size);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .aura-product-main__inner {
+      width: min(100% - 28px, var(--apm-max-width));
+      padding-top: var(--apm-padding-top-m);
+      padding-bottom: var(--apm-padding-bottom-m);
+    }
+
+    .aura-product-main__title {
+      font-size: var(--apm-title-mobile);
+    }
+
+    .aura-product-main__cart-row {
+      grid-template-columns: 1fr;
+    }
+
+    .aura-product-main__submit {
+      width: 100%;
+    }
+
+    .aura-product-main__dynamic .shopify-payment-button__button--unbranded {
+      width: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    function parseJson(el) {
+      if (!el) return null;
+      try {
+        return JSON.parse(el.textContent);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function formatMoney(cents, moneyFormat) {
+      if (typeof Shopify !== 'undefined' && Shopify.formatMoney) {
+        return Shopify.formatMoney(cents, moneyFormat);
+      }
+      return (cents / 100).toFixed(2);
+    }
+
+    const roots = document.querySelectorAll('[data-aura-product-main]');
+    roots.forEach(function (root) {
+      const slides = root.querySelectorAll('[data-aura-gallery-slide]');
+      const thumbs = root.querySelectorAll('[data-aura-gallery-thumb]');
+      const mainEl = root.querySelector('[data-aura-gallery-main]');
+      const prevBtn = root.querySelector('[data-aura-gallery-prev]');
+      const nextBtn = root.querySelector('[data-aura-gallery-next]');
+      const zoomOpen = root.querySelector('[data-aura-zoom-open]');
+      const lightbox = root.querySelector('[data-aura-lightbox]');
+      const lightboxImg = lightbox ? lightbox.querySelector('[data-aura-lightbox-img]') : null;
+      const lightboxPrev = lightbox ? lightbox.querySelector('[data-aura-lightbox-prev]') : null;
+      const lightboxNext = lightbox ? lightbox.querySelector('[data-aura-lightbox-next]') : null;
+      const lightboxCloses = lightbox ? lightbox.querySelectorAll('[data-aura-lightbox-close]') : [];
+
+      function getImageSlides() {
+        return Array.from(slides).filter(function (s) {
+          return (
+            s.getAttribute('data-media-type') === 'image' &&
+            s.getAttribute('data-zoom-src')
+          );
+        });
+      }
+
+      function syncZoomButton() {
+        if (!zoomOpen) return;
+        const active = root.querySelector('[data-aura-gallery-slide].is-active');
+        if (
+          active &&
+          active.getAttribute('data-media-type') === 'image' &&
+          active.getAttribute('data-zoom-src')
+        ) {
+          zoomOpen.hidden = false;
+        } else {
+          zoomOpen.hidden = true;
+        }
+      }
+
+      function setGalleryByMediaId(mediaId) {
+        if (!mediaId) return;
+        const idStr = String(mediaId);
+        slides.forEach(function (slide) {
+          slide.classList.toggle('is-active', slide.getAttribute('data-media-id') === idStr);
+        });
+        thumbs.forEach(function (thumb) {
+          thumb.classList.toggle('is-active', thumb.getAttribute('data-media-id') === idStr);
+        });
+        if (mainEl) mainEl.setAttribute('data-active-id', idStr);
+        syncZoomButton();
+      }
+
+      function activateAdjacent(dir) {
+        if (slides.length <= 1) return;
+        const activeSlide = root.querySelector('[data-aura-gallery-slide].is-active');
+        if (!activeSlide) return;
+        const id = activeSlide.getAttribute('data-media-id');
+        const ids = Array.from(slides)
+          .map(function (s) {
+            return s.getAttribute('data-media-id');
+          })
+          .filter(function (mid) {
+            return mid != null && mid !== '';
+          });
+        const i = ids.indexOf(id);
+        if (i < 0) return;
+        const next = (i + dir + ids.length) % ids.length;
+        setGalleryByMediaId(ids[next]);
+      }
+
+      var lightboxIndex = 0;
+      var onDocKeydown = null;
+
+      function showLightboxImage() {
+        const imgs = getImageSlides();
+        if (!lightboxImg || imgs.length === 0) return;
+        const slide = imgs[lightboxIndex];
+        const src = slide.getAttribute('data-zoom-src');
+        const alt = slide.getAttribute('data-zoom-alt') || '';
+        if (src) lightboxImg.setAttribute('src', src);
+        lightboxImg.setAttribute('alt', alt);
+        if (lightboxPrev) lightboxPrev.hidden = imgs.length <= 1;
+        if (lightboxNext) lightboxNext.hidden = imgs.length <= 1;
+      }
+
+      function closeLightbox() {
+        if (!lightbox) return;
+        lightbox.setAttribute('hidden', 'hidden');
+        lightbox.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (onDocKeydown) {
+          document.removeEventListener('keydown', onDocKeydown);
+          onDocKeydown = null;
+        }
+      }
+
+      function openLightbox() {
+        const imgs = getImageSlides();
+        if (!lightbox || !lightboxImg || imgs.length === 0) return;
+        const active = root.querySelector('[data-aura-gallery-slide].is-active');
+        var idx = 0;
+        if (active && active.getAttribute('data-media-type') === 'image') {
+          const curId = active.getAttribute('data-media-id');
+          const found = imgs.findIndex(function (s) {
+            return s.getAttribute('data-media-id') === curId;
+          });
+          if (found >= 0) idx = found;
+        }
+        lightboxIndex = idx;
+        showLightboxImage();
+        lightbox.removeAttribute('hidden');
+        lightbox.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        onDocKeydown = function (e) {
+          if (e.key === 'Escape') closeLightbox();
+        };
+        document.addEventListener('keydown', onDocKeydown);
+      }
+
+      function lightboxAdjacent(dir) {
+        const imgs = getImageSlides();
+        if (imgs.length <= 1) return;
+        lightboxIndex = (lightboxIndex + dir + imgs.length) % imgs.length;
+        showLightboxImage();
+      }
+
+      thumbs.forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+          setGalleryByMediaId(thumb.getAttribute('data-media-id'));
+        });
+      });
+
+      if (prevBtn) prevBtn.addEventListener('click', function () { activateAdjacent(-1); });
+      if (nextBtn) nextBtn.addEventListener('click', function () { activateAdjacent(1); });
+
+      if (zoomOpen) {
+        zoomOpen.addEventListener('click', function (e) {
+          e.preventDefault();
+          openLightbox();
+        });
+      }
+
+      if (lightbox && lightboxPrev) {
+        lightboxPrev.addEventListener('click', function () { lightboxAdjacent(-1); });
+      }
+      if (lightbox && lightboxNext) {
+        lightboxNext.addEventListener('click', function () { lightboxAdjacent(1); });
+      }
+
+      lightboxCloses.forEach(function (btn) {
+        btn.addEventListener('click', function () { closeLightbox(); });
+      });
+
+      syncZoomButton();
+
+      const variantScript = root.querySelector('[data-aura-variant-json]');
+      const variants = parseJson(variantScript) || [];
+      const form = root.querySelector('.aura-product-main__form');
+      const idInput = root.querySelector('[data-aura-variant-id]');
+      const priceEl = root.querySelector('[data-aura-price]');
+      const compareEl = root.querySelector('[data-aura-compare]');
+      const optionButtons = root.querySelectorAll('[data-aura-option]');
+      const qtyInput = root.querySelector('[data-aura-qty]');
+      const addBtn = root.querySelector('[data-aura-add]');
+      const pointsWrap = root.querySelector('[data-aura-points-wrap]');
+      const pointsTextEl = root.querySelector('[data-aura-points-text]');
+      const oneTimePriceEl = root.querySelector('[data-aura-one-time-price]');
+      const qtyDec = root.querySelector('[data-aura-qty-dec]');
+      const qtyInc = root.querySelector('[data-aura-qty-inc]');
+      const attrFormat = root.getAttribute('data-money-format');
+      const moneyFormat =
+        attrFormat ||
+        (typeof window !== 'undefined' && window.Shopify && window.Shopify.money_format
+          ? window.Shopify.money_format
+          : '${{amount}}');
+
+      if (!form || !idInput || variants.length === 0) return;
+
+      const optionButtonCount = root.querySelectorAll('[data-aura-option]').length;
+      const optionCount =
+        optionButtonCount === 0
+          ? 0
+          : variants[0] && variants[0].options
+            ? variants[0].options.length
+            : 0;
+
+      function getSelectedOptions() {
+        const selected = [];
+        for (let i = 0; i < optionCount; i++) {
+          const active = root.querySelector(
+            '[data-aura-option][data-option-index="' + i + '"].is-active'
+          );
+          selected.push(active ? active.getAttribute('data-value') : null);
+        }
+        return selected;
+      }
+
+      function findVariant() {
+        if (optionCount === 0) return variants[0];
+        const selected = getSelectedOptions();
+        return variants.find(function (v) {
+          if (!v.options || v.options.length !== selected.length) return false;
+          return v.options.every(function (opt, idx) {
+            return opt === selected[idx];
+          });
+        });
+      }
+
+      function applyVariant(v) {
+        if (!v) return;
+        idInput.value = v.id;
+        if (priceEl) priceEl.textContent = formatMoney(v.price, moneyFormat);
+        if (compareEl) {
+          if (v.compare_at_price && v.compare_at_price > v.price) {
+            compareEl.removeAttribute('hidden');
+            compareEl.textContent = formatMoney(v.compare_at_price, moneyFormat);
+          } else {
+            compareEl.setAttribute('hidden', 'hidden');
+            compareEl.textContent = '';
+          }
+        }
+        if (v.featured_media_id) setGalleryByMediaId(v.featured_media_id);
+        if (oneTimePriceEl) oneTimePriceEl.textContent = formatMoney(v.price, moneyFormat);
+
+        if (addBtn) {
+          if (v.available) {
+            addBtn.disabled = false;
+            addBtn.textContent = addBtn.getAttribute('data-label-available') || addBtn.textContent;
+          } else {
+            addBtn.disabled = true;
+            addBtn.textContent = addBtn.getAttribute('data-label-soldout') || addBtn.textContent;
+          }
+        }
+
+        const mult = parseFloat(pointsWrap ? pointsWrap.getAttribute('data-points-mult') || root.getAttribute('data-points-mult') : root.getAttribute('data-points-mult')) || 1;
+        const fmt = pointsWrap ? pointsWrap.getAttribute('data-points-format') : '';
+        if (pointsTextEl && fmt) {
+          const pts = Math.round((v.price / 100) * mult);
+          pointsTextEl.textContent = fmt.split('__POINTS__').join(String(pts));
+        }
+      }
+
+      optionButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const idx = btn.getAttribute('data-option-index');
+          root.querySelectorAll('[data-aura-option][data-option-index="' + idx + '"]').forEach(function (b) {
+            b.classList.remove('is-active');
+          });
+          btn.classList.add('is-active');
+          const v = findVariant();
+          applyVariant(v);
+        });
+      });
+
+      if (qtyInput && qtyDec) {
+        qtyDec.addEventListener('click', function () {
+          const n = parseInt(qtyInput.value, 10) || 1;
+          qtyInput.value = Math.max(1, n - 1);
+        });
+      }
+      if (qtyInput && qtyInc) {
+        qtyInc.addEventListener('click', function () {
+          const n = parseInt(qtyInput.value, 10) || 1;
+          qtyInput.value = n + 1;
+        });
+      }
+
+      const initial = variants.find(function (v) { return String(v.id) === String(idInput.value); });
+      if (initial) applyVariant(initial);
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Aura product main",
+  "tag": "section",
+  "class": "aura-product-main-section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "range",
+      "id": "section_width",
+      "min": 960,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "label": "Max content width",
+      "default": 1240
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body text color",
+      "default": "#171012"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1B2C58"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#EC008C"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#ead8d2"
+    },
+    {
+      "type": "color",
+      "id": "button_gradient_start",
+      "label": "Button gradient start",
+      "default": "#43318F"
+    },
+    {
+      "type": "color",
+      "id": "button_gradient_end",
+      "label": "Button gradient end",
+      "default": "#EC008C"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star / rating color",
+      "default": "#EC008C"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show product badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "Best seller"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_zoom_icon",
+      "label": "Show zoom link on image",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_override",
+      "label": "Eyebrow override (blank uses product type)"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle / tagline",
+      "default": "Brightening • Hydrating • Radiant"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "rating_value",
+      "label": "Rating value",
+      "default": "4.8"
+    },
+    {
+      "type": "text",
+      "id": "review_count",
+      "label": "Review count label",
+      "default": "124 reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_benefits",
+      "label": "Show benefits list",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "benefits_metafield_namespace",
+      "label": "Benefits metafield namespace",
+      "default": "custom"
+    },
+    {
+      "type": "text",
+      "id": "benefits_metafield_key",
+      "label": "Benefits metafield key",
+      "default": "benefits"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show dynamic checkout (Buy it now)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_points",
+      "label": "Show points note",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "points_multiplier",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "label": "Points per $1 (currency unit)",
+      "default": 1
+    },
+    {
+      "type": "text",
+      "id": "points_label",
+      "label": "Points label",
+      "default": "Glow Points"
+    },
+    {
+      "type": "textarea",
+      "id": "points_text_override",
+      "label": "Points text override (optional, hides dynamic points)"
+    },
+    {
+      "type": "range",
+      "id": "gallery_radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Gallery image radius",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "thumbnail_radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Thumbnail radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "thumbnail_size",
+      "min": 64,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "label": "Thumbnail size",
+      "default": 90
+    },
+    {
+      "type": "select",
+      "id": "thumbnail_object_fit",
+      "label": "Thumbnail image fit",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Primary button radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "min": 28,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size (desktop)",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "min": 24,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size (mobile)",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "min": 13,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Body font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 13,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Add to cart font size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top (desktop)",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom (desktop)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top (mobile)",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom (mobile)",
+      "default": 28
+    }
+  ],
+  "presets": [
+    {
+      "name": "Aura product main"
+    }
+  ]
+}
+{% endschema %}
