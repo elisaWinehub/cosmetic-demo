@@ -52,7 +52,9 @@
         {% endif %}
         {{ section.settings.desktop_image | image_url: width: 2200 | image_tag: class: 'aura-hero__banner-image', loading: 'eager' }}
       </picture>
-      <div class="aura-hero__banner-fade"></div>
+      {% if section.settings.show_banner_fade %}
+        <div class="aura-hero__banner-fade"></div>
+      {% endif %}
     </div>
   {% endif %}
 
@@ -103,9 +105,11 @@
 
       <div class="aura-hero__media">
         <div class="aura-hero__media-shell">
-          <div class="aura-hero__stage"></div>
-          <div class="aura-hero__orb aura-hero__orb--one"></div>
-          <div class="aura-hero__orb aura-hero__orb--two"></div>
+          <div class="aura-hero__decor" aria-hidden="true">
+            <div class="aura-hero__stage"></div>
+            <div class="aura-hero__orb aura-hero__orb--one"></div>
+            <div class="aura-hero__orb aura-hero__orb--two"></div>
+          </div>
 
           {% if section.settings.desktop_image == blank %}
             <div class="aura-hero__mock-products" aria-hidden="true">
@@ -217,7 +221,7 @@
     padding: 0.6rem 0.95rem;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.68);
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.14em;
@@ -231,12 +235,12 @@
 
   .{{ hero_class }} .aura-hero__heading {
     margin: 1.6rem 0 1.3rem;
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: clamp(3.5rem, var(--aura-hero-heading-size), 5.9rem);
     font-weight: var(--aura-hero-heading-weight);
     line-height: var(--aura-hero-heading-line-height);
     letter-spacing: var(--aura-hero-heading-letter-spacing);
-    color: #171012;
+    color: var(--aura-heading-color);
     text-wrap: balance;
   }
 
@@ -264,16 +268,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
     min-height: 3.25rem;
     padding: 0 2rem;
-    border-radius: 0.3rem;
-    border: 1px solid var(--aura-primary-color);
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
     font-size: var(--aura-hero-button-size);
     font-weight: 900;
     letter-spacing: var(--aura-hero-button-letter-spacing);
     text-decoration: none;
     text-transform: uppercase;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-size 0.28s ease;
   }
 
   .{{ hero_class }} .aura-hero__button:hover {
@@ -281,14 +287,39 @@
   }
 
   .{{ hero_class }} .aura-hero__button--primary {
-    background: var(--aura-hero-button-background);
+    background: var(--aura-primary-gradient);
+    background-image:
+      linear-gradient(var(--aura-primary-color), var(--aura-primary-color)),
+      var(--aura-primary-gradient);
+    background-repeat: no-repeat;
+    background-position: right center, center;
+    background-size: 0% 100%, 100% 100%;
     color: var(--aura-hero-button-foreground);
+    border-color: transparent;
     box-shadow: 0 18px 45px rgba(129, 57, 82, 0.16);
+  }
+
+  .{{ hero_class }} .aura-hero__button--primary:hover {
+    background-size: 100% 100%, 100% 100%;
   }
 
   .{{ hero_class }} .aura-hero__button--secondary {
     background: var(--aura-hero-secondary-background);
+    background-image:
+      linear-gradient(var(--aura-hero-secondary-foreground), var(--aura-hero-secondary-foreground)),
+      linear-gradient(var(--aura-hero-secondary-background), var(--aura-hero-secondary-background));
+    background-repeat: no-repeat;
+    background-position: right center, center;
+    background-size: 0% 100%, 100% 100%;
     color: var(--aura-hero-secondary-foreground);
+    border-color: var(--aura-hero-secondary-foreground);
+    border-radius: 0.3rem;
+  }
+
+  .{{ hero_class }} .aura-hero__button--secondary:hover {
+    border-color: var(--aura-hero-secondary-foreground);
+    color: #ffffff;
+    background-size: 100% 100%, 100% 100%;
   }
 
   .{{ hero_class }} .aura-hero__social-proof {
@@ -343,6 +374,14 @@
     isolation: isolate;
   }
 
+  .{{ hero_class }} .aura-hero__decor {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
   .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__stage,
   .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__orb {
     display: none;
@@ -354,32 +393,41 @@
 
   .{{ hero_class }} .aura-hero__stage {
     position: absolute;
-    inset: 4.4rem 2.5rem 0 1.25rem;
-    border-radius: 50% 50% 18% 18%;
-    background: radial-gradient(circle at 45% 35%, rgba(255, 255, 255, 0.82), transparent 25%), linear-gradient(135deg, rgba(206, 92, 124, 0.22), rgba(255, 255, 255, 0.14));
+    width: 29rem;
+    height: 29rem;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 36% 34%, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0) 32%),
+      linear-gradient(135deg, rgba(247, 209, 224, 0.92), rgba(238, 189, 212, 0.72));
+    opacity: 0.78;
   }
 
   .{{ hero_class }} .aura-hero__orb {
     position: absolute;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(198, 58, 102, 0.72), rgba(255, 214, 220, 0.7));
-    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
+    box-shadow: 0 14px 34px rgba(129, 57, 82, 0.08);
     z-index: 1;
   }
 
   .{{ hero_class }} .aura-hero__orb--one {
-    width: 9.8rem;
-    height: 9.8rem;
-    left: 3rem;
-    bottom: 3.8rem;
+    width: 6.4rem;
+    height: 6.4rem;
+    left: 1.8rem;
+    bottom: 3rem;
+    background: linear-gradient(135deg, rgba(191, 71, 127, 0.42), rgba(236, 148, 189, 0.22));
+    opacity: 0.92;
   }
 
   .{{ hero_class }} .aura-hero__orb--two {
-    width: 12rem;
-    height: 12rem;
-    right: 0;
-    top: 8rem;
-    opacity: 0.78;
+    width: 8rem;
+    height: 8rem;
+    right: 2rem;
+    top: 8.6rem;
+    background: linear-gradient(135deg, rgba(255, 229, 222, 0.86), rgba(250, 201, 216, 0.36));
+    opacity: 0.88;
   }
 
   .{{ hero_class }} .aura-hero__picture {
@@ -410,7 +458,7 @@
     place-items: center;
     border: 1px solid rgba(134, 72, 74, 0.16);
     color: rgba(60, 25, 30, 0.62);
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     letter-spacing: 0.12em;
     text-align: center;
     background: linear-gradient(90deg, #f7c1b4, #fff6ee 38%, #c77d73 100%);
@@ -474,77 +522,147 @@
     inset: 0;
     z-index: 3;
     pointer-events: none;
+    overflow: visible;
   }
 
   .{{ hero_class }} .aura-hero__floating-card {
     position: absolute;
-    min-width: 11rem;
-    max-width: 13.5rem;
-    padding: 1rem 1.15rem;
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    background: var(--aura-hero-card-background);
-    box-shadow: 0 18px 45px rgba(129, 57, 82, 0.12);
-    backdrop-filter: blur(12px);
-    color: var(--aura-hero-card-foreground);
+    width: clamp(10.5rem, 18vw, 13.25rem);
+    min-width: 0;
+    max-width: none;
+    padding: clamp(0.95rem, 1.2vw, 1.15rem) clamp(0.9rem, 1.1vw, 1.15rem) clamp(0.85rem, 1vw, 1rem);
+    border-radius: 12px;
+    border: 1px solid rgba(236, 0, 140, 0.14);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 252, 250, 0.86) 58%, rgba(245, 248, 255, 0.78));
+    box-shadow: 0 20px 45px rgba(27, 44, 88, 0.12), 0 8px 22px rgba(236, 0, 140, 0.08);
+    backdrop-filter: blur(18px) saturate(135%);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    color: #6a6474;
+    overflow: visible;
+    animation: aura-hero-floating-card-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.8), transparent 48%);
+    pointer-events: none;
+    z-index: 0;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--top-right {
-    top: 1.5rem;
-    right: 3.75rem;
+    top: clamp(0.85rem, 1.25vw, 1.25rem);
+    right: clamp(0.5rem, 1vw, 1rem);
+    width: clamp(11.9rem, 20vw, 14.5rem);
+    animation-delay: 0.08s;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--middle-left {
-    top: 10.75rem;
-    right: 3.95rem;
+    top: clamp(10.2rem, 34%, 12.8rem);
+    right: clamp(3.15rem, 11%, 4.25rem);
+    width: clamp(10rem, 16vw, 12.25rem);
+    animation-delay: 0.2s;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--bottom-right {
-    right: 0;
-    bottom: 4.7rem;
+    right: clamp(0.3rem, 0.8vw, 0.85rem);
+    bottom: clamp(-0.15rem, 0.5vw, 0.45rem);
+    width: clamp(10.8rem, 17vw, 13rem);
+    animation-delay: 0.34s;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--bottom-left {
-    left: 0;
-    bottom: 3rem;
+    right: clamp(3.35rem, 11%, 4.6rem);
+    bottom: clamp(0.95rem, 1.7vw, 1.6rem);
+    width: clamp(10.2rem, 16.5vw, 12.75rem);
+    animation-delay: 0.44s;
   }
 
   .{{ hero_class }} .aura-hero__floating-icon {
-    width: 1.65rem;
-    height: 1.65rem;
-    margin-bottom: 0.45rem;
-    color: var(--aura-primary-color);
+    position: absolute;
+    top: clamp(-5.72rem, -1.8vw, -1.58rem);
+    left: clamp(-4.82rem, -1.9vw, -1.62rem);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: clamp(2.85rem, 4vw, 3.35rem);
+    height: clamp(2.85rem, 4vw, 3.35rem);
+    border-radius: 50%;
+    border: 1px solid rgba(236, 0, 140, 0.14);
+    background: #EC008C;
+    box-shadow: 0 14px 28px rgba(27, 44, 88, 0.16), 0 6px 14px rgba(236, 0, 140, 0.12);
+    color: #ffffff;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-icon .aura-icon,
+  .{{ hero_class }} .aura-hero__floating-icon .aura-icon svg {
+    width: 72%;
+    height: 72%;
+    color: #ffffff;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-copy {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
   }
 
   .{{ hero_class }} .aura-hero__floating-eyebrow {
-    color: #dd6f8e;
-    font-size: 0.7rem;
-    font-weight: 800;
+    color: #EC008C;
+    font-size: clamp(0.66rem, 0.64rem + 0.12vw, 0.76rem);
+    font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
   .{{ hero_class }} .aura-hero__floating-heading {
-    margin-top: 0.15rem;
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 1.9rem;
-    line-height: 1;
+    margin-top: 0;
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.15rem, 1.55vw, 1.45rem);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    color: #1b2c58;
+    text-wrap: balance;
+  }
+
+  .{{ hero_class }} .aura-hero__floating-card--top-right .aura-hero__floating-heading {
+    font-size: 1.3em;
+    line-height: 0.9;
   }
 
   .{{ hero_class }} .aura-hero__floating-card--middle-left .aura-hero__floating-heading,
   .{{ hero_class }} .aura-hero__floating-card--bottom-right .aura-hero__floating-heading,
   .{{ hero_class }} .aura-hero__floating-card--bottom-left .aura-hero__floating-heading {
-    font-family: var(--font-primary--family);
-    font-size: 1rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
+    font-size: clamp(1.02rem, 1.35vw, 1.3rem);
+    line-height: 0.98;
   }
 
   .{{ hero_class }} .aura-hero__floating-text {
-    margin-top: 0.1rem;
-    color: #6f5b63;
-    font-size: 0.88rem;
-    line-height: 1.4;
+    margin-top: 0.08rem;
+    color: #746a7c;
+    font-size: clamp(0.8rem, 0.76rem + 0.12vw, 0.9rem);
+    line-height: 1.32;
+  }
+
+  @keyframes aura-hero-floating-card-in {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 16px, 0) scale(0.98);
+    }
+
+    65% {
+      opacity: 1;
+      transform: translate3d(0, -3px, 0) scale(1);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
   }
 
   @media (max-width: 989px) {
@@ -563,6 +681,12 @@
       min-height: 26rem;
     }
 
+    .{{ hero_class }} .aura-hero__stage {
+      width: 23rem;
+      height: 23rem;
+      right: 2rem;
+    }
+
     .{{ hero_class }} .aura-hero__product--bottle {
       left: 4.2rem;
     }
@@ -575,10 +699,42 @@
       right: 2rem;
     }
 
+    .{{ hero_class }} .aura-hero__floating-card {
+      width: clamp(9.4rem, 23vw, 11.5rem);
+      padding: 0.88rem 0.82rem 0.82rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card--top-right {
+      top: 0.45rem;
+      right: 0.3rem;
+    }
+
     .{{ hero_class }} .aura-hero__floating-card--middle-left {
-      top: 9.75rem;
-      right: 1rem;
-      left: auto;
+      top: 9.5rem;
+      right: 2.2rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card--bottom-right {
+      right: 0.35rem;
+      bottom: 0.35rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card--bottom-left {
+      right: 2.35rem;
+      bottom: 0.55rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-icon {
+      width: 2.7rem;
+      height: 2.7rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card--top-right .aura-hero__floating-heading {
+      font-size: clamp(1.35rem, 3vw, 1.8rem);
+    }
+
+    .{{ hero_class }} .aura-hero__floating-text {
+      font-size: 0.76rem;
     }
   }
 
@@ -612,6 +768,36 @@
       transform-origin: top center;
     }
 
+    .{{ hero_class }} .aura-hero__decor {
+      opacity: 0.55;
+    }
+
+    .{{ hero_class }} .aura-hero__stage {
+      width: 16rem;
+      height: 16rem;
+      right: 50%;
+      top: 52%;
+      transform: translate(50%, -50%);
+    }
+
+    .{{ hero_class }} .aura-hero__orb {
+      box-shadow: none;
+    }
+
+    .{{ hero_class }} .aura-hero__orb--one {
+      width: 4.5rem;
+      height: 4.5rem;
+      left: 1rem;
+      bottom: 1.2rem;
+    }
+
+    .{{ hero_class }} .aura-hero__orb--two {
+      width: 5rem;
+      height: 5rem;
+      right: 1rem;
+      top: 3rem;
+    }
+
     .{{ hero_class }}.aura-hero--has-banner-image .aura-hero__media {
       display: none;
     }
@@ -621,7 +807,51 @@
     }
 
     .{{ hero_class }} .aura-hero__floating-cards {
+      inset: auto 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.6rem;
+      width: min(13.75rem, calc(100% - 0.35rem));
+      padding: 0 0.35rem 0.15rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card {
+      position: relative;
+      top: auto;
+      right: auto;
+      bottom: auto;
+      left: auto;
+      width: 100%;
+      padding: 0.78rem 0.8rem 0.78rem;
+      animation-duration: 0.55s;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-icon {
+      width: 2.45rem;
+      height: 2.45rem;
+      top: -0.55rem;
+      left: -0.4rem;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-heading,
+    .{{ hero_class }} .aura-hero__floating-card--top-right .aura-hero__floating-heading {
+      font-size: clamp(0.98rem, 4vw, 1.35rem);
+      max-width: none;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-card:not(.aura-hero__floating-card--top-right) .aura-hero__floating-text {
       display: none;
+    }
+
+    .{{ hero_class }} .aura-hero__floating-text {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .{{ hero_class }} .aura-hero__floating-card {
+      animation: none;
     }
   }
 {% endstyle %}
@@ -696,6 +926,12 @@
       "type": "image_picker",
       "id": "mobile_image",
       "label": "Mobile image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_banner_fade",
+      "label": "Show image fade overlay",
+      "default": true
     },
     {
       "type": "checkbox",
@@ -803,13 +1039,13 @@
       "type": "color",
       "id": "secondary_button_background",
       "label": "Secondary button background",
-      "default": "#fff6f7"
+      "default": "rgba(0,0,0,0)"
     },
     {
       "type": "color",
       "id": "secondary_button_foreground",
       "label": "Secondary button text",
-      "default": "#633348"
+      "default": "#1B2C58"
     },
     {
       "type": "header",

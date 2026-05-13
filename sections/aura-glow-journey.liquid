@@ -100,12 +100,12 @@
   }
 
   .{{ journey_class }} .aura-glow-journey__heading {
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: var(--aura-glow-journey-heading-size);
     font-weight: 500;
     line-height: 1.05;
     letter-spacing: -0.04em;
-    color: #171012;
+    color: var(--aura-heading-color);
   }
 
   .{{ journey_class }} .aura-glow-journey__subheading {
@@ -116,6 +116,7 @@
   }
 
   .{{ journey_class }} .aura-glow-journey__card {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -126,6 +127,23 @@
     background: var(--aura-glow-journey-card-background);
     color: var(--aura-glow-journey-card-text);
     box-shadow: 0 12px 32px rgba(150, 92, 104, 0.06);
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+  }
+
+  .{{ journey_class }} .aura-glow-journey__card::after {
+    content: "";
+    position: absolute;
+    top: -18%;
+    bottom: -18%;
+    left: -42%;
+    width: 34%;
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.12) 40%, rgba(255, 255, 255, 0.62) 52%, rgba(255, 255, 255, 0.12) 64%, rgba(255, 255, 255, 0) 100%);
+    transform: translateX(-165%) skewX(-20deg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
   }
 
   .{{ journey_class }}.aura-glow-journey--center .aura-glow-journey__card {
@@ -133,10 +151,14 @@
   }
 
   .{{ journey_class }} .aura-glow-journey__card--highlight {
-    background: linear-gradient(135deg, #ca4773, #8e3154);
+    background: linear-gradient(135deg, var(--aura-secondary-color), var(--aura-glow-journey-highlight-background));
     color: var(--aura-glow-journey-highlight-text);
     transform: translateY(-1.25rem);
     box-shadow: 0 22px 45px rgba(142, 49, 84, 0.22);
+  }
+
+  .{{ journey_class }} .aura-glow-journey__card--highlight::after {
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 40%, rgba(255, 255, 255, 0.48) 52%, rgba(255, 255, 255, 0.1) 64%, rgba(255, 255, 255, 0) 100%);
   }
 
   .{{ journey_class }} .aura-glow-journey__card-top {
@@ -155,11 +177,17 @@
     padding: 0.75rem;
     border-radius: 999px;
     background: #fff0f3;
-    color: #dd6f8e;
+    color: var(--aura-primary-color);
   }
 
   .{{ journey_class }} .aura-glow-journey__card--highlight .aura-glow-journey__icon {
     background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+  }
+
+  .{{ journey_class }} .aura-glow-journey__card--highlight .aura-icon,
+  .{{ journey_class }} .aura-glow-journey__card--highlight .aura-glow-journey__list-icon,
+  .{{ journey_class }} .aura-glow-journey__card--highlight .aura-glow-journey__list-icon .aura-icon {
     color: #ffffff;
   }
 
@@ -181,8 +209,13 @@
 
   .{{ journey_class }} .aura-glow-journey__tier-name {
     margin: 0 0 0.6rem;
+    color: var(--aura-heading-color);
     font-size: clamp(1.65rem, 2vw, 2rem);
     font-weight: 600;
+  }
+
+  .{{ journey_class }} .aura-glow-journey__card--highlight .aura-glow-journey__tier-name {
+    color: #ffffff;
   }
 
   .{{ journey_class }} .aura-glow-journey__description {
@@ -229,6 +262,27 @@
     font-weight: 700;
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .{{ journey_class }} .aura-glow-journey__card:hover {
+      box-shadow: 0 18px 40px rgba(150, 92, 104, 0.1);
+    }
+
+    .{{ journey_class }} .aura-glow-journey__card:hover::after {
+      opacity: 1;
+      transform: translateX(360%) skewX(-20deg);
+      transition: transform 0.8s ease, opacity 0.24s ease;
+    }
+
+    .{{ journey_class }} .aura-glow-journey__card:not(.aura-glow-journey__card--highlight):hover {
+      transform: translateY(-0.35rem);
+    }
+
+    .{{ journey_class }} .aura-glow-journey__card--highlight:hover {
+      transform: translateY(-1.45rem);
+      box-shadow: 0 28px 52px rgba(142, 49, 84, 0.26);
+    }
+  }
+
   @media (max-width: 989px) {
     .{{ journey_class }} .aura-glow-journey__grid {
       grid-template-columns: 1fr;
@@ -246,6 +300,17 @@
 
     .{{ journey_class }} .aura-glow-journey__heading {
       font-size: min(calc(var(--aura-glow-journey-heading-size) * 0.84), 2.3rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .{{ journey_class }} .aura-glow-journey__card,
+    .{{ journey_class }} .aura-glow-journey__card::after {
+      transition: none;
+    }
+
+    .{{ journey_class }} .aura-glow-journey__card::after {
+      display: none;
     }
   }
 {% endstyle %}
@@ -291,7 +356,7 @@
       "type": "color",
       "id": "highlight_background",
       "label": "Highlighted card background",
-      "default": "#b34e73"
+      "default": "#EC008C"
     },
     {
       "type": "color",

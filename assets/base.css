@@ -1278,6 +1278,7 @@ button.shopify-payment-button__button--unbranded {
   text-align: var(--text-align);
   color: var(--button-color);
   appearance: none;
+  background: var(--button-background, var(--button-background-color));
   background-color: var(--button-background-color);
   border: none;
   font-family: var(--font-paragraph--family);
@@ -1288,7 +1289,8 @@ button.shopify-payment-button__button--unbranded {
   margin-block: 0;
   transition: color var(--animation-speed) var(--animation-easing),
     box-shadow var(--animation-speed) var(--animation-easing),
-    background-color var(--animation-speed) var(--animation-easing);
+    background-color var(--animation-speed) var(--animation-easing),
+    background-size 0.28s ease;
   cursor: pointer;
   width: fit-content;
   box-shadow: inset 0 0 0 var(--button-border-width) var(--button-border-color);
@@ -1299,17 +1301,33 @@ button.shopify-payment-button__button--unbranded {
 .button {
   font-family: var(--button-font-family-primary);
   text-transform: var(--button-text-case-primary);
-  border-radius: var(--style-border-radius-buttons-primary);
+  border-radius: 0.5rem;
 }
 
 .button:not(.button-secondary, .button-unstyled) {
   outline-color: var(--button-background-color);
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(var(--aura-primary-color), var(--aura-primary-color)),
+    var(--button-background, var(--button-background-color));
+  background-repeat: no-repeat;
+  background-position: right center, center;
+  background-size: 0% 100%, 100% 100%;
 }
 
 .button-secondary {
   font-family: var(--button-font-family-secondary);
   text-transform: var(--button-text-case-secondary);
-  border-radius: var(--style-border-radius-buttons-secondary);
+  border-radius: 0.3rem;
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(var(--color-secondary-button-hover-background), var(--color-secondary-button-hover-background)),
+    var(--button-background, var(--button-background-color));
+  background-repeat: no-repeat;
+  background-position: right center, center;
+  background-size: 0% 100%, 100% 100%;
 }
 
 button.shopify-payment-button__button--unbranded {
@@ -1348,20 +1366,28 @@ input:not(:placeholder-shown)::placeholder {
 .button,
 button.shopify-payment-button__button--unbranded {
   --button-color: var(--color-primary-button-text);
+  --button-background: var(--aura-primary-button-background);
   --button-background-color: var(--color-primary-button-background);
-  --button-border-color: var(--color-primary-button-border);
+  --button-border-color: transparent;
   --button-border-width: var(--style-border-width-primary);
 }
 
 .button:hover,
 button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
   --button-color: var(--color-primary-button-hover-text);
+  --button-background: var(--aura-primary-button-hover-background);
   --button-background-color: var(--color-primary-button-hover-background);
-  --button-border-color: var(--color-primary-button-hover-border);
+  --button-border-color: transparent;
+}
+
+.button:not(.button-secondary, .button-unstyled):hover,
+button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
+  background-size: 100% 100%, 100% 100%;
 }
 
 .button-secondary {
   --button-color: var(--color-secondary-button-text);
+  --button-background: var(--color-secondary-button-background);
   --button-background-color: var(--color-secondary-button-background);
   --button-border-color: var(--color-secondary-button-border);
   --button-border-width: var(--style-border-width-secondary);
@@ -1369,8 +1395,10 @@ button.shopify-payment-button__button--unbranded:hover:not([disabled]) {
 
 .button-secondary:hover {
   --button-color: var(--color-secondary-button-hover-text);
+  --button-background: var(--color-secondary-button-hover-background);
   --button-background-color: var(--color-secondary-button-hover-background);
   --button-border-color: var(--color-secondary-button-hover-border);
+  background-size: 100% 100%, 100% 100%;
 }
 
 /* Needed to override the default Shopify styles */

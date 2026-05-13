@@ -131,11 +131,12 @@
   }
 
   .{{ cta_class }} .aura-cta__heading {
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: var(--aura-cta-heading-size);
     font-weight: 500;
     line-height: 1.06;
     letter-spacing: -0.04em;
+    color: #ffffff;
   }
 
   .{{ cta_class }} .aura-cta__subheading {
@@ -148,18 +149,32 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
     min-height: 3.25rem;
     min-width: 16rem;
     margin-top: 0.35rem;
     padding: 0.85rem 1.5rem;
-    border-radius: 0.3rem;
-    background: var(--aura-cta-button-background);
+    border-radius: 0.5rem;
+    background: var(--aura-primary-gradient);
+    background-image:
+      linear-gradient(var(--aura-primary-color), var(--aura-primary-color)),
+      var(--aura-primary-gradient);
+    background-repeat: no-repeat;
+    background-position: right center, center;
+    background-size: 0% 100%, 100% 100%;
     color: var(--aura-cta-button-text);
     text-decoration: none;
     font-size: 0.75rem;
     font-weight: 900;
     letter-spacing: 0.13em;
     text-transform: uppercase;
+    transition: background-size 0.28s ease, transform 0.2s ease;
+  }
+
+  .{{ cta_class }} .aura-cta__button:hover {
+    background-size: 100% 100%, 100% 100%;
+    transform: translateY(-1px);
   }
 
   .{{ cta_class }} .aura-cta__secondary-link {
@@ -322,7 +337,7 @@
       "type": "color",
       "id": "button_text_color",
       "label": "Button text color",
-      "default": "#7b3f58"
+      "default": "#ffffff"
     },
     {
       "type": "color",

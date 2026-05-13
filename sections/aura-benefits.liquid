@@ -68,11 +68,11 @@
   }
 
   .{{ benefits_class }} .aura-benefits__heading {
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--font-heading--family);
     font-size: var(--aura-benefits-heading-size);
     font-weight: 500;
     letter-spacing: -0.04em;
-    color: #171012;
+    color: var(--aura-heading-color);
   }
 
   .{{ benefits_class }} .aura-benefits__grid {
@@ -115,6 +115,7 @@
 
   .{{ benefits_class }} .aura-benefits__card-heading {
     margin: 0 0 0.75rem;
+    color: var(--aura-heading-color);
     font-size: var(--aura-benefits-card-title-size);
     letter-spacing: 0.13em;
     text-transform: uppercase;
@@ -177,7 +178,7 @@
       "type": "color",
       "id": "icon_color",
       "label": "Icon color",
-      "default": "#b35a76"
+      "default": "#EC008C"
     },
     {
       "type": "color",
