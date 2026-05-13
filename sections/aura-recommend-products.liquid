@@ -78,7 +78,7 @@
                 </h3>
               {% endif %}
               {% if section.settings.show_price %}
-                <p class="aura-recommend-products__price">{{ rec_product.price | money }}</p>
+                <p class="aura-recommend-products__price">{{ cart.currency.symbol }}{{ rec_product.price | money_without_currency }}</p>
               {% endif %}
             </div>
           </article>
@@ -107,7 +107,7 @@
                 <h3 class="aura-recommend-products__title">{{ section.settings.placeholder_title | escape }}</h3>
               {% endif %}
               {% if section.settings.show_price %}
-                <p class="aura-recommend-products__price">{{ 2400 | times: i | money }}</p>
+                <p class="aura-recommend-products__price">{{ cart.currency.symbol }}{{ 2400 | times: i | money_without_currency }}</p>
               {% endif %}
             </div>
           </article>

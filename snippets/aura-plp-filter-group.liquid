@@ -1,0 +1,191 @@
+{% doc %}
+  Renders one storefront filter accordion for the Aura collection PLP sidebar (price, boolean, or list).
+
+  @param {filter} filter - `collection.filters` entry
+  @param {section} section - Parent `aura-collection-grid` section
+  @param {string} price_id - Prefix for price range input ids
+
+  @param {string} [summary_label] - Optional accordion title (overrides filter.label)
+
+  @example
+  {% render 'aura-plp-filter-group', filter: filter, section: section, price_id: price_id %}
+
+  @example
+  {% render 'aura-plp-filter-group', filter: filter, section: section, price_id: price_id, summary_label: type_label %}
+{% enddoc %}
+
+<details class="aura-plp-accordion" open>
+  <summary class="aura-plp-accordion__summary">
+    <span>{% if summary_label != blank %}{{ summary_label | escape }}{% else %}{{ filter.label | escape }}{% endif %}</span>
+    <span class="aura-plp-accordion__caret" aria-hidden="true"></span>
+  </summary>
+  <div class="aura-plp-accordion__body">
+    {% case filter.type %}
+      {% when 'price_range' %}
+        <div class="aura-plp-price">
+          <div class="aura-plp-price__field">
+            <label class="aura-plp-price__lbl" for="{{ price_id }}-min">{{ 'sections.aura_collection_grid.price_min' | t }}</label>
+            <input
+              type="text"
+              class="aura-plp-price__input"
+              name="{{ filter.min_value.param_name }}"
+              id="{{ price_id }}-min"
+              {% if filter.min_value.value %}
+                value="{{ filter.min_value.value | money_without_currency }}"
+              {% endif %}
+              inputmode="decimal"
+              autocomplete="off"
+              placeholder="0"
+            >
+          </div>
+          <span class="aura-plp-price__sep">—</span>
+          <div class="aura-plp-price__field">
+            <label class="aura-plp-price__lbl" for="{{ price_id }}-max">{{ 'sections.aura_collection_grid.price_max' | t }}</label>
+            <input
+              type="text"
+              class="aura-plp-price__input"
+              name="{{ filter.max_value.param_name }}"
+              id="{{ price_id }}-max"
+              {% if filter.max_value.value %}
+                value="{{ filter.max_value.value | money_without_currency }}"
+              {% endif %}
+              inputmode="decimal"
+              autocomplete="off"
+              placeholder="{{ filter.range_max | money_without_currency }}"
+            >
+          </div>
+        </div>
+        <button type="submit" class="aura-plp-price__apply">{{ 'sections.aura_collection_grid.apply_price' | t }}</button>
+
+      {% when 'boolean' %}
+        <ul class="aura-plp-list" role="list">
+          {% if filter.true_value %}
+            {% liquid
+              assign fid_true = 'AuraPlp-' | append: section.id | append: '-' | append: filter.param_name | replace: '.', '-' | append: '-true'
+              assign is_disabled_t = false
+              if filter.true_value.count == 0 and filter.true_value.active == false
+                assign is_disabled_t = true
+              endif
+            %}
+            <li class="aura-plp-list__item{% if is_disabled_t %} aura-plp-list__item--disabled{% endif %}">
+              <input
+                type="checkbox"
+                name="{{ filter.param_name }}"
+                value="{{ filter.true_value.value }}"
+                id="{{ fid_true }}"
+                class="aura-plp-checkbox"
+                data-aura-plp-auto-submit
+                {% if filter.true_value.active %}
+                  checked
+                {% endif %}
+                {% if is_disabled_t %}
+                  disabled
+                {% endif %}
+              >
+              <label class="aura-plp-checkbox-lbl" for="{{ fid_true }}">
+                <span>{{ filter.true_value.label | escape }}</span>
+                <span class="aura-plp-checkbox-count">({{ filter.true_value.count }})</span>
+              </label>
+            </li>
+          {% endif %}
+          {% if filter.false_value %}
+            {% liquid
+              assign fid_false = 'AuraPlp-' | append: section.id | append: '-' | append: filter.param_name | replace: '.', '-' | append: '-false'
+              assign is_disabled_f = false
+              if filter.false_value.count == 0 and filter.false_value.active == false
+                assign is_disabled_f = true
+              endif
+            %}
+            <li class="aura-plp-list__item{% if is_disabled_f %} aura-plp-list__item--disabled{% endif %}">
+              <input
+                type="checkbox"
+                name="{{ filter.param_name }}"
+                value="{{ filter.false_value.value }}"
+                id="{{ fid_false }}"
+                class="aura-plp-checkbox"
+                data-aura-plp-auto-submit
+                {% if filter.false_value.active %}
+                  checked
+                {% endif %}
+                {% if is_disabled_f %}
+                  disabled
+                {% endif %}
+              >
+              <label class="aura-plp-checkbox-lbl" for="{{ fid_false }}">
+                <span>{{ filter.false_value.label | escape }}</span>
+                <span class="aura-plp-checkbox-count">({{ filter.false_value.count }})</span>
+              </label>
+            </li>
+          {% endif %}
+        </ul>
+
+      {% when 'list' %}
+        <ul class="aura-plp-list" role="list">
+          {% for value in filter.values %}
+            {% liquid
+              assign fid = 'AuraPlp-' | append: section.id | append: '-' | append: filter.param_name | replace: '.', '-' | append: '-' | append: forloop.index
+              assign is_disabled = false
+              if value.count == 0 and value.active == false
+                assign is_disabled = true
+              endif
+            %}
+            <li class="aura-plp-list__item{% if is_disabled %} aura-plp-list__item--disabled{% endif %}">
+              <input
+                type="checkbox"
+                name="{{ value.param_name }}"
+                value="{{ value.value }}"
+                id="{{ fid }}"
+                class="aura-plp-checkbox"
+                data-aura-plp-auto-submit
+                {% if value.active %}
+                  checked
+                {% endif %}
+                {% if is_disabled %}
+                  disabled
+                {% endif %}
+              >
+              <label class="aura-plp-checkbox-lbl" for="{{ fid }}">
+                <span>{{ value.label | escape }}</span>
+                <span class="aura-plp-checkbox-count">({{ value.count }})</span>
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
+
+      {% else %}
+        {% if filter.values.size > 0 %}
+          <ul class="aura-plp-list" role="list">
+            {% for value in filter.values %}
+              {% liquid
+                assign fid = 'AuraPlp-' | append: section.id | append: '-' | append: filter.param_name | replace: '.', '-' | append: '-' | append: forloop.index
+                assign is_disabled = false
+                if value.count == 0 and value.active == false
+                  assign is_disabled = true
+                endif
+              %}
+              <li class="aura-plp-list__item{% if is_disabled %} aura-plp-list__item--disabled{% endif %}">
+                <input
+                  type="checkbox"
+                  name="{{ value.param_name }}"
+                  value="{{ value.value }}"
+                  id="{{ fid }}"
+                  class="aura-plp-checkbox"
+                  data-aura-plp-auto-submit
+                  {% if value.active %}
+                    checked
+                  {% endif %}
+                  {% if is_disabled %}
+                    disabled
+                  {% endif %}
+                >
+                <label class="aura-plp-checkbox-lbl" for="{{ fid }}">
+                  <span>{{ value.label | escape }}</span>
+                  <span class="aura-plp-checkbox-count">({{ value.count }})</span>
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+    {% endcase %}
+  </div>
+</details>

@@ -47,12 +47,47 @@
 {% if display_subtitle == blank %}
   {% assign display_subtitle = section.settings.subtitle %}
 {% endif %}
+{% liquid
+  assign cart_modal_pts_mult = section.settings.cart_modal_points_multiplier | default: 0
+  if cart_modal_pts_mult == 0
+    assign cart_modal_pts_mult = section.settings.points_multiplier
+  endif
+  assign cart_modal_lbl = section.settings.cart_modal_reward_label | strip
+  if cart_modal_lbl == blank
+    assign cart_modal_lbl = section.settings.points_label
+  endif
+  assign reward_goal_raw = section.settings.cart_modal_reward_spend_goal | default: 100
+  assign reward_goal_cents = reward_goal_raw | times: 100
+  assign cart_modal_pts_cap = section.settings.cart_modal_points_cap | default: 100
+  assign pdp_variant_on_sale = false
+  if current_variant.compare_at_price > current_variant.price
+    assign pdp_variant_on_sale = true
+  endif
+%}
 
 <section
   class="aura-product-main {{ root_class }}"
   data-aura-product-main
+  data-product-title="{{ product.title | escape }}"
   data-points-mult="{{ section.settings.points_multiplier }}"
   data-money-format="{{ shop.money_format | escape }}"
+  data-currency-symbol="{{ cart.currency.symbol | escape }}"
+  data-cart-url="{{ routes.cart_url | escape }}"
+  data-cart-add-url="{{ routes.cart_add_url | append: '.js' | escape }}"
+  data-cart-json-url="{{ routes.cart_url | append: '.js' | escape }}"
+  data-checkout-url="{{ shop.url }}/checkout"
+  data-added-error-msg="{{ 'sections.aura_product_main.added_error' | t | escape }}"
+  data-cart-modal-show-rewards="{% if section.settings.cart_modal_show_rewards == false %}false{% else %}true{% endif %}"
+  data-reward-spend-goal-cents="{{ reward_goal_cents }}"
+  data-reward-points-max="{{ cart_modal_pts_cap }}"
+  data-cart-modal-points-mult="{{ cart_modal_pts_mult }}"
+  data-reward-label="{{ cart_modal_lbl | escape }}"
+  data-reward-message-template="{{ section.settings.cart_modal_reward_message | escape }}"
+  data-reward-message-fallback="{{ 'sections.aura_product_main.cart_modal_reward_away' | t | escape }}"
+  data-reward-complete-msg="{{ 'sections.aura_product_main.cart_modal_reward_complete' | t | escape }}"
+  data-cart-modal-subtotal-one="{{ 'sections.aura_product_main.cart_modal_subtotal_one' | t | escape }}"
+  data-cart-modal-subtotal-other="{{ 'sections.aura_product_main.cart_modal_subtotal_other' | t | escape }}"
+  data-cart-modal-line-qty-template="{{ 'sections.aura_product_main.cart_modal_line_in_cart' | t | escape }}"
   style="
     --apm-max-width: {{ section.settings.section_width }}px;
     --apm-background: {{ section.settings.background_color }};
@@ -61,6 +96,7 @@
     --apm-accent: {{ section.settings.accent_color }};
     --apm-border: {{ section.settings.border_color }};
     --apm-gradient: linear-gradient(90deg, {{ section.settings.button_gradient_start }} 0%, {{ section.settings.button_gradient_end }} 100%);
+    --apm-secondary-btn: {{ section.settings.button_gradient_start }};
     --apm-gallery-radius: {{ section.settings.gallery_radius }}px;
     --apm-thumb-radius: {{ section.settings.thumbnail_radius }}px;
     --apm-thumb-size: {{ section.settings.thumbnail_size }}px;
@@ -75,6 +111,10 @@
     --apm-padding-top-m: {{ section.settings.padding_top_mobile }}px;
     --apm-padding-bottom-m: {{ section.settings.padding_bottom_mobile }}px;
     --apm-star-color: {{ section.settings.star_color }};
+    --apm-cart-modal-reward-bg: #fff6f9;
+    --apm-cart-modal-reward-border: rgba(236, 0, 140, 0.22);
+    --apm-cart-modal-progress-track: #fde8f0;
+    --apm-cart-modal-progress-bar: linear-gradient(90deg, {{ section.settings.button_gradient_start }} 0%, {{ section.settings.button_gradient_end }} 100%);
   "
 >
   <div class="aura-product-main__inner">
@@ -218,18 +258,18 @@
         {% endif %}
 
         <div class="aura-product-main__price-row">
-          <span class="aura-product-main__price" data-aura-price>{{ current_variant.price | money }}</span>
-          <span
-            class="aura-product-main__compare"
+          <s
+            class="aura-product-main__price-compare"
             data-aura-compare
-            {% unless current_variant.compare_at_price > current_variant.price %}
+            {% unless pdp_variant_on_sale %}
               hidden
             {% endunless %}
           >
-            {%- if current_variant.compare_at_price > current_variant.price -%}
-              {{ current_variant.compare_at_price | money }}
+            {%- if pdp_variant_on_sale -%}
+              {{- current_variant.compare_at_price | money -}}
             {%- endif -%}
-          </span>
+          </s>
+          <span class="aura-product-main__price-current" data-aura-price>{{ current_variant.price | money }}</span>
         </div>
 
         {% if product.description != blank %}
@@ -304,7 +344,20 @@
           <div class="aura-product-main__purchase">
             <div class="aura-product-main__purchase-row aura-product-main__purchase-row--static">
               <span>{{ 'sections.aura_product_main.one_time' | t }}</span>
-              <strong data-aura-one-time-price>{{ current_variant.price | money }}</strong>
+              <strong class="aura-product-main__purchase-price-wrap">
+                <s
+                  class="aura-product-main__purchase-compare"
+                  data-aura-one-time-compare
+                  {% unless pdp_variant_on_sale %}
+                    hidden
+                  {% endunless %}
+                >
+                  {%- if pdp_variant_on_sale -%}
+                    {{- current_variant.compare_at_price | money -}}
+                  {%- endif -%}
+                </s>
+                <span class="aura-product-main__purchase-current" data-aura-one-time-price>{{ current_variant.price | money }}</span>
+              </strong>
             </div>
           </div>
 
@@ -332,13 +385,17 @@
               {% endunless %}
               data-aura-add
               data-label-available="{{ 'sections.aura_product_main.add_to_cart' | t | escape }}"
+              data-label-loading="{{ 'sections.aura_product_main.add_to_cart_loading' | t | escape }}"
               data-label-soldout="{{ 'sections.aura_product_main.sold_out' | t | escape }}"
             >
-              {% if current_variant.available %}
-                {{ 'sections.aura_product_main.add_to_cart' | t }}
-              {% else %}
-                {{ 'sections.aura_product_main.sold_out' | t }}
-              {% endif %}
+              <span class="aura-product-main__submit-spinner" aria-hidden="true"></span>
+              <span class="aura-product-main__submit-label">
+                {% if current_variant.available %}
+                  {{ 'sections.aura_product_main.add_to_cart' | t }}
+                {% else %}
+                  {{ 'sections.aura_product_main.sold_out' | t }}
+                {% endif %}
+              </span>
             </button>
           </div>
 
@@ -352,7 +409,7 @@
         {% if section.settings.show_points %}
           {% liquid
             assign pts_initial = current_variant.price | times: section.settings.points_multiplier | divided_by: 100.0 | round
-            assign points_tpl = 'sections.aura_product_main.points_earn' | t: points: '__POINTS__', label: section.settings.points_label
+            assign points_tpl = 'sections.aura_product_main.points_earn' | t: points: '__POINTS__', reward_label: section.settings.points_label
           %}
           {% if section.settings.points_text_override != blank %}
             <p class="aura-product-main__points">{{ section.settings.points_text_override | escape }}</p>
@@ -365,7 +422,7 @@
             >
               <span class="aura-product-main__points-inner">
                 {% render 'aura-icon', icon: 'sparkle', class: 'aura-product-main__points-icon' %}
-                <span data-aura-points-text>{{ 'sections.aura_product_main.points_earn' | t: points: pts_initial, label: section.settings.points_label }}</span>
+                <span data-aura-points-text>{{ 'sections.aura_product_main.points_earn' | t: points: pts_initial, reward_label: section.settings.points_label }}</span>
               </span>
             </p>
           {% endif %}
@@ -383,7 +440,8 @@
           "compare_at_price": {% if variant.compare_at_price %}{{ variant.compare_at_price }}{% else %}null{% endif %},
           "available": {{ variant.available | json }},
           "options": {{ variant.options | json }},
-          "featured_media_id": {% if variant.featured_media %}{{ variant.featured_media.id }}{% else %}null{% endif %}
+          "featured_media_id": {% if variant.featured_media %}{{ variant.featured_media.id }}{% else %}null{% endif %},
+          "image": {% if variant.featured_media %}{{ variant.featured_media | image_url: width: 360 | json }}{% elsif product.featured_image %}{{ product.featured_image | image_url: width: 360 | json }}{% else %}""{% endif %}
         }{% unless forloop.last %},{% endunless %}
       {% endfor %}
     ]
@@ -430,6 +488,102 @@
       </div>
     </div>
   {% endif %}
+
+  <div
+    class="aura-product-main__cart-modal"
+    data-aura-cart-modal
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="aura-cart-modal-title-{{ section.id }}"
+    aria-hidden="true"
+    hidden
+  >
+    <div class="aura-product-main__cart-modal-backdrop" data-aura-cart-modal-dismiss tabindex="-1"></div>
+    <div class="aura-product-main__cart-modal-panel" data-aura-cart-modal-panel>
+      <button
+        type="button"
+        class="aura-product-main__cart-modal-close"
+        data-aura-cart-modal-dismiss
+        aria-label="{{ 'sections.aura_product_main.added_close' | t }}"
+      >
+        ×
+      </button>
+      <div class="aura-product-main__cart-modal-heading-row">
+        <span class="aura-product-main__cart-modal-check" aria-hidden="true">
+          {% render 'aura-icon', icon: 'check', class: 'aura-product-main__cart-modal-check-glyph' %}
+        </span>
+        <h2 id="aura-cart-modal-title-{{ section.id }}" class="aura-product-main__cart-modal-title">
+          {{ 'sections.aura_product_main.cart_modal_title' | t }}
+        </h2>
+      </div>
+
+      <div class="aura-product-main__cart-modal-body" data-aura-cart-modal-body>
+        <div class="aura-product-main__cart-modal-product-row">
+          <div class="aura-product-main__cart-modal-thumb-wrap">
+            <img
+              class="aura-product-main__cart-modal-thumb"
+              data-aura-cart-modal-img
+              src=""
+              alt=""
+              width="88"
+              height="88"
+              loading="lazy"
+            >
+          </div>
+          <div class="aura-product-main__cart-modal-product-info">
+            <p class="aura-product-main__cart-modal-product-title" data-aura-cart-modal-product-title></p>
+            <p class="aura-product-main__cart-modal-variant" data-aura-cart-modal-variant hidden></p>
+            <p class="aura-product-main__cart-modal-line-qty" data-aura-cart-modal-line-qty hidden></p>
+          </div>
+          <div class="aura-product-main__cart-modal-line-price-wrap">
+            <s class="aura-product-main__cart-modal-line-compare" data-aura-cart-modal-line-compare hidden></s>
+            <span class="aura-product-main__cart-modal-line-price" data-aura-cart-modal-line-price></span>
+          </div>
+        </div>
+
+        <div class="aura-product-main__cart-modal-divider" aria-hidden="true"></div>
+
+        <div class="aura-product-main__cart-modal-subtotal-row">
+          <span class="aura-product-main__cart-modal-subtotal-label" data-aura-cart-modal-subtotal-label></span>
+          <span class="aura-product-main__cart-modal-subtotal-amount" data-aura-cart-modal-subtotal-amount></span>
+        </div>
+
+        {% if section.settings.cart_modal_show_rewards %}
+          <div class="aura-product-main__cart-modal-rewards" data-aura-cart-modal-rewards>
+            <div class="aura-product-main__cart-modal-progress-row">
+              <span class="aura-product-main__cart-modal-progress-icon aura-product-main__cart-modal-progress-icon--leading" aria-hidden="true">
+                {% render 'aura-icon', icon: 'sparkle', class: 'aura-product-main__cart-modal-progress-icon-inner' %}
+              </span>
+              <p class="aura-product-main__cart-modal-reward-msg" data-aura-cart-modal-reward-msg></p>
+              <span class="aura-product-main__cart-modal-reward-points" data-aura-cart-modal-reward-points></span>
+              <span class="aura-product-main__cart-modal-progress-icon aura-product-main__cart-modal-progress-icon--trailing" aria-hidden="true">
+                {% render 'aura-icon', icon: 'gift', class: 'aura-product-main__cart-modal-progress-icon-inner' %}
+              </span>
+            </div>
+            <div class="aura-product-main__cart-modal-progress" aria-hidden="true">
+              <div class="aura-product-main__cart-modal-progress-track">
+                <div class="aura-product-main__cart-modal-progress-fill" data-aura-cart-modal-progress-fill></div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <p class="aura-product-main__cart-modal-error" data-aura-cart-modal-error hidden></p>
+
+      <div class="aura-product-main__cart-modal-actions">
+        <a class="aura-product-main__cart-modal-button aura-product-main__cart-modal-button--outline" data-aura-cart-modal-cart-link href="{{ routes.cart_url }}">
+          {{ 'sections.aura_product_main.view_cart' | t }}
+        </a>
+        <button type="button" class="aura-product-main__cart-modal-button aura-product-main__cart-modal-button--outline" data-aura-cart-modal-continue>
+          {{ 'sections.aura_product_main.continue_shopping' | t }}
+        </button>
+        <a class="aura-product-main__cart-modal-button aura-product-main__cart-modal-button--checkout" data-aura-cart-modal-checkout href="{{ shop.url }}/checkout">
+          {{ 'sections.aura_product_main.checkout' | t }}
+        </a>
+      </div>
+    </div>
+  </div>
 </section>
 
 {% stylesheet %}
@@ -849,6 +1003,537 @@
     }
   }
 
+  .aura-product-main__cart-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .aura-product-main__cart-modal[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__cart-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(27, 44, 88, 0.48);
+    cursor: pointer;
+  }
+
+  .aura-product-main__cart-modal-panel {
+    position: relative;
+    z-index: 2;
+    width: calc(100vw - 32px);
+    max-width: 760px;
+    max-height: calc(100vh - 48px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: clamp(10px, 2vw, 14px);
+    padding: 1.5rem 1.25rem 1.35rem;
+    box-shadow: 0 28px 64px rgba(27, 44, 88, 0.2);
+    border: 1px solid var(--apm-border);
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .aura-product-main__cart-modal-panel--error .aura-product-main__cart-modal-body {
+    display: none;
+  }
+
+  .aura-product-main__cart-modal-close {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: #f4f0ee;
+    color: var(--apm-heading);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+
+  .aura-product-main__cart-modal-close:focus {
+    outline: 2px solid var(--apm-accent);
+    outline-offset: 2px;
+  }
+
+  .aura-product-main__cart-modal-heading-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0 2.25rem 1.1rem 0;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .aura-product-main__cart-modal-check {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 50%;
+    background: #fce4ef;
+    display: grid;
+    place-items: center;
+    color: #43318f;
+    flex-shrink: 0;
+  }
+
+  .aura-product-main__cart-modal-check-glyph {
+    display: grid;
+    place-items: center;
+    line-height: 0;
+  }
+
+  .aura-product-main__cart-modal-check-glyph svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.2;
+  }
+
+  .aura-product-main__cart-modal-title {
+    font-family: var(--font-heading--family, Georgia, 'Times New Roman', serif);
+    color: var(--apm-heading);
+    font-size: clamp(1.05rem, 3.5vw, 1.28rem);
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    min-width: 0;
+  }
+
+  .aura-product-main__cart-modal-body {
+    margin-bottom: 1rem;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .aura-product-main__cart-modal-product-row {
+    display: grid;
+    grid-template-columns: 4.75rem minmax(0, 1fr) minmax(0, auto);
+    gap: 0.65rem 0.75rem;
+    align-items: start;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .aura-product-main__cart-modal-thumb-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #faf7f5;
+    aspect-ratio: 1;
+  }
+
+  .aura-product-main__cart-modal-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    vertical-align: middle;
+  }
+
+  .aura-product-main__cart-modal-thumb[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__cart-modal-product-info {
+    min-width: 0;
+  }
+
+  .aura-product-main__cart-modal-product-title {
+    margin: 0 0 0.2rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--apm-heading);
+    line-height: 1.35;
+  }
+
+  .aura-product-main__cart-modal-variant {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    line-height: 1.35;
+  }
+
+  .aura-product-main__cart-modal-variant[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__cart-modal-line-qty {
+    margin: 0.2rem 0 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #6b7280;
+    line-height: 1.35;
+  }
+
+  .aura-product-main__cart-modal-line-qty[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__cart-modal-line-price-wrap {
+    text-align: right;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--apm-heading);
+    line-height: 1.3;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .aura-product-main__cart-modal-line-compare {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-decoration: line-through;
+    margin-bottom: 0.15rem;
+  }
+
+  .aura-product-main__cart-modal-line-compare[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__cart-modal-line-price {
+    display: block;
+  }
+
+  .aura-product-main__cart-modal-divider {
+    height: 1px;
+    background: var(--apm-border);
+    margin: 1rem 0;
+  }
+
+  .aura-product-main__cart-modal-subtotal-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--apm-heading);
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .aura-product-main__cart-modal-subtotal-label {
+    flex: 1;
+    min-width: 0;
+    padding-right: 0.5rem;
+  }
+
+  .aura-product-main__cart-modal-subtotal-amount {
+    flex-shrink: 0;
+  }
+
+  .aura-product-main__cart-modal-rewards {
+    margin-top: 1rem;
+    padding: 1.125rem 1.25rem 1.25rem;
+    border-radius: 12px;
+    background: var(--apm-cart-modal-reward-bg);
+    border: 1px solid var(--apm-cart-modal-reward-border);
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .aura-product-main__cart-modal-progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-bottom: 0.875rem;
+    writing-mode: horizontal-tb;
+  }
+
+  .aura-product-main__cart-modal-progress-icon {
+    flex: 0 0 20px;
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    color: var(--apm-accent);
+  }
+
+  .aura-product-main__cart-modal-progress-icon--trailing {
+    color: var(--apm-heading);
+    opacity: 0.9;
+  }
+
+  .aura-product-main__cart-modal-progress-icon-inner {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    flex: 0 0 20px !important;
+    line-height: 0;
+  }
+
+  .aura-product-main__cart-modal-progress-icon-inner svg {
+    width: 20px !important;
+    height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .aura-product-main__cart-modal-reward-msg {
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--apm-text);
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+    writing-mode: horizontal-tb;
+  }
+
+  .aura-product-main__cart-modal-reward-msg strong {
+    font-weight: 800;
+    color: var(--apm-heading);
+  }
+
+  .aura-product-main__cart-modal-reward-points {
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #5b5260;
+    text-align: right;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: normal;
+    writing-mode: horizontal-tb;
+    max-width: 40%;
+  }
+
+  .aura-product-main__cart-modal-progress {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .aura-product-main__cart-modal-progress-track {
+    width: 100%;
+    max-width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--apm-cart-modal-progress-track);
+    overflow: hidden;
+    border: 1px solid rgba(236, 0, 140, 0.12);
+    box-sizing: border-box;
+  }
+
+  .aura-product-main__cart-modal-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--apm-cart-modal-progress-bar);
+    transition: width 0.35s ease;
+  }
+
+  .aura-product-main__cart-modal-error {
+    margin: 0 0 1rem;
+    color: #b42318;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .aura-product-main__cart-modal-error[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__cart-modal-panel--error .aura-product-main__cart-modal-error {
+    display: block !important;
+  }
+
+  .aura-product-main__cart-modal-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.25rem;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .aura-product-main__cart-modal-button {
+    flex: 1 1 30%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--apm-button-radius);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, filter 0.2s ease;
+  }
+
+  .aura-product-main__cart-modal-button--outline {
+    background: #fff;
+    color: var(--apm-heading);
+    border-color: var(--apm-heading);
+  }
+
+  .aura-product-main__cart-modal-button--outline:hover {
+    background: #f8f6f4;
+  }
+
+  .aura-product-main__cart-modal-button--checkout {
+    background: var(--apm-gradient);
+    color: #fff;
+    border: none;
+  }
+
+  .aura-product-main__cart-modal-button--checkout:hover {
+    filter: brightness(1.06);
+  }
+
+  @media (max-width: 640px) {
+    .aura-product-main__cart-modal-panel {
+      padding: 1.25rem 1rem 1.1rem;
+      width: calc(100vw - 32px);
+      max-width: 760px;
+      max-height: calc(100vh - 48px);
+    }
+
+    .aura-product-main__cart-modal-product-row {
+      grid-template-columns: 3.75rem minmax(0, 1fr);
+      grid-template-rows: auto auto;
+    }
+
+    .aura-product-main__cart-modal-line-price-wrap {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      text-align: left;
+    }
+
+    .aura-product-main__cart-modal-product-info {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .aura-product-main__cart-modal-thumb-wrap {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .aura-product-main__cart-modal-progress-row {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr) 20px;
+      grid-template-rows: auto auto;
+      gap: 10px 12px;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .aura-product-main__cart-modal-progress-icon--leading {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .aura-product-main__cart-modal-reward-msg {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    .aura-product-main__cart-modal-progress-icon--trailing {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .aura-product-main__cart-modal-reward-points {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      max-width: none;
+      text-align: center;
+    }
+
+    .aura-product-main__cart-modal-actions {
+      flex-direction: column;
+    }
+
+    .aura-product-main__cart-modal-button {
+      flex: 1 1 auto;
+      width: 100%;
+    }
+  }
+
+  .aura-product-main__submit.is-loading {
+    pointer-events: none;
+    cursor: wait;
+    opacity: 0.96;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .aura-product-main__submit-spinner {
+    display: none;
+    box-sizing: border-box;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: 0 0 1.125rem;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: aura-product-main-submit-spin 0.65s linear infinite;
+    vertical-align: middle;
+  }
+
+  .aura-product-main__submit.is-loading .aura-product-main__submit-spinner {
+    display: block;
+  }
+
+  @keyframes aura-product-main-submit-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .aura-product-main__eyebrow {
     color: var(--apm-accent);
     font-size: 0.75rem;
@@ -902,20 +1587,51 @@
   .aura-product-main__price-row {
     display: flex;
     align-items: baseline;
-    gap: 0.65rem;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.65rem;
     margin-bottom: 1rem;
   }
 
-  .aura-product-main__price {
+  .aura-product-main__price-compare {
+    font-size: 1rem;
+    color: #9ca3af;
+    font-weight: 600;
+    text-decoration: line-through;
+  }
+
+  .aura-product-main__price-compare[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__price-current {
     font-size: 1.5rem;
     font-weight: 800;
     color: var(--apm-heading);
   }
 
-  .aura-product-main__compare {
+  .aura-product-main__purchase-price-wrap {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.55rem;
+    justify-content: flex-end;
     font-size: 1rem;
+  }
+
+  .aura-product-main__purchase-compare {
+    font-size: 0.9rem;
     color: #9ca3af;
+    font-weight: 600;
     text-decoration: line-through;
+  }
+
+  .aura-product-main__purchase-compare[hidden] {
+    display: none !important;
+  }
+
+  .aura-product-main__purchase-current {
+    font-weight: 800;
+    color: var(--apm-heading);
   }
 
   .aura-product-main__desc {
@@ -1063,6 +1779,9 @@
   }
 
   .aura-product-main__submit {
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
     border: 0;
     min-height: 54px;
     border-radius: var(--apm-button-radius);
@@ -1072,16 +1791,51 @@
     background: var(--apm-gradient);
     color: #fff;
     font-size: var(--apm-button-font);
-    transition: filter 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
+    transition: color 0.35s ease;
+  }
+
+  .aura-product-main__submit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--apm-accent);
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+  }
+
+  .aura-product-main__submit .aura-product-main__submit-label {
+    position: relative;
+    z-index: 1;
+  }
+
+  .aura-product-main__submit .aura-product-main__submit-spinner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .aura-product-main__submit:hover:not([disabled])::after {
+    transform: scaleX(1);
   }
 
   .aura-product-main__submit:hover:not([disabled]) {
-    filter: brightness(1.03);
+    color: #fff;
+  }
+
+  .aura-product-main__submit[disabled]::after {
+    display: none;
   }
 
   .aura-product-main__submit[disabled] {
     opacity: 0.55;
     cursor: not-allowed;
+  }
+
+  .aura-product-main__submit.is-loading[disabled] {
+    opacity: 0.96;
+    cursor: wait;
   }
 
   .aura-product-main__dynamic {
@@ -1090,7 +1844,23 @@
 
   .aura-product-main__dynamic .shopify-payment-button__button--unbranded {
     border-radius: var(--apm-button-radius) !important;
-    min-height: 54px;
+    min-height: 54px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--apm-secondary-btn) !important;
+    border: 2px solid var(--apm-secondary-btn) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
+    transition: background-color 0.32s ease, color 0.32s ease, border-color 0.32s ease !important;
+  }
+
+  .aura-product-main__dynamic .shopify-payment-button__button--unbranded:hover:not([disabled]),
+  .aura-product-main__dynamic .shopify-payment-button__button--unbranded:focus:not([disabled]) {
+    background: var(--apm-secondary-btn) !important;
+    background-color: var(--apm-secondary-btn) !important;
+    color: #fff !important;
+    border-color: var(--apm-secondary-btn) !important;
   }
 
   .aura-product-main__points {
@@ -1185,11 +1955,19 @@
       }
     }
 
-    function formatMoney(cents, moneyFormat) {
+    function formatMoney(cents, moneyFormat, currencySymbol) {
+      var formatted;
       if (typeof Shopify !== 'undefined' && Shopify.formatMoney) {
-        return Shopify.formatMoney(cents, moneyFormat);
+        formatted = Shopify.formatMoney(cents, moneyFormat);
+      } else {
+        formatted = (cents / 100).toFixed(2);
       }
-      return (cents / 100).toFixed(2);
+      var sym = currencySymbol || '';
+      var t = String(formatted).trim();
+      if (sym && t.length && t.charAt(0) >= '0' && t.charAt(0) <= '9') {
+        return sym + t;
+      }
+      return formatted;
     }
 
     const roots = document.querySelectorAll('[data-aura-product-main]');
@@ -1354,12 +2132,15 @@
       const optionButtons = root.querySelectorAll('[data-aura-option]');
       const qtyInput = root.querySelector('[data-aura-qty]');
       const addBtn = root.querySelector('[data-aura-add]');
+      const addBtnLabel = addBtn ? addBtn.querySelector('.aura-product-main__submit-label') : null;
       const pointsWrap = root.querySelector('[data-aura-points-wrap]');
       const pointsTextEl = root.querySelector('[data-aura-points-text]');
       const oneTimePriceEl = root.querySelector('[data-aura-one-time-price]');
+      const oneTimeCompareEl = root.querySelector('[data-aura-one-time-compare]');
       const qtyDec = root.querySelector('[data-aura-qty-dec]');
       const qtyInc = root.querySelector('[data-aura-qty-inc]');
       const attrFormat = root.getAttribute('data-money-format');
+      const currencySymbol = root.getAttribute('data-currency-symbol') || '';
       const moneyFormat =
         attrFormat ||
         (typeof window !== 'undefined' && window.Shopify && window.Shopify.money_format
@@ -1401,26 +2182,45 @@
       function applyVariant(v) {
         if (!v) return;
         idInput.value = v.id;
-        if (priceEl) priceEl.textContent = formatMoney(v.price, moneyFormat);
+        if (priceEl) priceEl.textContent = formatMoney(v.price, moneyFormat, currencySymbol);
         if (compareEl) {
           if (v.compare_at_price && v.compare_at_price > v.price) {
             compareEl.removeAttribute('hidden');
-            compareEl.textContent = formatMoney(v.compare_at_price, moneyFormat);
+            compareEl.textContent = formatMoney(v.compare_at_price, moneyFormat, currencySymbol);
           } else {
             compareEl.setAttribute('hidden', 'hidden');
             compareEl.textContent = '';
           }
         }
         if (v.featured_media_id) setGalleryByMediaId(v.featured_media_id);
-        if (oneTimePriceEl) oneTimePriceEl.textContent = formatMoney(v.price, moneyFormat);
+        if (oneTimePriceEl) oneTimePriceEl.textContent = formatMoney(v.price, moneyFormat, currencySymbol);
+        if (oneTimeCompareEl) {
+          if (v.compare_at_price && v.compare_at_price > v.price) {
+            oneTimeCompareEl.removeAttribute('hidden');
+            oneTimeCompareEl.textContent = formatMoney(v.compare_at_price, moneyFormat, currencySymbol);
+          } else {
+            oneTimeCompareEl.setAttribute('hidden', 'hidden');
+            oneTimeCompareEl.textContent = '';
+          }
+        }
 
         if (addBtn) {
           if (v.available) {
             addBtn.disabled = false;
-            addBtn.textContent = addBtn.getAttribute('data-label-available') || addBtn.textContent;
+            const availText = addBtn.getAttribute('data-label-available') || '';
+            if (addBtnLabel) {
+              addBtnLabel.textContent = availText || addBtnLabel.textContent;
+            } else {
+              addBtn.textContent = availText || addBtn.textContent;
+            }
           } else {
             addBtn.disabled = true;
-            addBtn.textContent = addBtn.getAttribute('data-label-soldout') || addBtn.textContent;
+            const soldText = addBtn.getAttribute('data-label-soldout') || '';
+            if (addBtnLabel) {
+              addBtnLabel.textContent = soldText || addBtnLabel.textContent;
+            } else {
+              addBtn.textContent = soldText || addBtn.textContent;
+            }
           }
         }
 
@@ -1454,6 +2254,328 @@
         qtyInc.addEventListener('click', function () {
           const n = parseInt(qtyInput.value, 10) || 1;
           qtyInput.value = n + 1;
+        });
+      }
+
+      function normalizeAddLine(body) {
+        if (!body) return null;
+        if (Array.isArray(body)) return body[0] || null;
+        if (body.items && body.items.length) return body.items[0];
+        if (body.variant_id != null || body.id != null) return body;
+        return null;
+      }
+
+      function cartQtyForVariant(cart, variantId) {
+        if (!cart || !cart.items || variantId == null) return null;
+        var idStr = String(variantId);
+        var sum = 0;
+        for (var i = 0; i < cart.items.length; i++) {
+          var it = cart.items[i];
+          if (it && String(it.variant_id) === idStr) {
+            sum += parseInt(it.quantity, 10) || 0;
+          }
+        }
+        return sum > 0 ? sum : null;
+      }
+
+      const cartModal = root.querySelector('[data-aura-cart-modal]');
+      const cartModalPanel = root.querySelector('[data-aura-cart-modal-panel]');
+      const cartModalError = root.querySelector('[data-aura-cart-modal-error]');
+      const cartDismissers = root.querySelectorAll('[data-aura-cart-modal-dismiss]');
+      const cartContinue = root.querySelector('[data-aura-cart-modal-continue]');
+      const cartLink = root.querySelector('[data-aura-cart-modal-cart-link]');
+      const cartCheckout = root.querySelector('[data-aura-cart-modal-checkout]');
+      const cmImg = root.querySelector('[data-aura-cart-modal-img]');
+      const cmTitle = root.querySelector('[data-aura-cart-modal-product-title]');
+      const cmVariant = root.querySelector('[data-aura-cart-modal-variant]');
+      const cmLineQty = root.querySelector('[data-aura-cart-modal-line-qty]');
+      const cmLineCompare = root.querySelector('[data-aura-cart-modal-line-compare]');
+      const cmLinePrice = root.querySelector('[data-aura-cart-modal-line-price]');
+      const cmSubLabel = root.querySelector('[data-aura-cart-modal-subtotal-label]');
+      const cmSubAmt = root.querySelector('[data-aura-cart-modal-subtotal-amount]');
+      const cmRewards = root.querySelector('[data-aura-cart-modal-rewards]');
+      const cmRewardMsg = root.querySelector('[data-aura-cart-modal-reward-msg]');
+      const cmRewardPts = root.querySelector('[data-aura-cart-modal-reward-points]');
+      const cmProgressFill = root.querySelector('[data-aura-cart-modal-progress-fill]');
+      const cartAddUrl = root.getAttribute('data-cart-add-url');
+      const cartJsonUrl = root.getAttribute('data-cart-json-url');
+      var cartModalEscHandler = null;
+
+      var cartUrlAttr = root.getAttribute('data-cart-url');
+      var checkoutUrlAttr = root.getAttribute('data-checkout-url');
+      if (cartLink && cartUrlAttr) cartLink.setAttribute('href', cartUrlAttr);
+      if (cartCheckout && checkoutUrlAttr) cartCheckout.setAttribute('href', checkoutUrlAttr);
+
+      function setCartModalErrorMode(isErr) {
+        if (!cartModalPanel) return;
+        cartModalPanel.classList.toggle('aura-product-main__cart-modal-panel--error', isErr);
+      }
+
+      function closeCartModal() {
+        if (!cartModal) return;
+        cartModal.setAttribute('hidden', 'hidden');
+        cartModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (cartModalEscHandler) {
+          document.removeEventListener('keydown', cartModalEscHandler);
+          cartModalEscHandler = null;
+        }
+        setCartModalErrorMode(false);
+        if (cartModalError) {
+          cartModalError.setAttribute('hidden', 'hidden');
+          cartModalError.textContent = '';
+        }
+        if (cmRewardMsg) cmRewardMsg.innerHTML = '';
+      }
+
+      function openCartModal() {
+        if (!cartModal) return;
+        cartModal.removeAttribute('hidden');
+        cartModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        cartModalEscHandler = function (ev) {
+          if (ev.key === 'Escape') closeCartModal();
+        };
+        document.addEventListener('keydown', cartModalEscHandler);
+      }
+
+      function populateCartModalSuccess(v, cart, qty, addBody) {
+        if (!v) return;
+        var pTitle = root.getAttribute('data-product-title') || '';
+        var line = normalizeAddLine(addBody);
+        var unitPrice = v.price;
+        var unitCompare = v.compare_at_price;
+        var onSale = unitCompare && unitCompare > unitPrice;
+        var lineTotal = unitPrice * qty;
+        if (line && typeof line.final_line_price === 'number') lineTotal = line.final_line_price;
+        else if (line && typeof line.line_price === 'number') lineTotal = line.line_price;
+
+        if (cmTitle) cmTitle.textContent = pTitle;
+        var opts = v.options && v.options.length ? v.options.filter(function (o) { return o; }).join(' / ') : '';
+        if (cmVariant) {
+          if (opts) {
+            cmVariant.textContent = opts;
+            cmVariant.removeAttribute('hidden');
+          } else {
+            cmVariant.textContent = '';
+            cmVariant.setAttribute('hidden', 'hidden');
+          }
+        }
+
+        var inCartQty = cartQtyForVariant(cart, v.id);
+        if (inCartQty == null || inCartQty < 1) {
+          if (line && String(line.variant_id) === String(v.id) && typeof line.quantity === 'number') {
+            inCartQty = line.quantity;
+          }
+        }
+        if (inCartQty == null || inCartQty < 1) {
+          inCartQty = qty;
+        }
+        if (cmLineQty) {
+          var qtyTpl = root.getAttribute('data-cart-modal-line-qty-template') || 'Qty: [[count]]';
+          cmLineQty.textContent = qtyTpl.split('[[count]]').join(String(inCartQty));
+          cmLineQty.removeAttribute('hidden');
+        }
+
+        if (cmImg) {
+          if (v.image) {
+            cmImg.src = v.image;
+            cmImg.alt = pTitle || '';
+            cmImg.removeAttribute('hidden');
+          } else {
+            cmImg.removeAttribute('src');
+            cmImg.alt = '';
+            cmImg.setAttribute('hidden', 'hidden');
+          }
+        }
+        if (cmLineCompare) {
+          if (onSale) {
+            cmLineCompare.textContent = formatMoney(unitCompare * qty, moneyFormat, currencySymbol);
+            cmLineCompare.removeAttribute('hidden');
+          } else {
+            cmLineCompare.textContent = '';
+            cmLineCompare.setAttribute('hidden', 'hidden');
+          }
+        }
+        if (cmLinePrice) {
+          cmLinePrice.textContent = formatMoney(lineTotal, moneyFormat, currencySymbol);
+        }
+
+        var cartTotalCents = cart && typeof cart.total_price === 'number' ? cart.total_price : null;
+        var itemCount = cart && typeof cart.item_count === 'number' ? cart.item_count : qty;
+        if (cartTotalCents == null && line && typeof line.final_line_price === 'number') {
+          cartTotalCents = line.final_line_price;
+        } else if (cartTotalCents == null) {
+          cartTotalCents = lineTotal;
+        }
+
+        if (cmSubAmt) {
+          cmSubAmt.textContent = formatMoney(cartTotalCents, moneyFormat, currencySymbol);
+        }
+        if (cmSubLabel) {
+          var oneLbl = root.getAttribute('data-cart-modal-subtotal-one') || '';
+          var othLbl = root.getAttribute('data-cart-modal-subtotal-other') || '';
+          if (itemCount === 1 && oneLbl) {
+            cmSubLabel.textContent = oneLbl;
+          } else if (othLbl) {
+            cmSubLabel.textContent = othLbl.split('[[count]]').join(String(itemCount));
+          } else {
+            cmSubLabel.textContent = '';
+          }
+        }
+
+        var showRewards = root.getAttribute('data-cart-modal-show-rewards') === 'true';
+        if (showRewards && cmRewards && cmRewardMsg && cmRewardPts && cmProgressFill) {
+          var spendGoal = parseInt(root.getAttribute('data-reward-spend-goal-cents'), 10);
+          if (!spendGoal || spendGoal < 1) spendGoal = 10000;
+          var mult = parseFloat(root.getAttribute('data-cart-modal-points-mult')) || 1;
+          var ptsMax = parseInt(root.getAttribute('data-reward-points-max'), 10) || 100;
+          if (ptsMax < 1) ptsMax = 100;
+          var rLabel = root.getAttribute('data-reward-label') || '';
+          var tpl = root.getAttribute('data-reward-message-template');
+          var tplFb = root.getAttribute('data-reward-message-fallback') || '';
+          if (!tpl) tpl = tplFb;
+          var completeMsg = root.getAttribute('data-reward-complete-msg') || '';
+
+          var remaining = spendGoal - cartTotalCents;
+          if (remaining <= 0) {
+            cmRewardMsg.innerHTML = completeMsg;
+          } else {
+            var amtStr = formatMoney(remaining, moneyFormat, currencySymbol);
+            var safeTpl = tpl || "You're [[amount]] away from your next reward!";
+            cmRewardMsg.innerHTML = safeTpl.split('[[amount]]').join('<strong>' + amtStr + '</strong>');
+          }
+
+          var ptsEarned = Math.round((cartTotalCents * mult) / 100);
+          cmRewardPts.textContent = ptsEarned + ' / ' + ptsMax + ' ' + rLabel;
+
+          var spendPct = Math.min(100, Math.max(0, (cartTotalCents / spendGoal) * 100));
+          cmProgressFill.style.width = spendPct + '%';
+        } else if (cmProgressFill) {
+          cmProgressFill.style.width = '0%';
+        }
+
+        setCartModalErrorMode(false);
+        if (cartModalError) {
+          cartModalError.setAttribute('hidden', 'hidden');
+          cartModalError.textContent = '';
+        }
+      }
+
+      cartDismissers.forEach(function (btn) {
+        btn.addEventListener('click', function () { closeCartModal(); });
+      });
+      if (cartContinue) {
+        cartContinue.addEventListener('click', function () { closeCartModal(); });
+      }
+
+      if (form && addBtn && cartAddUrl && cartJsonUrl) {
+        form.addEventListener('submit', function (e) {
+          var sub = e.submitter;
+          if (!sub || sub.name !== 'add' || sub.disabled) return;
+          e.preventDefault();
+          var vid = idInput.value;
+          if (!vid) return;
+          var qty = qtyInput ? Math.max(1, parseInt(qtyInput.value, 10) || 1) : 1;
+          var addBodyCache = null;
+          var loadingLabel = addBtn.getAttribute('data-label-loading') || '';
+          if (addBtnLabel && loadingLabel) {
+            addBtnLabel.textContent = loadingLabel;
+          }
+          addBtn.setAttribute('aria-busy', 'true');
+          addBtn.classList.add('is-loading');
+          addBtn.disabled = true;
+          fetch(cartAddUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({ items: [{ id: Number(vid), quantity: qty }] }),
+          })
+            .then(function (res) {
+              return res.json().then(function (body) {
+                addBodyCache = body;
+                return { ok: res.ok, body: body };
+              });
+            })
+            .then(function (r) {
+              var body = r.body || {};
+              var err = !r.ok;
+              if (!err && body.status) err = true;
+              if (!err && body.errors) {
+                var ek = Object.keys(body.errors);
+                if (ek.length) err = true;
+              }
+              if (err) {
+                var msg = '';
+                if (body.message) msg = String(body.message);
+                else if (typeof body.description === 'string') msg = body.description;
+                else if (body.errors && Object.keys(body.errors).length) {
+                  try {
+                    msg = Object.values(body.errors).flat().join(' ');
+                  } catch (ignore) {
+                    msg = JSON.stringify(body.errors);
+                  }
+                }
+                if (!msg) msg = root.getAttribute('data-added-error-msg') || '';
+                if (cartModalError) {
+                  cartModalError.textContent = msg;
+                  cartModalError.removeAttribute('hidden');
+                }
+                setCartModalErrorMode(true);
+                openCartModal();
+                return Promise.reject('aura-cart-modal-handled');
+              }
+              return fetch(cartJsonUrl, { headers: { Accept: 'application/json' } })
+                .then(function (res) {
+                  return res.json();
+                })
+                .catch(function () {
+                  return null;
+                });
+            })
+            .then(function (cart) {
+              var v = findVariant();
+              populateCartModalSuccess(v, cart, qty, addBodyCache);
+              var resourceCart = cart;
+              if (!resourceCart) {
+                resourceCart = { item_count: qty, total_price: null };
+                var ln = normalizeAddLine(addBodyCache);
+                if (ln && typeof ln.final_line_price === 'number') {
+                  resourceCart.total_price = ln.final_line_price;
+                } else if (v) {
+                  resourceCart.total_price = v.price * qty;
+                }
+              }
+              document.dispatchEvent(
+                new CustomEvent('cart:update', {
+                  bubbles: true,
+                  detail: {
+                    resource: resourceCart,
+                    data: {
+                      itemCount: qty,
+                      source: 'product-form-component',
+                    },
+                  },
+                })
+              );
+              openCartModal();
+            })
+            .catch(function (reason) {
+              if (reason === 'aura-cart-modal-handled') return;
+              if (cartModalError) {
+                cartModalError.textContent = root.getAttribute('data-added-error-msg') || '';
+                cartModalError.removeAttribute('hidden');
+              }
+              setCartModalErrorMode(true);
+              openCartModal();
+            })
+            .finally(function () {
+              addBtn.classList.remove('is-loading');
+              addBtn.removeAttribute('aria-busy');
+              applyVariant(findVariant());
+            });
         });
       }
 
@@ -1632,6 +2754,56 @@
       "type": "textarea",
       "id": "points_text_override",
       "label": "Points text override (optional, hides dynamic points)"
+    },
+    {
+      "type": "header",
+      "content": "Aura — add to cart success modal"
+    },
+    {
+      "type": "checkbox",
+      "id": "cart_modal_show_rewards",
+      "label": "Show rewards progress in modal",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "cart_modal_reward_spend_goal",
+      "min": 25,
+      "max": 500,
+      "step": 5,
+      "label": "Reward spend goal (storefront currency major units)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "cart_modal_points_cap",
+      "min": 25,
+      "max": 500,
+      "step": 5,
+      "label": "Points shown at full progress bar",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "cart_modal_points_multiplier",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "label": "Modal points multiplier (0 = use Points per $1 above)",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "cart_modal_reward_label",
+      "label": "Modal points label override",
+      "info": "Blank uses Points label above."
+    },
+    {
+      "type": "textarea",
+      "id": "cart_modal_reward_message",
+      "label": "Distance to reward message",
+      "info": "Use [[amount]] as placeholder. Shown when cart is below spend goal.",
+      "default": "You're [[amount]] away from your next reward!"
     },
     {
       "type": "range",

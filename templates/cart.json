@@ -10,8 +10,41 @@
 {
   "sections": {
     "main": {
-      "type": "cart",
-      "settings": {}
+      "type": "aura-cart-page",
+      "settings": {
+        "hero_heading": "Your Cart",
+        "hero_text": "Review your items and glow on.",
+        "points_multiplier": 1,
+        "points_label": "Glow Points",
+        "tax_mode": "auto",
+        "tax_note": "Calculated at checkout",
+        "show_recommendations": true,
+        "rec_limit": 4,
+        "rec_show_badges": true,
+        "rec_show_wishlist": true,
+        "rec_show_points_pill": true,
+        "rec_show_quantity": true,
+        "rec_badge_best_seller_tag": "best-seller",
+        "rec_badge_new_tag": "new",
+        "rec_badge_exclusive_tag": "exclusive",
+        "rec_new_product_days": 45,
+        "show_dynamic_checkout": true,
+        "show_summary_points": true,
+        "show_promo": true,
+        "show_secure_card": true,
+        "heading_color": "#1b2c58",
+        "text_color": "#3d4657",
+        "accent_pink": "#ec008c",
+        "border_color": "#f0dfe8",
+        "blush_bg": "#fef7fb",
+        "blush_hero_start": "#fdeef4",
+        "card_bg": "#ffffff",
+        "button_navy": "#1a2b4c",
+        "gradient_start": "#43318f",
+        "gradient_end": "#ec008c",
+        "card_radius": 12,
+        "padding_y": 48
+      }
     }
   },
   "order": [

@@ -1,7 +1,3 @@
-/*
- * Default collection template — Aura PLP (hero + grid).
- * Per-collection overrides in admin still apply if set to another template.
- */
 {
   "sections": {
     "aura_collection_hero": {

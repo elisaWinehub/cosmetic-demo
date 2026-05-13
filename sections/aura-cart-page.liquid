@@ -1,0 +1,1866 @@
+{% comment %}
+  Aura Society — /cart template. All styles scoped under .aura-cart-page.
+{% endcomment %}
+
+{% liquid
+  assign order_pts = cart.total_price | times: section.settings.points_multiplier | divided_by: 100.0 | round
+  assign tax_cents = 0
+  for tl in cart.tax_lines
+    assign tax_cents = tax_cents | plus: tl.price
+  endfor
+
+  assign rec_coll = section.settings.rec_collection
+  if rec_coll == blank and section.settings.show_recommendations
+    if collections['all'] != blank
+      assign rec_coll = collections['all']
+    endif
+  endif
+
+  assign hero_img = section.settings.hero_image
+  if section.settings.hero_image_mobile != blank
+    assign hero_img_m = section.settings.hero_image_mobile
+  else
+    assign hero_img_m = section.settings.hero_image
+  endif
+%}
+
+<div
+  id="AuraCartPage-{{ section.id }}"
+  class="aura-cart-page"
+  data-aura-cart-page
+  data-section-id="{{ section.id }}"
+  data-cart-change-url="{{ routes.cart_change_url | append: '.js' | escape }}"
+  data-cart-update-url="{{ routes.cart_update_url | escape }}"
+  data-cart-json-url="{{ routes.cart_url | append: '.js' | escape }}"
+  data-cart-add-url="{{ routes.cart_add_url | append: '.js' | escape }}"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-currency-symbol="{{ cart.currency.symbol | escape }}"
+  data-points-mult="{{ section.settings.points_multiplier }}"
+  data-points-label="{{ section.settings.points_label | escape }}"
+  data-i18n-banner="{{ 'sections.aura_cart_page.js_points_banner_html' | t | escape }}"
+  data-i18n-pts-sub="{{ 'sections.aura_cart_page.js_points_summary' | t | escape }}"
+  data-i18n-earn-line="{{ 'sections.aura_cart_page.js_earn_line' | t | escape }}"
+  data-i18n-pts-val="{{ 'sections.aura_cart_page.js_pts_val' | t | escape }}"
+  data-pts-abbr="{{ 'sections.aura_cart_page.pts_abbr' | t | escape }}"
+  style="
+    --acp-radius: {{ section.settings.card_radius }}px;
+    --acp-heading: {{ section.settings.heading_color }};
+    --acp-text: {{ section.settings.text_color }};
+    --acp-accent: {{ section.settings.accent_pink }};
+    --acp-border: {{ section.settings.border_color }};
+    --acp-blush: {{ section.settings.blush_bg }};
+    --acp-blush-deep: {{ section.settings.blush_hero_start }};
+    --acp-card-bg: {{ section.settings.card_bg }};
+    --acp-navy-btn: {{ section.settings.button_navy }};
+    --acp-g1: {{ section.settings.gradient_start }};
+    --acp-g2: {{ section.settings.gradient_end }};
+    --acp-pad-y: {{ section.settings.padding_y }}px;
+  "
+>
+  <div class="aura-cart-page__hero">
+    <div class="aura-cart-page__hero-inner">
+      <div class="aura-cart-page__hero-copy">
+        <p class="aura-cart-page__hero-heading">{{ section.settings.hero_heading | escape }}</p>
+        <p class="aura-cart-page__hero-text">{{ section.settings.hero_text | escape }}</p>
+      </div>
+      <div class="aura-cart-page__hero-visual" aria-hidden="true">
+        {% if hero_img != blank %}
+          {{
+            hero_img
+            | image_url: width: 900
+            | image_tag:
+              loading: 'lazy',
+              class: 'aura-cart-page__hero-img aura-cart-page__hero-img--desktop',
+              widths: '400, 600, 900',
+              alt: section.settings.hero_image_alt | default: section.settings.hero_heading
+          }}
+          {% if hero_img_m != blank and hero_img_m.id != hero_img.id %}
+            {{
+              hero_img_m
+              | image_url: width: 700
+              | image_tag:
+                loading: 'lazy',
+                class: 'aura-cart-page__hero-img aura-cart-page__hero-img--mobile',
+                widths: '360, 500, 700',
+                alt: section.settings.hero_image_alt | default: section.settings.hero_heading
+            }}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="aura-cart-page__wrap">
+    {% if cart.item_count == 0 %}
+      <div class="aura-cart-page__empty">
+        <p class="aura-cart-page__empty-title">{{ 'sections.aura_cart_page.empty_title' | t }}</p>
+        <p class="aura-cart-page__empty-text">{{ 'sections.aura_cart_page.empty_text' | t }}</p>
+        <a class="aura-cart-page__empty-btn" href="{{ routes.root_url }}">{{ 'sections.aura_cart_page.continue_shopping' | t }}</a>
+      </div>
+    {% else %}
+      <div class="aura-cart-page__grid">
+        <div class="aura-cart-page__main-col">
+          <div class="aura-cart-page__table-head" aria-hidden="true">
+            <span>{{ 'sections.aura_cart_page.col_product' | t }}</span>
+            <span>{{ 'sections.aura_cart_page.col_price' | t }}</span>
+            <span>{{ 'sections.aura_cart_page.col_qty' | t }}</span>
+            <span>{{ 'sections.aura_cart_page.col_total' | t }}</span>
+            <span class="aura-cart-page__table-head-spacer"></span>
+          </div>
+
+          <div class="aura-cart-page__items" data-aura-cart-items>
+            {% for item in cart.items %}
+              {% assign lp = item.final_line_price | times: section.settings.points_multiplier | divided_by: 100.0 | round %}
+              {% render 'aura-cart-item', item: item, section: section, line_points: lp %}
+            {% endfor %}
+          </div>
+
+          <div class="aura-cart-page__points-banner">
+            <span class="aura-cart-page__points-banner-ic" aria-hidden="true">✦</span>
+            <p class="aura-cart-page__points-banner-text">
+              {{ 'sections.aura_cart_page.points_order_notice_html' | t: points: order_pts, label: section.settings.points_label }}
+            </p>
+          </div>
+
+          {% if section.settings.show_recommendations and rec_coll != blank %}
+            <section class="aura-cart-page__recommendations">
+              <div class="aura-cart-page__rec-head">
+                <p class="aura-cart-page__rec-title">{{ 'sections.aura_cart_page.rec_title' | t }}</p>
+                <a class="aura-cart-page__rec-all" href="{{ rec_coll.url }}">{{ 'sections.aura_cart_page.rec_view_all' | t }}</a>
+              </div>
+              <div class="aura-cart-page__rec-grid">
+                {% for product in rec_coll.products limit: section.settings.rec_limit %}
+                  {% render 'aura-cart-recommendation-card', product: product, section: section %}
+                {% else %}
+                  <p class="aura-cart-page__rec-fallback">{{ 'sections.aura_cart_page.rec_empty' | t }}</p>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+        </div>
+
+        <aside class="aura-cart-page__aside">
+          <div class="aura-cart-page__summary">
+            <p class="aura-cart-page__summary-title">{{ 'sections.aura_cart_page.order_summary' | t }}</p>
+
+            <dl class="aura-cart-page__summary-rows">
+              <div class="aura-cart-page__summary-row">
+                <dt>{{ 'sections.aura_cart_page.subtotal' | t }}</dt>
+                <dd data-aura-cart-subtotal>{{ cart.items_subtotal_price | money }}</dd>
+              </div>
+              <div class="aura-cart-page__summary-row">
+                <dt>{{ 'sections.aura_cart_page.taxes' | t }}</dt>
+                <dd data-aura-cart-tax>
+                  {% if section.settings.tax_mode == 'note' %}
+                    {{ section.settings.tax_note | escape }}
+                  {% elsif tax_cents > 0 %}
+                    {{ tax_cents | money }}
+                  {% else %}
+                    {{ section.settings.tax_note | escape }}
+                  {% endif %}
+                </dd>
+              </div>
+              <div class="aura-cart-page__summary-row aura-cart-page__summary-row--total">
+                <dt>{{ 'sections.aura_cart_page.estimated_total' | t }}</dt>
+                <dd data-aura-cart-total>{{ cart.total_price | money }}</dd>
+              </div>
+            </dl>
+
+            {% form 'cart', cart, class: 'aura-cart-page__checkout-form' %}
+              <button type="submit" name="checkout" class="aura-cart-page__summary-checkout">
+                {{ 'sections.aura_cart_page.checkout' | t }}
+              </button>
+              {% if section.settings.show_dynamic_checkout %}
+                <div class="aura-cart-page__summary-wallet">
+                  {{ form | payment_button }}
+                </div>
+              {% endif %}
+            {% endform %}
+
+            {% if section.settings.show_summary_points %}
+              <div class="aura-cart-page__summary-points">
+                <div class="aura-cart-page__summary-points-top">
+                  <span class="aura-cart-page__summary-points-lbl">
+                    <span aria-hidden="true">✦</span> {{ section.settings.points_label | escape }}
+                  </span>
+                  <span class="aura-cart-page__summary-points-val" data-aura-cart-pts-val>{{ order_pts }} {{ 'sections.aura_cart_page.pts_abbr' | t }}</span>
+                </div>
+                <p class="aura-cart-page__summary-points-sub" data-aura-cart-pts-sub>
+                  {{ 'sections.aura_cart_page.points_summary_sub' | t: points: order_pts, label: section.settings.points_label }}
+                </p>
+              </div>
+            {% endif %}
+
+            {% if section.settings.show_promo %}
+              <details class="aura-cart-page__promo">
+                <summary class="aura-cart-page__promo-sum">{{ 'sections.aura_cart_page.promo_toggle' | t }}</summary>
+                <div class="aura-cart-page__promo-body">
+                  <label class="visually-hidden" for="AuraCartPromo-{{ section.id }}">{{ 'sections.aura_cart_page.promo_label' | t }}</label>
+                  <input
+                    type="text"
+                    id="AuraCartPromo-{{ section.id }}"
+                    class="aura-cart-page__promo-input"
+                    data-aura-cart-promo-input
+                    placeholder="{{ 'sections.aura_cart_page.promo_placeholder' | t }}"
+                    autocomplete="off"
+                  >
+                  <button type="button" class="aura-cart-page__promo-apply" data-aura-cart-promo-apply>
+                    {{ 'sections.aura_cart_page.promo_apply' | t }}
+                  </button>
+                  <p class="aura-cart-page__promo-msg" data-aura-cart-promo-msg hidden></p>
+                </div>
+              </details>
+            {% endif %}
+
+            {% if section.settings.show_secure_card %}
+              <div class="aura-cart-page__secure">
+                <div class="aura-cart-page__secure-head">
+                  <span class="aura-cart-page__secure-ic" aria-hidden="true">🛡</span>
+                  <p>{{ 'sections.aura_cart_page.secure_title' | t }}</p>
+                </div>
+                <p class="aura-cart-page__secure-text">{{ 'sections.aura_cart_page.secure_text' | t }}</p>
+                <div class="aura-cart-page__secure-pay" aria-hidden="true">
+                  {% for type in shop.enabled_payment_types limit: 8 %}
+                    {{ type | payment_type_svg_tag: class: 'aura-cart-page__pay-ic' }}
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </aside>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .aura-cart-page {
+    --acp-font-heading: var(--font-heading--family, Georgia, 'Times New Roman', serif);
+    --acp-font-body: var(--font-body--family, system-ui, sans-serif);
+    box-sizing: border-box;
+    color: var(--acp-text);
+    padding-bottom: var(--acp-pad-y);
+    overflow-x: hidden;
+  }
+
+  .aura-cart-page *,
+  .aura-cart-page *::before,
+  .aura-cart-page *::after {
+    box-sizing: border-box;
+  }
+
+  .aura-cart-page .visually-hidden {
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+  }
+
+  .aura-cart-page__hero {
+    background: linear-gradient(120deg, var(--acp-blush-deep) 0%, var(--acp-blush) 55%, #fff 100%);
+    margin-bottom: clamp(1.25rem, 3vw, 2.5rem);
+  }
+
+  .aura-cart-page__hero-inner {
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    align-items: center;
+    padding: clamp(1.5rem, 4vw, 2.75rem) 0;
+  }
+
+  @media (min-width: 840px) {
+    .aura-cart-page__hero-inner {
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 42%);
+      gap: 2rem;
+    }
+  }
+
+  .aura-cart-page__hero-heading {
+    font-family: var(--acp-font-heading);
+    color: var(--acp-heading);
+    font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .aura-cart-page__hero-text {
+    font-family: var(--acp-font-body);
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--acp-text);
+    max-width: 36ch;
+  }
+
+  .aura-cart-page__hero-visual {
+    border-radius: var(--acp-radius);
+    overflow: hidden;
+    min-height: 160px;
+    background: color-mix(in srgb, var(--acp-accent) 8%, transparent);
+  }
+
+  .aura-cart-page__hero-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    max-height: 280px;
+  }
+
+  .aura-cart-page__hero-img--mobile {
+    display: block;
+  }
+
+  .aura-cart-page__hero-img--desktop {
+    display: none;
+  }
+
+  @media (min-width: 840px) {
+    .aura-cart-page__hero-img--desktop {
+      display: block;
+    }
+    .aura-cart-page__hero-img--mobile {
+      display: none;
+    }
+  }
+
+  .aura-cart-page__wrap {
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+  }
+
+  .aura-cart-page__empty {
+    text-align: center;
+    padding: 3rem 1rem 4rem;
+    border: 1px solid var(--acp-border);
+    border-radius: var(--acp-radius);
+    background: var(--acp-card-bg);
+  }
+
+  .aura-cart-page__empty-title {
+    font-family: var(--acp-font-heading);
+    font-size: 1.5rem;
+    color: var(--acp-heading);
+    margin: 0 0 0.5rem;
+  }
+
+  .aura-cart-page__empty-text {
+    margin: 0 0 1.25rem;
+  }
+
+  .aura-cart-page__empty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.35rem;
+    border-radius: var(--acp-radius);
+    background: linear-gradient(90deg, var(--acp-g1), var(--acp-g2));
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .aura-cart-page__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    align-items: start;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+      gap: 2.25rem;
+    }
+  }
+
+  .aura-cart-page__table-head {
+    display: none;
+    grid-template-columns: minmax(0, 2fr) 100px 120px minmax(6.5rem, 1fr) 40px;
+    gap: 0.75rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--acp-heading);
+    padding: 0 0.25rem 0.5rem;
+    border-bottom: 1px solid var(--acp-border);
+    margin-bottom: 0.75rem;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__table-head {
+      display: grid;
+    }
+  }
+
+  .aura-cart-page__items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .aura-cart-page__item {
+    padding: 1rem;
+    border: 1px solid var(--acp-border);
+    border-radius: var(--acp-radius);
+    background: var(--acp-card-bg);
+    display: grid;
+    gap: 0.65rem 0.75rem;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'product product'
+      'price price'
+      'qty qty'
+      'total remove';
+    align-items: center;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__item {
+      grid-template-columns: minmax(0, 2fr) 100px 120px minmax(6.5rem, 1fr) 40px;
+      grid-template-areas: 'product price qty total remove';
+      padding: 1.1rem 1.15rem;
+      align-items: center;
+      column-gap: 0.75rem;
+      row-gap: 0.5rem;
+    }
+  }
+
+  .aura-cart-page__item-product {
+    grid-area: product;
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 1rem;
+    min-width: 0;
+    align-items: start;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__item-product {
+      grid-template-columns: 100px minmax(0, 1fr);
+    }
+  }
+
+  .aura-cart-page__item-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .aura-cart-page__item-price-col {
+    grid-area: price;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__item-price-col {
+      justify-self: stretch;
+      text-align: center;
+      align-items: center;
+    }
+  }
+
+  .aura-cart-page__item-qty-col {
+    grid-area: qty;
+    min-width: 0;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__item-qty-col {
+      justify-self: center;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  .aura-cart-page__item-total-col {
+    grid-area: total;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__item-total-col {
+      justify-self: stretch;
+      text-align: right;
+      align-items: flex-end;
+    }
+  }
+
+  .aura-cart-page__item-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: calc(var(--acp-radius) * 0.65);
+    background: var(--acp-blush);
+  }
+
+  .aura-cart-page__item-img-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .aura-cart-page__item-img-fallback {
+    aspect-ratio: 1;
+    border-radius: calc(var(--acp-radius) * 0.65);
+    background: var(--acp-blush);
+    display: grid;
+    place-items: center;
+  }
+
+  .aura-cart-page__item-ph {
+    width: 60%;
+    opacity: 0.35;
+  }
+
+  .aura-cart-page__item-title {
+    font-family: var(--acp-font-body);
+    font-weight: 700;
+    color: var(--acp-heading);
+    text-decoration: none;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .aura-cart-page__item-title:hover {
+    text-decoration: underline;
+  }
+
+  .aura-cart-page__item-variant {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+
+  .aura-cart-page__item-pill {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--acp-accent);
+    background: color-mix(in srgb, var(--acp-accent) 12%, #fff);
+  }
+
+  .aura-cart-page__item-price-label,
+  .aura-cart-page__item-total-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #7d8491;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__item-price-label,
+    .aura-cart-page__item-total-label {
+      display: none;
+    }
+
+    .aura-cart-page__item-price {
+      text-align: center;
+    }
+  }
+
+  .aura-cart-page__item-price,
+  .aura-cart-page__item-line {
+    font-weight: 700;
+    color: var(--acp-heading);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .aura-cart-page__qty {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--acp-border);
+    border-radius: 999px;
+    overflow: hidden;
+    background: #fff;
+    width: fit-content;
+  }
+
+  .aura-cart-page__qty-btn {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: #faf7f8;
+    color: var(--acp-heading);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .aura-cart-page__qty-btn:hover {
+    background: #f0e8ec;
+  }
+
+  .aura-cart-page__qty-input {
+    width: 44px;
+    border: 0;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: #fff;
+    color: var(--acp-heading);
+    -moz-appearance: textfield;
+  }
+
+  .aura-cart-page__qty-input::-webkit-outer-spin-button,
+  .aura-cart-page__qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  @media (max-width: 989px) {
+    .aura-cart-page__item-price-col {
+      justify-self: center;
+      text-align: center;
+      align-items: center;
+    }
+
+    .aura-cart-page__item-qty-col {
+      justify-self: center;
+      display: flex;
+      justify-content: center;
+      grid-column: 1 / -1;
+    }
+
+    .aura-cart-page__item-total-col {
+      justify-self: start;
+      align-self: center;
+    }
+  }
+
+  .aura-cart-page__item-remove {
+    grid-area: remove;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--acp-heading);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    justify-self: end;
+    align-self: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  .aura-cart-page__item-remove:hover {
+    background: #f4f0f2;
+  }
+
+  @media (min-width: 990px) {
+    .aura-cart-page__item-remove {
+      justify-self: center;
+    }
+  }
+
+  .aura-cart-page__points-banner {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    margin-top: 1.25rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--acp-radius);
+    border: 1px solid color-mix(in srgb, var(--acp-accent) 18%, transparent);
+    background: color-mix(in srgb, var(--acp-accent) 7%, #fff);
+  }
+
+  .aura-cart-page__points-banner-ic {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 2px solid var(--acp-accent);
+    display: grid;
+    place-items: center;
+    color: var(--acp-accent);
+    font-size: 0.85rem;
+  }
+
+  .aura-cart-page__points-banner-text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .aura-cart-page__points-banner-text strong {
+    color: var(--acp-accent);
+    font-weight: 800;
+  }
+
+  .aura-cart-page__recommendations {
+    margin-top: 2.5rem;
+  }
+
+  .aura-cart-page__rec-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .aura-cart-page__rec-title {
+    font-family: var(--acp-font-heading);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--acp-heading);
+    margin: 0;
+  }
+
+  .aura-cart-page__rec-all {
+    color: var(--acp-accent);
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .aura-cart-page__rec-all:hover {
+    text-decoration: underline;
+  }
+
+  .aura-cart-page__rec-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .aura-cart-page__rec-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.15rem;
+    }
+  }
+
+  .aura-cart-page__rec-fallback {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+
+  .aura-cart-page__product-card {
+    position: relative;
+    border: 1px solid var(--acp-border);
+    border-radius: var(--acp-radius);
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .aura-cart-page__product-card-media-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .aura-cart-page__product-card-media {
+    position: relative;
+    background: var(--acp-blush);
+  }
+
+  .aura-cart-page__product-card-badges {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+
+  .aura-cart-page__product-card-badge {
+    padding: 0.2rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--acp-accent);
+    text-transform: capitalize;
+  }
+
+  .aura-cart-page__product-card-wish {
+    position: absolute;
+    top: 0.45rem;
+    right: 0.45rem;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(27, 44, 88, 0.08);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: var(--acp-accent);
+    padding: 0;
+  }
+
+  .aura-cart-page__product-card-wish[aria-pressed='true'] .aura-cart-page__product-card-wish-outline {
+    display: none;
+  }
+
+  .aura-cart-page__product-card-wish[aria-pressed='true'] .aura-cart-page__product-card-wish-fill {
+    display: block;
+  }
+
+  .aura-cart-page__product-card-wish-fill {
+    display: none;
+  }
+
+  .aura-cart-page__product-card-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    vertical-align: middle;
+  }
+
+  .aura-cart-page__product-card-img-wrap--ph {
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+  }
+
+  .aura-cart-page__product-card-ph {
+    width: 55%;
+    opacity: 0.35;
+  }
+
+  .aura-cart-page__product-card-body {
+    padding: 0.65rem 0.7rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.35rem;
+  }
+
+  .aura-cart-page__product-card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--acp-heading);
+    text-decoration: none;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .aura-cart-page__product-card-price-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .aura-cart-page__product-card-foot {
+    margin-top: auto;
+    padding-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    flex-wrap: nowrap;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 420px) {
+    .aura-cart-page__product-card-foot {
+      flex-wrap: wrap;
+    }
+  }
+
+  .aura-cart-page__rec-qty {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 999px;
+    border: 1px solid var(--acp-border);
+    background: #fff;
+    overflow: hidden;
+    flex: 0 0 auto;
+    width: 6.75rem;
+    max-width: calc(100% - 2.5rem);
+    height: 2.25rem;
+    box-sizing: border-box;
+  }
+
+  .aura-cart-page__rec-qty-btn {
+    flex: 0 0 auto;
+    width: 1.95rem;
+    min-width: 1.95rem;
+    border: none;
+    background: transparent;
+    font-size: 1.02rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--acp-heading);
+    transition: background 0.2s ease;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+
+  .aura-cart-page__rec-qty-btn:hover {
+    background: color-mix(in srgb, var(--acp-accent) 8%, #fff);
+  }
+
+  .aura-cart-page__rec-qty-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    border: none;
+    border-left: 1px solid var(--acp-border);
+    border-right: 1px solid var(--acp-border);
+    text-align: center;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--acp-heading);
+    background: transparent;
+    appearance: textfield;
+    padding: 0 0.15rem;
+    box-sizing: border-box;
+  }
+
+  .aura-cart-page__rec-qty-input::-webkit-outer-spin-button,
+  .aura-cart-page__rec-qty-input::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  .aura-cart-page__product-card-price {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--acp-heading);
+  }
+
+  .aura-cart-page__product-card-price--sale {
+    color: var(--acp-accent);
+  }
+
+  .aura-cart-page__product-card-compare {
+    font-size: 0.75rem;
+    text-decoration: line-through;
+    color: #9ca3af;
+  }
+
+  .aura-cart-page__product-card-pill {
+    margin: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--acp-accent);
+  }
+
+  .aura-cart-page__product-card-add {
+    width: auto;
+    min-width: 2rem;
+    height: 2.25rem;
+    margin-left: auto;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: var(--acp-navy-btn);
+    padding: 0 0.1rem;
+    flex-shrink: 0;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .aura-cart-page__product-card-add:hover:not(:disabled),
+  .aura-cart-page__product-card-add:focus-visible:not(:disabled) {
+    background: color-mix(in srgb, var(--acp-navy-btn) 6%, transparent);
+    transform: scale(1.04);
+  }
+
+  .aura-cart-page__product-card-add:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .aura-cart-page__product-card-add.is-loading {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .aura-cart-page__summary {
+    border: 1px solid var(--acp-border);
+    border-radius: var(--acp-radius);
+    background: var(--acp-card-bg);
+    padding: 1.25rem 1.15rem;
+    position: sticky;
+    top: 1rem;
+  }
+
+  .aura-cart-page__summary-title {
+    font-family: var(--acp-font-body);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--acp-heading);
+    margin: 0 0 1rem;
+  }
+
+  .aura-cart-page__summary-rows {
+    margin: 0 0 1.1rem;
+  }
+
+  .aura-cart-page__summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+  }
+
+  .aura-cart-page__summary-row dt {
+    margin: 0;
+    color: var(--acp-text);
+  }
+
+  .aura-cart-page__summary-row dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--acp-heading);
+  }
+
+  .aura-cart-page__summary-row--total {
+    border-top: 1px solid var(--acp-border);
+    margin-top: 0.35rem;
+    padding-top: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .aura-cart-page__summary-row--total dd {
+    font-weight: 800;
+  }
+
+  .aura-cart-page__checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .aura-cart-page__summary-checkout {
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    border-radius: var(--acp-radius);
+    background: var(--acp-navy-btn);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .aura-cart-page__summary-checkout:hover {
+    filter: brightness(1.06);
+  }
+
+  .aura-cart-page__summary-wallet {
+    width: 100%;
+  }
+
+  .aura-cart-page .aura-cart-page__summary-wallet .shopify-payment-button__button--unbranded {
+    border-radius: var(--acp-radius) !important;
+    min-height: 48px !important;
+  }
+
+  .aura-cart-page__summary-points {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: calc(var(--acp-radius) * 0.85);
+    background: color-mix(in srgb, var(--acp-accent) 8%, #fff);
+    border: 1px solid color-mix(in srgb, var(--acp-accent) 15%, transparent);
+  }
+
+  .aura-cart-page__summary-points-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--acp-heading);
+  }
+
+  .aura-cart-page__summary-points-sub {
+    margin: 0.45rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--acp-text);
+  }
+
+  .aura-cart-page__promo {
+    margin-top: 1rem;
+    border: 1px solid var(--acp-border);
+    border-radius: calc(var(--acp-radius) * 0.85);
+    padding: 0.35rem 0.75rem;
+    background: #fff;
+  }
+
+  .aura-cart-page__promo-sum {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--acp-heading);
+  }
+
+  .aura-cart-page__promo-body {
+    padding: 0.65rem 0 0.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .aura-cart-page__promo-input {
+    flex: 1 1 140px;
+    min-width: 0;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--acp-border);
+    border-radius: calc(var(--acp-radius) * 0.5);
+    font-size: 0.88rem;
+  }
+
+  .aura-cart-page__promo-apply {
+    padding: 0.5rem 0.85rem;
+    border-radius: calc(var(--acp-radius) * 0.5);
+    border: 1px solid var(--acp-heading);
+    background: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+
+  .aura-cart-page__promo-msg {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 0.8rem;
+    color: #b42318;
+  }
+
+  .aura-cart-page__secure {
+    margin-top: 1.1rem;
+    padding: 1rem;
+    border-radius: calc(var(--acp-radius) * 0.85);
+    background: color-mix(in srgb, var(--acp-accent) 6%, #fff);
+    border: 1px solid var(--acp-border);
+  }
+
+  .aura-cart-page__secure-head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--acp-heading);
+    margin-bottom: 0.35rem;
+  }
+
+  .aura-cart-page__secure-head p {
+    margin: 0;
+  }
+
+  .aura-cart-page__secure-text {
+    margin: 0 0 0.75rem;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--acp-text);
+  }
+
+  .aura-cart-page__secure-pay {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .aura-cart-page__pay-ic {
+    height: 22px;
+    width: auto;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    const root = document.querySelector('[data-aura-cart-page]');
+    if (!root) return;
+
+    function formatMoney(cents, moneyFormat, currencySymbol) {
+      let formatted;
+      if (typeof Shopify !== 'undefined' && Shopify.formatMoney) {
+        formatted = Shopify.formatMoney(cents, moneyFormat);
+      } else {
+        formatted = (cents / 100).toFixed(2);
+      }
+      const sym = currencySymbol || '';
+      const t = String(formatted).trim();
+      if (sym && t.length && t.charAt(0) >= '0' && t.charAt(0) <= '9') {
+        return sym + t;
+      }
+      return formatted;
+    }
+
+    function parseMoneyAttr() {
+      const attrFormat = root.getAttribute('data-money-format');
+      const currencySymbol = root.getAttribute('data-currency-symbol') || '';
+      const moneyFormat =
+        attrFormat ||
+        (typeof window !== 'undefined' && window.Shopify && window.Shopify.money_format
+          ? window.Shopify.money_format
+          : '${{amount}}');
+      return { moneyFormat, currencySymbol };
+    }
+
+    const changeUrl = root.getAttribute('data-cart-change-url');
+    const updateUrl = root.getAttribute('data-cart-update-url');
+    const cartJsonUrl = root.getAttribute('data-cart-json-url');
+    const addUrl = root.getAttribute('data-cart-add-url');
+    const ptsMult = parseFloat(root.getAttribute('data-points-mult')) || 1;
+    const ptsLabel = root.getAttribute('data-points-label') || 'Glow Points';
+    const ptsAbbr = root.getAttribute('data-pts-abbr') || 'PTS';
+    const tplBanner = root.getAttribute('data-i18n-banner') || '';
+    const tplPtsSub = root.getAttribute('data-i18n-pts-sub') || '';
+    const tplEarnLine = root.getAttribute('data-i18n-earn-line') || '';
+    const tplPtsVal = root.getAttribute('data-i18n-pts-val') || '';
+    const { moneyFormat, currencySymbol } = parseMoneyAttr();
+
+    function fillPtsTpl(tpl, pts, lbl) {
+      return String(tpl || '')
+        .replace(/__PTS__/g, String(pts))
+        .replace(/__LBL__/g, String(lbl))
+        .replace(/__ABBR__/g, String(ptsAbbr));
+    }
+
+    function clampRecQty(n) {
+      let x = parseInt(String(n), 10);
+      if (isNaN(x) || x < 1) return 1;
+      if (x > 99) return 99;
+      return x;
+    }
+
+    function dispatchCartUpdate(cart) {
+      document.dispatchEvent(
+        new CustomEvent('cart:update', {
+          bubbles: true,
+          detail: {
+            resource: cart,
+            data: {
+              itemCount: cart.item_count,
+              source: 'aura-cart-page',
+            },
+          },
+        })
+      );
+    }
+
+    function updateTotalsFromCart(cart) {
+      const subEl = root.querySelector('[data-aura-cart-subtotal]');
+      const taxEl = root.querySelector('[data-aura-cart-tax]');
+      const totEl = root.querySelector('[data-aura-cart-total]');
+      const ptsVal = root.querySelector('[data-aura-cart-pts-val]');
+      const ptsSub = root.querySelector('[data-aura-cart-pts-sub]');
+      const banner = root.querySelector('.aura-cart-page__points-banner-text');
+
+      if (subEl && typeof cart.items_subtotal_price === 'number') {
+        subEl.textContent = formatMoney(cart.items_subtotal_price, moneyFormat, currencySymbol);
+      }
+      if (totEl && typeof cart.total_price === 'number') {
+        totEl.textContent = formatMoney(cart.total_price, moneyFormat, currencySymbol);
+      }
+      const taxSum =
+        cart.tax_lines && Array.isArray(cart.tax_lines)
+          ? cart.tax_lines.reduce(function (a, l) {
+              return a + (parseInt(l.price, 10) || 0);
+            }, 0)
+          : 0;
+      if (taxEl && taxSum > 0) {
+        taxEl.textContent = formatMoney(taxSum, moneyFormat, currencySymbol);
+      }
+
+      const orderPts = Math.round((cart.total_price * ptsMult) / 100);
+      if (ptsVal) {
+        ptsVal.textContent = tplPtsVal
+          ? fillPtsTpl(tplPtsVal, orderPts, ptsLabel)
+          : orderPts + ' ' + ptsAbbr;
+      }
+      if (ptsSub) {
+        ptsSub.textContent = tplPtsSub
+          ? fillPtsTpl(tplPtsSub, orderPts, ptsLabel)
+          : "You'll earn " + orderPts + ' ' + ptsLabel + ' on this order';
+      }
+      if (banner) {
+        banner.innerHTML = tplBanner
+          ? fillPtsTpl(tplBanner, orderPts, ptsLabel)
+          : "You'll earn <strong>" +
+            orderPts +
+            ' ' +
+            ptsLabel +
+            '</strong> on this order! Points will be added after your order is delivered.';
+      }
+
+      const itemsRoot = root.querySelector('[data-aura-cart-items]');
+      if (!itemsRoot) return;
+
+      const keysInCart = {};
+      (cart.items || []).forEach(function (it) {
+        keysInCart[String(it.key)] = it;
+      });
+
+      itemsRoot.querySelectorAll('[data-aura-cart-line-key]').forEach(function (row) {
+        const key = row.getAttribute('data-aura-cart-line-key');
+        const it = keysInCart[key];
+        if (!it) {
+          row.remove();
+          return;
+        }
+        const qIn = row.querySelector('[data-aura-line-qty]');
+        const uIn = row.querySelector('[data-aura-line-unit]');
+        if (qIn) qIn.value = String(it.quantity);
+        row.querySelectorAll('[data-aura-line-total]').forEach(function (tEl) {
+          if (tEl && typeof it.final_line_price === 'number') {
+            tEl.textContent = formatMoney(it.final_line_price, moneyFormat, currencySymbol);
+          }
+        });
+        if (uIn && typeof it.final_price === 'number') {
+          uIn.textContent = formatMoney(it.final_price, moneyFormat, currencySymbol);
+        }
+        const linePts = Math.round((it.final_line_price * ptsMult) / 100);
+        const pill = row.querySelector('.aura-cart-page__item-pill');
+        if (pill) {
+          pill.textContent = tplEarnLine
+            ? fillPtsTpl(tplEarnLine, linePts, ptsLabel)
+            : '✦ Earn ' + linePts + ' pts';
+        }
+      });
+
+      if (!cart.items || cart.items.length === 0) {
+        window.location.reload();
+      }
+    }
+
+    function changeLine(lineKey, quantity) {
+      if (!changeUrl) return Promise.reject();
+      return fetch(changeUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ id: lineKey, quantity: quantity }),
+      }).then(function (res) {
+        return res.json().then(function (body) {
+          if (!res.ok) throw new Error(body.message || 'Cart error');
+          return body;
+        });
+      });
+    }
+
+    root.querySelectorAll('[data-aura-cart-line-key]').forEach(function (row) {
+      const key = row.getAttribute('data-aura-cart-line-key');
+      const qtyInput = row.querySelector('[data-aura-line-qty]');
+      const dec = row.querySelector('[data-aura-cart-qty-dec]');
+      const inc = row.querySelector('[data-aura-cart-qty-inc]');
+      const removeBtn = row.querySelector('[data-aura-cart-remove]');
+
+      function setBusy(on) {
+        row.classList.toggle('is-updating', on);
+      }
+
+      function applyQty(next) {
+        if (next < 1) {
+          setBusy(true);
+          changeLine(key, 0)
+            .then(function (cart) {
+              dispatchCartUpdate(cart);
+              updateTotalsFromCart(cart);
+            })
+            .catch(function () {
+              window.location.reload();
+            });
+          return;
+        }
+        setBusy(true);
+        changeLine(key, next)
+          .then(function (cart) {
+            dispatchCartUpdate(cart);
+            updateTotalsFromCart(cart);
+          })
+          .catch(function () {
+            window.location.reload();
+          })
+          .finally(function () {
+            setBusy(false);
+          });
+      }
+
+      if (dec) {
+        dec.addEventListener('click', function () {
+          const n = parseInt(qtyInput.value, 10) || 1;
+          applyQty(n - 1);
+        });
+      }
+      if (inc) {
+        inc.addEventListener('click', function () {
+          const n = parseInt(qtyInput.value, 10) || 1;
+          applyQty(n + 1);
+        });
+      }
+      if (removeBtn) {
+        removeBtn.addEventListener('click', function () {
+          applyQty(0);
+        });
+      }
+    });
+
+    const promoBtn = root.querySelector('[data-aura-cart-promo-apply]');
+    const promoInput = root.querySelector('[data-aura-cart-promo-input]');
+    const promoMsg = root.querySelector('[data-aura-cart-promo-msg]');
+    if (promoBtn && promoInput && updateUrl) {
+      promoBtn.addEventListener('click', function () {
+        const code = (promoInput.value || '').trim();
+        if (!code) return;
+        promoBtn.disabled = true;
+        fetch(updateUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ discount: code }),
+        })
+          .then(function (res) {
+            return res.json().then(function (body) {
+              if (!res.ok) throw new Error(body.description || body.message || 'Discount error');
+              return body;
+            });
+          })
+          .then(function (cart) {
+            dispatchCartUpdate(cart);
+            if (promoMsg) {
+              promoMsg.hidden = true;
+              promoMsg.textContent = '';
+            }
+            window.location.reload();
+          })
+          .catch(function (err) {
+            if (promoMsg) {
+              promoMsg.hidden = false;
+              promoMsg.textContent = err.message || 'Invalid code';
+            }
+          })
+          .finally(function () {
+            promoBtn.disabled = false;
+          });
+      });
+    }
+
+    const WISHLIST_KEY = 'aura-plp-wishlist-v2';
+      function readWishlist() {
+        try {
+          let raw = localStorage.getItem(WISHLIST_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+      function writeWishlist(entries) {
+        try {
+          localStorage.setItem(WISHLIST_KEY, JSON.stringify(entries));
+        } catch {}
+      }
+      function syncRecWish(btn) {
+        const id = btn.getAttribute('data-product-id');
+        const h = (btn.getAttribute('data-product-handle') || '').trim();
+        const entries = readWishlist();
+        const on = entries.some(function (e) {
+          return (id && String(e.i || e.id || '') === String(id)) || (h && e.h === h);
+        });
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+
+    root.querySelectorAll('[data-aura-cart-rec-wish]').forEach(function (btn) {
+      syncRecWish(btn);
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.getAttribute('data-product-id');
+        const h = (btn.getAttribute('data-product-handle') || '').trim();
+        let entries = readWishlist();
+        const sid = id ? String(id) : '';
+        const on = entries.some(function (e) {
+          return (sid && String(e.i || '') === sid) || (h && e.h === h);
+        });
+        if (on) {
+          entries = entries.filter(function (e) {
+            return !((sid && String(e.i || '') === sid) || (h && e.h === h));
+          });
+        } else {
+          entries = entries.concat([{ i: sid, h: h || '' }]);
+        }
+        writeWishlist(entries);
+        root.querySelectorAll('[data-aura-cart-rec-wish]').forEach(syncRecWish);
+      });
+    });
+
+    root.querySelectorAll('[data-aura-cart-rec-qty]').forEach(function (wrap) {
+      const input = wrap.querySelector('[data-aura-cart-rec-qty-input]');
+      const dec = wrap.querySelector('[data-aura-cart-rec-qty-dec]');
+      const inc = wrap.querySelector('[data-aura-cart-rec-qty-inc]');
+      if (!input || !dec || !inc) return;
+
+      dec.addEventListener('click', function () {
+        input.value = String(clampRecQty((parseInt(input.value, 10) || 1) - 1));
+      });
+      inc.addEventListener('click', function () {
+        input.value = String(clampRecQty((parseInt(input.value, 10) || 1) + 1));
+      });
+    });
+
+    root.querySelectorAll('[data-aura-cart-rec-add]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (btn.disabled || !addUrl) return;
+        const vid = btn.getAttribute('data-variant-id');
+        if (!vid) return;
+
+        const card = btn.closest('[data-aura-cart-rec-card]');
+        const qtyInput = card ? card.querySelector('[data-aura-cart-rec-qty-input]') : null;
+        const q = qtyInput ? clampRecQty(qtyInput.value) : 1;
+
+        btn.classList.add('is-loading');
+        btn.setAttribute('aria-busy', 'true');
+        fetch(addUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ items: [{ id: Number(vid), quantity: q }] }),
+        })
+          .then(function (res) {
+            return res.json().then(function (body) {
+              return { ok: res.ok, body };
+            });
+          })
+          .then(function (r) {
+            if (!r.ok) throw new Error();
+            return fetch(cartJsonUrl || '/cart.js', { headers: { Accept: 'application/json' } }).then(function (x) {
+              return x.json();
+            });
+          })
+          .then(function (cart) {
+            dispatchCartUpdate(cart);
+            window.location.reload();
+          })
+          .catch(function () {
+            window.location.reload();
+          })
+          .finally(function () {
+            btn.classList.remove('is-loading');
+            btn.removeAttribute('aria-busy');
+          });
+      });
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Aura cart page",
+  "tag": "section",
+  "class": "aura-cart-page-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero"
+    },
+    {
+      "type": "text",
+      "id": "hero_heading",
+      "label": "Heading",
+      "default": "Your Cart"
+    },
+    {
+      "type": "text",
+      "id": "hero_text",
+      "label": "Subtext",
+      "default": "Review your items and glow on."
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image (desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image_mobile",
+      "label": "Hero image (mobile override)"
+    },
+    {
+      "type": "text",
+      "id": "hero_image_alt",
+      "label": "Hero image alt text"
+    },
+    {
+      "type": "header",
+      "content": "Glow points"
+    },
+    {
+      "type": "range",
+      "id": "points_multiplier",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "label": "Points per $1 (order total)",
+      "default": 1
+    },
+    {
+      "type": "text",
+      "id": "points_label",
+      "label": "Points label",
+      "default": "Glow Points"
+    },
+    {
+      "type": "header",
+      "content": "Tax display"
+    },
+    {
+      "type": "select",
+      "id": "tax_mode",
+      "label": "Tax line",
+      "options": [
+        { "value": "auto", "label": "Show cart tax when available" },
+        { "value": "note", "label": "Always show note only" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "text",
+      "id": "tax_note",
+      "label": "Tax / estimate note",
+      "default": "Calculated at checkout"
+    },
+    {
+      "type": "header",
+      "content": "You may also like"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_recommendations",
+      "label": "Show recommendations",
+      "default": true
+    },
+    {
+      "type": "collection",
+      "id": "rec_collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "rec_limit",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "label": "Product limit",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "rec_show_badges",
+      "label": "Show badges",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "rec_show_wishlist",
+      "label": "Show wishlist (browser)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "rec_show_points_pill",
+      "label": "Show points pill on cards",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "rec_show_quantity",
+      "label": "Show quantity selector on recommendation cards",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "rec_badge_best_seller_tag",
+      "label": "Best seller tag (handle)",
+      "default": "best-seller"
+    },
+    {
+      "type": "text",
+      "id": "rec_badge_new_tag",
+      "label": "New tag (handle)",
+      "default": "new"
+    },
+    {
+      "type": "text",
+      "id": "rec_badge_exclusive_tag",
+      "label": "Exclusive tag (handle)",
+      "default": "exclusive"
+    },
+    {
+      "type": "range",
+      "id": "rec_new_product_days",
+      "min": 7,
+      "max": 107,
+      "step": 1,
+      "unit": "day",
+      "label": "\"New\" if created within",
+      "default": 45
+    },
+    {
+      "type": "header",
+      "content": "Order summary"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show dynamic checkout buttons",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_summary_points",
+      "label": "Show Glow Points summary card",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_promo",
+      "label": "Show promo code",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secure_card",
+      "label": "Show secure checkout card",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading",
+      "default": "#1b2c58"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body text",
+      "default": "#3d4657"
+    },
+    {
+      "type": "color",
+      "id": "accent_pink",
+      "label": "Accent (magenta)",
+      "default": "#ec008c"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Borders",
+      "default": "#f0dfe8"
+    },
+    {
+      "type": "color",
+      "id": "blush_bg",
+      "label": "Blush wash",
+      "default": "#fef7fb"
+    },
+    {
+      "type": "color",
+      "id": "blush_hero_start",
+      "label": "Hero gradient start",
+      "default": "#fdeef4"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_navy",
+      "label": "Primary button (checkout)",
+      "default": "#1a2b4c"
+    },
+    {
+      "type": "color",
+      "id": "gradient_start",
+      "label": "Gradient accent start",
+      "default": "#43318f"
+    },
+    {
+      "type": "color",
+      "id": "gradient_end",
+      "label": "Gradient accent end",
+      "default": "#ec008c"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Corner radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_y",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 48
+    }
+  ]
+}
+{% endschema %}
