@@ -51,6 +51,17 @@
     "password": "Password",
     "enter": "Enter"
   },
+  "placeholders": {
+    "password": "Password",
+    "search": "Search",
+    "product_title": "Product title",
+    "collection_title": "Collection title",
+    "blog_posts": "Blog posts",
+    "blog_post_title": "Title",
+    "blog_post_author": "Author",
+    "blog_post_date": "Date",
+    "blog_post_description": "An excerpt from your blog post"
+  },
   "search": {
     "title": "Search",
     "placeholder": "Search articles, pages, or products",
