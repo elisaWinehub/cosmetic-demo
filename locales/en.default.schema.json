@@ -57,7 +57,8 @@
     "page_width": "Page width",
     "show_payment_icons": "Show payment icons",
     "text_style": "Text style",
-    "text": "Text"
+    "text": "Text",
+    "image": "Image"
   },
   "options": {
     "alignment": {
@@ -293,5 +294,92 @@
     "other_sections": "Other",
     "storytelling": "Storytelling",
     "text": "Text"
+  },
+  "sections": {
+    "aura_customer_portal": {
+      "name": "Aura Society customer portal",
+      "headers": {
+        "hero": "Hero",
+        "sidebar_promo": "Sidebar promo",
+        "account": "Account & orders",
+        "referral": "Refer a friend",
+        "colors_type": "Colors & typography"
+      },
+      "settings": {
+        "hero_image": "Hero image (desktop)",
+        "hero_image_mobile": "Hero image (mobile)",
+        "hero_name_fallback": "Greeting name fallback",
+        "hero_gradient_css": "Hero background (CSS gradient)",
+        "points_display": "Points display text",
+        "points_value": "Points value (for progress bar)",
+        "points_target": "Points target (100% bar)",
+        "tier_name": "Membership tier name",
+        "next_tier_name": "Next tier name (progress text)",
+        "progress_text": "Progress caption override",
+        "progress_text_info": "Leave blank to auto-build from points above.",
+        "promo_image": "Promo image",
+        "promo_heading": "Promo heading",
+        "promo_text": "Promo text",
+        "promo_btn_label": "Promo button label",
+        "promo_btn_link": "Promo button link",
+        "profile_manage_url": "Profile / manage account URL",
+        "profile_manage_url_info": "Optional. Defaults to the account page.",
+        "orders_per_page": "Orders per page",
+        "subscription_portal_url": "Subscription portal link",
+        "referral_image": "Referral image",
+        "referral_reward_text": "Referral reward headline",
+        "referral_code": "Referral code (display)",
+        "referral_link": "Referral link (share)",
+        "referral_body": "Extra referral content",
+        "color_navy": "Navy text",
+        "color_pink": "Pink accent",
+        "color_blush": "Blush background",
+        "color_cream": "Page background",
+        "heading_font_stack": "Heading font stack (CSS)",
+        "body_font_stack": "Body font stack (CSS)",
+        "font_stack_info": "CSS font-family list, quoted as needed.",
+        "card_radius": "Card corner radius",
+        "section_padding": "Section vertical padding"
+      },
+      "blocks": {
+        "benefit": {
+          "name": "Benefit",
+          "icon": "Icon",
+          "icons": {
+            "sparkles": "Sparkles / points",
+            "gift": "Gift",
+            "drop": "Drop / launch",
+            "users": "People / referral",
+            "headset": "Support",
+            "crown": "VIP"
+          }
+        },
+        "shipment": {
+          "name": "Upcoming shipment",
+          "product_title": "Product title",
+          "estimated_date": "Estimated date",
+          "status": "Status"
+        },
+        "quick_link": {
+          "name": "Quick link",
+          "label": "Label",
+          "url": "Link"
+        },
+        "subscriptions_app_slot": {
+          "name": "Subscriptions: app blocks"
+        },
+        "membership_app_slot": {
+          "name": "Membership: app blocks"
+        },
+        "referral_app_slot": {
+          "name": "Refer a friend: app blocks"
+        }
+      },
+      "presets": {
+        "default": {
+          "name": "Aura Society portal"
+        }
+      }
+    }
   }
 }
