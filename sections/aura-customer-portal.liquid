@@ -1,0 +1,1621 @@
+{% liquid
+  assign sec_id = section.id
+  assign c = customer
+  assign orders_page_size = section.settings.orders_per_page | default: 12
+  assign navy = section.settings.color_navy | default: '#0a142f'
+  assign pink = section.settings.color_pink | default: '#EC008C'
+  assign blush = section.settings.color_blush | default: '#fdf8f6'
+  assign cream = section.settings.color_cream | default: '#faf6f2'
+  assign radius = section.settings.card_radius | default: 14
+  assign pad = section.settings.section_padding | default: 36
+  assign heading_font = section.settings.heading_font_stack | default: 'Georgia, "Times New Roman", Times, serif'
+  assign body_font = section.settings.body_font_stack | default: 'system-ui, -apple-system, Segoe UI, sans-serif'
+  assign hero_grad = section.settings.hero_gradient_css | default: 'linear-gradient(105deg, #fdeef4 0%, #f8d7e4 45%, #fce4ec 100%)'
+  assign pts_cur = section.settings.points_value | default: 1200
+  assign pts_tgt = section.settings.points_target | default: 1550
+  if pts_tgt > 0
+    assign pct_raw = pts_cur | times: 100 | divided_by: pts_tgt
+    if pct_raw > 100
+      assign pct_fill = 100
+    else
+      assign pct_fill = pct_raw
+    endif
+    assign pts_left = pts_tgt | minus: pts_cur
+    if pts_left < 0
+      assign pts_left = 0
+    endif
+  else
+    assign pct_fill = 0
+    assign pts_left = 0
+  endif
+  if c
+    assign greet_name = c.first_name | default: section.settings.hero_name_fallback
+    if greet_name == blank
+      assign greet_name = 'sections.aura_customer_portal.friend_fallback' | t
+    endif
+  else
+    assign greet_name = section.settings.hero_name_fallback
+    if greet_name == blank
+      assign greet_name = 'sections.aura_customer_portal.friend_fallback' | t
+    endif
+  endif
+  assign weekday = 'now' | date: '%A'
+  assign profile_url = section.settings.profile_manage_url | default: routes.account_url
+  assign ship_count = 0
+  for b in section.blocks
+    if b.type == 'shipment'
+      assign ship_count = ship_count | plus: 1
+    endif
+  endfor
+%}
+
+{%- if c -%}
+  <div
+    class="aura-customer-portal"
+    id="AuraCustomerPortal-{{ section.id }}"
+    data-aura-customer-portal="{{ section.id }}"
+    style="
+      --acp-navy: {{ navy }};
+      --acp-pink: {{ pink }};
+      --acp-blush: {{ blush }};
+      --acp-cream: {{ cream }};
+      --acp-radius: {{ radius }}px;
+      --acp-pad: {{ pad }}px;
+      --acp-heading-font: {{ heading_font }};
+      --acp-body-font: {{ body_font }};
+      --acp-hero-bg: {{ hero_grad }};
+      --acp-progress: {{ pct_fill }}%;
+    "
+  >
+    <div class="aura-customer-portal__inner page-width">
+      <header class="aura-customer-portal__hero" style="--acp-hero-gradient: {{ hero_grad }};">
+        <div class="aura-customer-portal__hero-grid">
+          <div class="aura-customer-portal__hero-left">
+            <h1 class="aura-customer-portal__greeting">
+              {{ 'sections.aura_customer_portal.hero_greeting' | t: name: greet_name, day: weekday }}
+            </h1>
+            <p class="aura-customer-portal__badge" role="status">
+              <span class="aura-customer-portal__badge-text">
+                {{ 'sections.aura_customer_portal.badge_youre_a' | t }}
+                <span class="aura-customer-portal__badge-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" focusable="false"><path d="M12 2l2.09 6.26L20 9.27l-5 3.64L16.18 21l-4.18-3.06L7.82 21 9 12.91 4 9.27l5.91-.99L12 2z"/></svg>
+                </span>
+                {{ section.settings.tier_name | escape }}
+              </span>
+            </p>
+          </div>
+          <div class="aura-customer-portal__hero-mid">
+            <p class="aura-customer-portal__points-label">{{ 'sections.aura_customer_portal.your_points' | t }}</p>
+            <p class="aura-customer-portal__points-value">{{ section.settings.points_display | escape }}</p>
+            <div class="aura-customer-portal__progress" role="img" aria-valuenow="{{ pts_cur }}" aria-valuemin="0" aria-valuemax="{{ pts_tgt }}" aria-label="{{ 'sections.aura_customer_portal.progress_aria' | t }}">
+              <span class="aura-customer-portal__progress-bar"></span>
+            </div>
+            <p class="aura-customer-portal__progress-caption">
+              {% if section.settings.progress_text != blank %}
+                {{ section.settings.progress_text | escape }}
+              {% else %}
+                {{ 'sections.aura_customer_portal.progress_default' | t: count: pts_left, tier: section.settings.next_tier_name }}
+                {% render 'aura-customer-portal-icon', icon: 'chevron' %}
+              {% endif %}
+            </p>
+          </div>
+          <div class="aura-customer-portal__hero-visual">
+            {%- if section.settings.hero_image != blank -%}
+              <div class="aura-customer-portal__hero-media aura-customer-portal__hero-media--desktop">
+                {{ section.settings.hero_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '400,600,900', sizes: '(min-width: 990px) 35vw, 100vw', class: 'aura-customer-portal__hero-img' }}
+              </div>
+            {%- endif -%}
+            {%- if section.settings.hero_image_mobile != blank -%}
+              <div class="aura-customer-portal__hero-media aura-customer-portal__hero-media--mobile">
+                {{ section.settings.hero_image_mobile | image_url: width: 700 | image_tag: loading: 'lazy', widths: '400,700', sizes: '100vw', class: 'aura-customer-portal__hero-img' }}
+              </div>
+            {%- elsif section.settings.hero_image != blank -%}
+              <div class="aura-customer-portal__hero-media aura-customer-portal__hero-media--mobile">
+                {{ section.settings.hero_image | image_url: width: 700 | image_tag: loading: 'lazy', widths: '400,700', sizes: '100vw', class: 'aura-customer-portal__hero-img' }}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </header>
+
+      <div class="aura-customer-portal__shell">
+        <aside class="aura-customer-portal__sidebar" aria-label="{{ 'sections.aura_customer_portal.nav_label' | t }}">
+          <div class="aura-customer-portal__tabs-scroll">
+            <div
+              class="aura-customer-portal__tabs"
+              role="tablist"
+              aria-orientation="horizontal"
+              data-acp-tabs="{{ sec_id }}"
+            >
+              <button type="button" class="aura-customer-portal__tab is-active" role="tab" id="acp-tab-account-{{ sec_id }}" aria-selected="true" aria-controls="acp-panel-account-{{ sec_id }}" data-acp-tab="account">
+                <span class="aura-customer-portal__tab-ic">{% render 'aura-customer-portal-icon', icon: 'user' %}</span>
+                <span>{{ 'sections.aura_customer_portal.tab_account' | t }}</span>
+              </button>
+              <button type="button" class="aura-customer-portal__tab" role="tab" id="acp-tab-orders-{{ sec_id }}" aria-selected="false" aria-controls="acp-panel-orders-{{ sec_id }}" data-acp-tab="orders" tabindex="-1">
+                <span class="aura-customer-portal__tab-ic">{% render 'aura-customer-portal-icon', icon: 'order' %}</span>
+                <span>{{ 'sections.aura_customer_portal.tab_orders' | t }}</span>
+              </button>
+              <button type="button" class="aura-customer-portal__tab" role="tab" id="acp-tab-subscriptions-{{ sec_id }}" aria-selected="false" aria-controls="acp-panel-subscriptions-{{ sec_id }}" data-acp-tab="subscriptions" tabindex="-1">
+                <span class="aura-customer-portal__tab-ic">{% render 'aura-customer-portal-icon', icon: 'subscription' %}</span>
+                <span>{{ 'sections.aura_customer_portal.tab_subscriptions' | t }}</span>
+              </button>
+              <button type="button" class="aura-customer-portal__tab" role="tab" id="acp-tab-shipments-{{ sec_id }}" aria-selected="false" aria-controls="acp-panel-shipments-{{ sec_id }}" data-acp-tab="shipments" tabindex="-1">
+                <span class="aura-customer-portal__tab-ic">{% render 'aura-customer-portal-icon', icon: 'truck' %}</span>
+                <span>{{ 'sections.aura_customer_portal.tab_shipments' | t }}</span>
+              </button>
+              <button type="button" class="aura-customer-portal__tab" role="tab" id="acp-tab-benefits-{{ sec_id }}" aria-selected="false" aria-controls="acp-panel-benefits-{{ sec_id }}" data-acp-tab="benefits" tabindex="-1">
+                <span class="aura-customer-portal__tab-ic">{% render 'aura-customer-portal-icon', icon: 'gift' %}</span>
+                <span>{{ 'sections.aura_customer_portal.tab_benefits' | t }}</span>
+              </button>
+              <button type="button" class="aura-customer-portal__tab" role="tab" id="acp-tab-refer-{{ sec_id }}" aria-selected="false" aria-controls="acp-panel-refer-{{ sec_id }}" data-acp-tab="refer" tabindex="-1">
+                <span class="aura-customer-portal__tab-ic">{% render 'aura-customer-portal-icon', icon: 'users' %}</span>
+                <span>{{ 'sections.aura_customer_portal.tab_refer' | t }}</span>
+              </button>
+              <button type="button" class="aura-customer-portal__tab aura-customer-portal__tab--signout" role="tab" id="acp-tab-signout-{{ sec_id }}" aria-selected="false" aria-controls="acp-panel-signout-{{ sec_id }}" data-acp-tab="signout" tabindex="-1">
+                <span class="aura-customer-portal__tab-ic">{% render 'aura-customer-portal-icon', icon: 'logout' %}</span>
+                <span>{{ 'sections.aura_customer_portal.tab_signout' | t }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="aura-customer-portal__promo" {{ section.shopify_attributes }}>
+            {%- if section.settings.promo_image != blank -%}
+              <div class="aura-customer-portal__promo-media">
+                {{ section.settings.promo_image | image_url: width: 600 | image_tag: loading: 'lazy', widths: '300,450,600', class: 'aura-customer-portal__promo-img' }}
+              </div>
+            {%- endif -%}
+            <div class="aura-customer-portal__promo-copy">
+              <h3 class="aura-customer-portal__promo-title">{{ section.settings.promo_heading | escape }}</h3>
+              <p class="aura-customer-portal__promo-text">{{ section.settings.promo_text | escape }}</p>
+              {%- if section.settings.promo_btn_label != blank and section.settings.promo_btn_link != blank -%}
+                <a class="aura-customer-portal__promo-btn" href="{{ section.settings.promo_btn_link }}">
+                  {{ section.settings.promo_btn_label | escape }}
+                  {% render 'aura-customer-portal-icon', icon: 'chevron' %}
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- assign ql_rendered = false -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'quick_link' -%}
+              {%- unless ql_rendered -%}
+                <ul class="aura-customer-portal__quicklinks" role="list">
+                  {%- assign ql_rendered = true -%}
+              {%- endunless -%}
+                <li {{ block.shopify_attributes }}>
+                  <a href="{{ block.settings.url | default: '#' }}" class="aura-customer-portal__quicklink">{{ block.settings.label | escape }}</a>
+                </li>
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if ql_rendered -%}</ul>{%- endif -%}
+        </aside>
+
+        <div class="aura-customer-portal__main">
+          {%- comment -%} Account {%- endcomment -%}
+          <section
+            class="aura-customer-portal__panel is-active"
+            role="tabpanel"
+            id="acp-panel-account-{{ sec_id }}"
+            aria-labelledby="acp-tab-account-{{ sec_id }}"
+            data-acp-panel="account"
+            tabindex="0"
+          >
+            <h2 class="aura-customer-portal__panel-title">{{ 'sections.aura_customer_portal.tab_account' | t }}</h2>
+
+            <div class="aura-customer-portal__cards">
+              <article class="aura-customer-portal__card">
+                <div class="aura-customer-portal__card-head">
+                  <span class="aura-customer-portal__card-ic aura-customer-portal__card-ic--round">{% render 'aura-customer-portal-icon', icon: 'user' %}</span>
+                  <h3 class="aura-customer-portal__card-title">{{ 'sections.aura_customer_portal.profile_title' | t }}</h3>
+                  <a class="aura-customer-portal__card-edit" href="{{ profile_url }}" aria-label="{{ 'sections.aura_customer_portal.edit_profile' | t }}">
+                    {% render 'aura-customer-portal-icon', icon: 'edit' %}
+                  </a>
+                </div>
+                <dl class="aura-customer-portal__dl">
+                  <div><dt>{{ 'sections.aura_customer_portal.first_name' | t }}</dt><dd>{{ c.first_name | escape }}</dd></div>
+                  <div><dt>{{ 'sections.aura_customer_portal.last_name' | t }}</dt><dd>{{ c.last_name | escape }}</dd></div>
+                  <div><dt>{{ 'sections.aura_customer_portal.email' | t }}</dt><dd>{{ c.email | escape }}</dd></div>
+                  <div>
+                    <dt>{{ 'sections.aura_customer_portal.phone' | t }}</dt>
+                    <dd>
+                      {%- if c.phone != blank -%}
+                        {{ c.phone | escape }}
+                      {%- elsif c.default_address.phone != blank -%}
+                        {{ c.default_address.phone | escape }}
+                      {%- else -%}
+                        {{ 'sections.aura_customer_portal.not_provided' | t }}
+                      {%- endif -%}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'sections.aura_customer_portal.password' | t }}</dt>
+                    <dd aria-hidden="true">••••••••</dd>
+                  </div>
+                </dl>
+              </article>
+
+              <article class="aura-customer-portal__card">
+                <div class="aura-customer-portal__card-head">
+                  <span class="aura-customer-portal__card-ic aura-customer-portal__card-ic--round">{% render 'aura-customer-portal-icon', icon: 'map_pin' %}</span>
+                  <h3 class="aura-customer-portal__card-title">{{ 'sections.aura_customer_portal.addresses_title' | t }}</h3>
+                  <a class="aura-customer-portal__card-edit" href="{{ routes.account_addresses_url }}" aria-label="{{ 'sections.aura_customer_portal.edit_addresses' | t }}">
+                    {% render 'aura-customer-portal-icon', icon: 'edit' %}
+                  </a>
+                </div>
+                {%- if c.default_address -%}
+                  <p class="aura-customer-portal__label-accent">{{ 'sections.aura_customer_portal.default_shipping' | t }}</p>
+                  <p class="aura-customer-portal__addr">{{ c.default_address | format_address }}</p>
+                {%- else -%}
+                  <p class="aura-customer-portal__empty-note">{{ 'sections.aura_customer_portal.no_default_address' | t }}</p>
+                {%- endif -%}
+                <p class="aura-customer-portal__label-muted">{{ 'sections.aura_customer_portal.billing_label' | t }}</p>
+                {%- if c.default_address -%}
+                  <p class="aura-customer-portal__addr">{{ c.default_address | format_address }}</p>
+                {%- else -%}
+                  <p class="aura-customer-portal__empty-note">{{ 'sections.aura_customer_portal.same_as_shipping_fallback' | t }}</p>
+                {%- endif -%}
+              </article>
+
+              <article class="aura-customer-portal__card">
+                <div class="aura-customer-portal__card-head">
+                  <span class="aura-customer-portal__card-ic aura-customer-portal__card-ic--round">{% render 'aura-customer-portal-icon', icon: 'card' %}</span>
+                  <h3 class="aura-customer-portal__card-title">{{ 'sections.aura_customer_portal.payment_title' | t }}</h3>
+                </div>
+                <p class="aura-customer-portal__muted">{{ 'sections.aura_customer_portal.payment_placeholder' | t }}</p>
+                <a class="aura-customer-portal__btn aura-customer-portal__btn--secondary" href="{{ routes.account_url }}">{{ 'sections.aura_customer_portal.add_payment_cta' | t }}</a>
+              </article>
+            </div>
+          </section>
+
+          {%- comment -%} Orders {%- endcomment -%}
+          <section
+            class="aura-customer-portal__panel"
+            role="tabpanel"
+            id="acp-panel-orders-{{ sec_id }}"
+            aria-labelledby="acp-tab-orders-{{ sec_id }}"
+            data-acp-panel="orders"
+            hidden
+            tabindex="0"
+          >
+            <h2 class="aura-customer-portal__panel-title">{{ 'sections.aura_customer_portal.tab_orders' | t }}</h2>
+            {% paginate c.orders by orders_page_size %}
+              {%- if c.orders.size > 0 -%}
+                <div class="aura-customer-portal__orders">
+                  {%- for order in c.orders -%}
+                    <article class="aura-customer-portal__order-card">
+                      <div class="aura-customer-portal__order-row">
+                        <span class="aura-customer-portal__order-label">{{ 'sections.aura_customer_portal.order_number' | t }}</span>
+                        <a href="{{ order.customer_url }}">{{ order.name | escape }}</a>
+                      </div>
+                      <div class="aura-customer-portal__order-row">
+                        <span class="aura-customer-portal__order-label">{{ 'sections.aura_customer_portal.order_date' | t }}</span>
+                        <span>{{ order.created_at | date: format: 'abbreviated_date' }}</span>
+                      </div>
+                      <div class="aura-customer-portal__order-row">
+                        <span class="aura-customer-portal__order-label">{{ 'sections.aura_customer_portal.payment_status' | t }}</span>
+                        <span>
+                          {%- if order.financial_status != blank -%}
+                            {{- order.financial_status | replace: '_', ' ' | capitalize -}}
+                          {%- else -%}
+                            {{ 'sections.aura_customer_portal.status_unknown' | t }}
+                          {%- endif -%}
+                        </span>
+                      </div>
+                      <div class="aura-customer-portal__order-row">
+                        <span class="aura-customer-portal__order-label">{{ 'sections.aura_customer_portal.fulfillment_status' | t }}</span>
+                        <span>
+                          {%- if order.fulfillment_status != blank -%}
+                            {{- order.fulfillment_status | replace: '_', ' ' | capitalize -}}
+                          {%- else -%}
+                            {{ 'sections.aura_customer_portal.fulfillment_unfulfilled' | t }}
+                          {%- endif -%}
+                        </span>
+                      </div>
+                      <div class="aura-customer-portal__order-row aura-customer-portal__order-row--total">
+                        <span class="aura-customer-portal__order-label">{{ 'sections.aura_customer_portal.order_total' | t }}</span>
+                        <span>{{ order.total_price | money_with_currency }}</span>
+                      </div>
+                      <a class="aura-customer-portal__text-link" href="{{ order.customer_url }}">{{ 'sections.aura_customer_portal.view_order' | t }}</a>
+                    </article>
+                  {%- endfor -%}
+                </div>
+                {%- if paginate.pages > 1 -%}
+                  <div class="aura-customer-portal__pagination">{{ paginate | default_pagination }}</div>
+                {%- endif -%}
+              {%- else -%}
+                <p class="aura-customer-portal__empty-state">{{ 'sections.aura_customer_portal.orders_empty' | t }}</p>
+              {%- endif -%}
+            {% endpaginate %}
+          </section>
+
+          {%- comment -%} Subscriptions {%- endcomment -%}
+          <section
+            class="aura-customer-portal__panel"
+            role="tabpanel"
+            id="acp-panel-subscriptions-{{ sec_id }}"
+            aria-labelledby="acp-tab-subscriptions-{{ sec_id }}"
+            data-acp-panel="subscriptions"
+            hidden
+            tabindex="0"
+          >
+            <h2 class="aura-customer-portal__panel-title">{{ 'sections.aura_customer_portal.tab_subscriptions' | t }}</h2>
+            <div class="aura-customer-portal__subscriptions">
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'subscriptions_app_slot' -%}
+                  <div class="aura-customer-portal__app-region" {{ block.shopify_attributes }}>
+                    {%- for child in block.blocks -%}
+                      <div class="aura-customer-portal__app-slot" {{ child.shopify_attributes }}>
+                        {% render child %}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+              <div class="aura-customer-portal__fallback-card">
+                <p>{{ 'sections.aura_customer_portal.subscriptions_fallback' | t }}</p>
+                {%- if section.settings.subscription_portal_url != blank -%}
+                  <a class="aura-customer-portal__btn" href="{{ section.settings.subscription_portal_url }}">
+                    {{ 'sections.aura_customer_portal.subscriptions_cta' | t }}
+                  </a>
+                {%- endif -%}
+              </div>
+            </div>
+          </section>
+
+          {%- comment -%} Shipments {%- endcomment -%}
+          <section
+            class="aura-customer-portal__panel"
+            role="tabpanel"
+            id="acp-panel-shipments-{{ sec_id }}"
+            aria-labelledby="acp-tab-shipments-{{ sec_id }}"
+            data-acp-panel="shipments"
+            hidden
+            tabindex="0"
+          >
+            <h2 class="aura-customer-portal__panel-title">{{ 'sections.aura_customer_portal.tab_shipments' | t }}</h2>
+            {%- if ship_count > 0 -%}
+              <div class="aura-customer-portal__ship-grid">
+                {%- for block in section.blocks -%}
+                  {%- if block.type == 'shipment' -%}
+                    <article class="aura-customer-portal__ship-card" {{ block.shopify_attributes }}>
+                      {%- if block.settings.image != blank -%}
+                        <div class="aura-customer-portal__ship-media">
+                          {{ block.settings.image | image_url: width: 400 | image_tag: loading: 'lazy', widths: '200,400', class: 'aura-customer-portal__ship-img' }}
+                        </div>
+                      {%- endif -%}
+                      <h3 class="aura-customer-portal__ship-title">{{ block.settings.product_title | escape }}</h3>
+                      <p class="aura-customer-portal__ship-meta">{{ block.settings.estimated_date | escape }}</p>
+                      <p class="aura-customer-portal__ship-status">{{ block.settings.status_label | escape }}</p>
+                    </article>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            {%- else -%}
+              <p class="aura-customer-portal__empty-state">{{ 'sections.aura_customer_portal.shipments_empty' | t }}</p>
+            {%- endif -%}
+          </section>
+
+          {%- comment -%} Benefits {%- endcomment -%}
+          <section
+            class="aura-customer-portal__panel"
+            role="tabpanel"
+            id="acp-panel-benefits-{{ sec_id }}"
+            aria-labelledby="acp-tab-benefits-{{ sec_id }}"
+            data-acp-panel="benefits"
+            hidden
+            tabindex="0"
+          >
+            <h2 class="aura-customer-portal__panel-title">{{ 'sections.aura_customer_portal.tab_benefits' | t }}</h2>
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'membership_app_slot' -%}
+                <div class="aura-customer-portal__app-region aura-customer-portal__app-region--inline" {{ block.shopify_attributes }}>
+                  {%- for child in block.blocks -%}
+                    <div class="aura-customer-portal__app-slot" {{ child.shopify_attributes }}>
+                      {% render child %}
+                    </div>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+            <div class="aura-customer-portal__benefit-grid">
+              {%- assign benefit_count = 0 -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'benefit' -%}
+                  {%- assign benefit_count = benefit_count | plus: 1 -%}
+                  <article class="aura-customer-portal__benefit" {{ block.shopify_attributes }}>
+                    <span class="aura-customer-portal__benefit-ic" aria-hidden="true">{% render 'aura-customer-portal-icon', icon: block.settings.icon %}</span>
+                    <h3 class="aura-customer-portal__benefit-title">{{ block.settings.title | escape }}</h3>
+                    <p class="aura-customer-portal__benefit-text">{{ block.settings.text | escape }}</p>
+                  </article>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            {%- if benefit_count == 0 -%}
+              <p class="aura-customer-portal__empty-note">{{ 'sections.aura_customer_portal.benefits_empty' | t }}</p>
+            {%- endif -%}
+          </section>
+
+          {%- comment -%} Refer {%- endcomment -%}
+          <section
+            class="aura-customer-portal__panel"
+            role="tabpanel"
+            id="acp-panel-refer-{{ sec_id }}"
+            aria-labelledby="acp-tab-refer-{{ sec_id }}"
+            data-acp-panel="refer"
+            hidden
+            tabindex="0"
+          >
+            <h2 class="aura-customer-portal__panel-title">{{ 'sections.aura_customer_portal.tab_refer' | t }}</h2>
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'referral_app_slot' -%}
+                <div class="aura-customer-portal__app-region" {{ block.shopify_attributes }}>
+                  {%- for child in block.blocks -%}
+                    <div class="aura-customer-portal__app-slot" {{ child.shopify_attributes }}>
+                      {% render child %}
+                    </div>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+            <div class="aura-customer-portal__refer">
+              {%- if section.settings.referral_image != blank -%}
+                <div class="aura-customer-portal__refer-media">
+                  {{ section.settings.referral_image | image_url: width: 560 | image_tag: loading: 'lazy', widths: '320,560', class: 'aura-customer-portal__refer-img' }}
+                </div>
+              {%- endif -%}
+              <div class="aura-customer-portal__refer-body">
+                <p class="aura-customer-portal__refer-reward">{{ section.settings.referral_reward_text | escape }}</p>
+                <div class="aura-customer-portal__field">
+                  <label class="aura-customer-portal__field-label" for="acp-code-{{ sec_id }}">{{ 'sections.aura_customer_portal.referral_code' | t }}</label>
+                  <input id="acp-code-{{ sec_id }}" class="aura-customer-portal__input" type="text" readonly value="{{ section.settings.referral_code | escape }}">
+                </div>
+                <div class="aura-customer-portal__field">
+                  <label class="aura-customer-portal__field-label" for="acp-link-{{ sec_id }}">{{ 'sections.aura_customer_portal.referral_link' | t }}</label>
+                  <input
+                  id="acp-link-{{ sec_id }}"
+                  class="aura-customer-portal__input"
+                  type="text"
+                  readonly
+                  value="{% if section.settings.referral_link != blank %}{{ section.settings.referral_link | escape }}{% else %}{{ shop.url | escape }}{% endif %}"
+                  data-acp-referral-link
+                >
+                </div>
+                <button type="button" class="aura-customer-portal__btn" data-acp-copy-target="#acp-link-{{ sec_id }}">
+                  {% render 'aura-customer-portal-icon', icon: 'copy' %}
+                  <span>{{ 'sections.aura_customer_portal.copy_link' | t }}</span>
+                </button>
+                <p class="aura-customer-portal__copied" data-acp-copy-toast hidden>{{ 'sections.aura_customer_portal.copied' | t }}</p>
+                {%- if section.settings.referral_body != blank -%}
+                  <div class="aura-customer-portal__rte rte">{{ section.settings.referral_body }}</div>
+                {%- endif -%}
+              </div>
+            </div>
+          </section>
+
+          {%- comment -%} Sign out {%- endcomment -%}
+          <section
+            class="aura-customer-portal__panel"
+            role="tabpanel"
+            id="acp-panel-signout-{{ sec_id }}"
+            aria-labelledby="acp-tab-signout-{{ sec_id }}"
+            data-acp-panel="signout"
+            hidden
+            tabindex="0"
+          >
+            <h2 class="aura-customer-portal__panel-title">{{ 'sections.aura_customer_portal.tab_signout' | t }}</h2>
+            <div class="aura-customer-portal__signout-card">
+              <p>{{ 'sections.aura_customer_portal.signout_prompt' | t }}</p>
+              <a class="aura-customer-portal__btn" href="{{ routes.account_logout_url }}">{{ 'sections.aura_customer_portal.signout_confirm' | t }}</a>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var root = document.getElementById('AuraCustomerPortal-{{ section.id }}');
+      if (!root) return;
+      var sid = {{ section.id | json }};
+      var tabs = root.querySelector('[data-acp-tabs="' + sid + '"]');
+      if (!tabs) return;
+      var btns = tabs.querySelectorAll('[data-acp-tab]');
+      var panels = root.querySelectorAll('[data-acp-panel]');
+
+      function activate(name) {
+        btns.forEach(function (b) {
+          var on = b.getAttribute('data-acp-tab') === name;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+          b.tabIndex = on ? 0 : -1;
+        });
+        panels.forEach(function (p) {
+          var on = p.getAttribute('data-acp-panel') === name;
+          p.classList.toggle('is-active', on);
+          if (on) {
+            p.removeAttribute('hidden');
+          } else {
+            p.setAttribute('hidden', '');
+          }
+        });
+      }
+
+      tabs.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-acp-tab]');
+        if (!btn || !tabs.contains(btn)) return;
+        e.preventDefault();
+        activate(btn.getAttribute('data-acp-tab'));
+      });
+
+      tabs.addEventListener('keydown', function (e) {
+        var keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+        if (keys.indexOf(e.key) === -1) return;
+        e.preventDefault();
+        var list = Array.prototype.slice.call(btns);
+        var i = list.indexOf(document.activeElement);
+        if (i === -1) {
+          i = list.findIndex(function (b) {
+            return b.classList.contains('is-active');
+          });
+        }
+        if (i === -1) i = 0;
+        var next = i;
+        if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = list.length - 1;
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = Math.min(list.length - 1, i + 1);
+        else next = Math.max(0, i - 1);
+        list[next].focus();
+        activate(list[next].getAttribute('data-acp-tab'));
+      });
+
+      root.querySelectorAll('[data-acp-copy-target]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var sel = btn.getAttribute('data-acp-copy-target');
+          var input = sel ? root.querySelector(sel) : null;
+          var text = input && input.value ? input.value : '';
+          var toast = root.querySelector('[data-acp-copy-toast]');
+          function showToast() {
+            if (!toast) return;
+            toast.removeAttribute('hidden');
+            window.setTimeout(function () {
+              toast.setAttribute('hidden', '');
+            }, 2000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showToast).catch(function () {
+              if (input) {
+                input.select();
+                document.execCommand('copy');
+                showToast();
+              }
+            });
+          } else if (input) {
+            input.select();
+            document.execCommand('copy');
+            showToast();
+          }
+        });
+      });
+    })();
+  </script>
+{%- else -%}
+  <div class="aura-customer-portal aura-customer-portal--guest page-width">
+    <p>{{ 'sections.aura_customer_portal.login_prompt' | t }}</p>
+    <p><a class="link" href="{{ routes.account_login_url }}">{{ 'sections.aura_customer_portal.login_cta' | t }}</a></p>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .aura-customer-portal {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    padding: var(--acp-pad, 36px) 0;
+    font-family: var(--acp-body-font, system-ui);
+    color: var(--acp-navy, #0a142f);
+    background: var(--acp-cream, #faf6f2);
+  }
+  .aura-customer-portal *,
+  .aura-customer-portal *::before,
+  .aura-customer-portal *::after {
+    box-sizing: border-box;
+  }
+  .aura-customer-portal__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-inline: 1.25rem;
+  }
+  .aura-customer-portal__hero {
+    border-radius: var(--acp-radius, 14px);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+    background: var(--acp-hero-gradient, linear-gradient(105deg, #fdeef4, #fce4ec));
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 12%, transparent);
+  }
+  .aura-customer-portal__hero-grid {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  @media screen and (min-width: 990px) {
+    .aura-customer-portal__hero-grid {
+      grid-template-columns: 1fr minmax(200px, 0.9fr) minmax(180px, 0.85fr);
+    }
+  }
+  .aura-customer-portal__greeting {
+    margin: 0 0 0.75rem;
+    font-family: var(--acp-heading-font, Georgia, serif);
+    font-weight: 600;
+    font-size: clamp(1.35rem, 2.5vw, 2rem);
+    line-height: 1.2;
+    color: var(--acp-navy);
+  }
+  .aura-customer-portal__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--acp-pink) 16%, #fff);
+    color: var(--acp-pink);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .aura-customer-portal__badge-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .aura-customer-portal__badge-icon {
+    display: flex;
+    color: var(--acp-pink);
+  }
+  .aura-customer-portal__points-label {
+    margin: 0 0 0.25rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--acp-navy) 65%, #fff);
+  }
+  .aura-customer-portal__points-value {
+    margin: 0 0 0.65rem;
+    font-family: var(--acp-heading-font, Georgia, serif);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 600;
+  }
+  .aura-customer-portal__progress {
+    height: 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--acp-navy) 12%, #fff);
+    overflow: hidden;
+  }
+  .aura-customer-portal__progress-bar {
+    display: block;
+    height: 100%;
+    width: var(--acp-progress, 60%);
+    background: var(--acp-pink);
+    border-radius: inherit;
+    transition: width 0.4s ease;
+  }
+  .aura-customer-portal__progress-caption {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.6rem 0 0;
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--acp-navy) 75%, #fff);
+  }
+  .aura-customer-portal__progress-caption svg {
+    flex-shrink: 0;
+  }
+  .aura-customer-portal__hero-visual {
+    display: flex;
+    justify-content: center;
+  }
+  .aura-customer-portal__hero-media--mobile {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    border-radius: calc(var(--acp-radius) * 0.85);
+    overflow: hidden;
+  }
+  .aura-customer-portal__hero-media--desktop {
+    display: none;
+    border-radius: calc(var(--acp-radius) * 0.85);
+    overflow: hidden;
+  }
+  @media screen and (min-width: 990px) {
+    .aura-customer-portal__hero-media--desktop {
+      display: block;
+    }
+    .aura-customer-portal__hero-media--mobile {
+      display: none;
+    }
+  }
+  .aura-customer-portal__hero-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: middle;
+  }
+  .aura-customer-portal__shell {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media screen and (min-width: 990px) {
+    .aura-customer-portal__shell {
+      grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+  .aura-customer-portal__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .aura-customer-portal__tabs-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-inline: -0.25rem;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media screen and (min-width: 990px) {
+    .aura-customer-portal__tabs-scroll {
+      overflow: visible;
+      margin-inline: 0;
+    }
+  }
+  .aura-customer-portal__tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    min-width: min-content;
+    padding: 0.25rem;
+    background: color-mix(in srgb, var(--acp-blush) 90%, #fff);
+    border-radius: var(--acp-radius);
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 10%, transparent);
+  }
+  @media screen and (min-width: 990px) {
+    .aura-customer-portal__tabs {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      min-width: auto;
+    }
+  }
+  .aura-customer-portal__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    border: none;
+    border-radius: calc(var(--acp-radius) - 4px);
+    background: transparent;
+    color: var(--acp-navy);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  @media screen and (min-width: 990px) {
+    .aura-customer-portal__tab {
+      width: 100%;
+      white-space: normal;
+    }
+  }
+  .aura-customer-portal__tab:hover {
+    background: color-mix(in srgb, var(--acp-pink) 8%, transparent);
+  }
+  .aura-customer-portal__tab.is-active {
+    background: color-mix(in srgb, var(--acp-pink) 18%, #fff);
+    color: var(--acp-pink);
+  }
+  .aura-customer-portal__tab-ic {
+    display: flex;
+    flex-shrink: 0;
+    color: inherit;
+  }
+  .aura-customer-portal__promo {
+    border-radius: var(--acp-radius);
+    overflow: hidden;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--acp-pink) 35%, #fff), #fff);
+    border: 1px solid color-mix(in srgb, var(--acp-pink) 25%, transparent);
+  }
+  .aura-customer-portal__promo-media {
+    aspect-ratio: 4/3;
+    overflow: hidden;
+  }
+  .aura-customer-portal__promo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .aura-customer-portal__promo-copy {
+    padding: 1rem 1.1rem 1.25rem;
+  }
+  .aura-customer-portal__promo-title {
+    margin: 0 0 0.35rem;
+    font-family: var(--acp-heading-font);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .aura-customer-portal__promo-text {
+    margin: 0 0 0.85rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--acp-navy) 82%, #fff);
+  }
+  .aura-customer-portal__promo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--acp-navy);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 15%, transparent);
+  }
+  .aura-customer-portal__quicklinks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .aura-customer-portal__quicklink {
+    font-size: 0.875rem;
+    color: var(--acp-pink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .aura-customer-portal__main {
+    min-width: 0;
+  }
+  .aura-customer-portal__panel {
+    display: none;
+    outline: none;
+  }
+  .aura-customer-portal__panel.is-active {
+    display: block;
+  }
+  .aura-customer-portal__panel-title {
+    margin: 0 0 1.25rem;
+    font-family: var(--acp-heading-font);
+    font-size: clamp(1.35rem, 2vw, 1.65rem);
+    font-weight: 600;
+  }
+  .aura-customer-portal__cards {
+    display: grid;
+    gap: 1rem;
+  }
+  @media screen and (min-width: 750px) {
+    .aura-customer-portal__cards {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+  }
+  .aura-customer-portal__card {
+    background: #fff;
+    border-radius: var(--acp-radius);
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 12%, transparent);
+    padding: 1.1rem 1.2rem;
+  }
+  .aura-customer-portal__card-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+  .aura-customer-portal__card-ic--round {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--acp-pink) 18%, #fff);
+    color: var(--acp-pink);
+  }
+  .aura-customer-portal__card-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .aura-customer-portal__card-edit {
+    display: flex;
+    color: var(--acp-navy);
+    opacity: 0.65;
+  }
+  .aura-customer-portal__card-edit:hover {
+    opacity: 1;
+  }
+  .aura-customer-portal__dl {
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .aura-customer-portal__dl dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: color-mix(in srgb, var(--acp-navy) 55%, #fff);
+    margin-bottom: 0.15rem;
+  }
+  .aura-customer-portal__dl dd {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  @media screen and (min-width: 600px) {
+    .aura-customer-portal__dl {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .aura-customer-portal__dl > div:last-child:nth-child(odd) {
+      grid-column: span 3;
+    }
+  }
+  .aura-customer-portal__label-accent {
+    margin: 0 0 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--acp-pink);
+  }
+  .aura-customer-portal__label-muted {
+    margin: 1rem 0 0.35rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: color-mix(in srgb, var(--acp-navy) 50%, #fff);
+  }
+  .aura-customer-portal__addr {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+  .aura-customer-portal__muted {
+    margin: 0 0 0.85rem;
+    color: color-mix(in srgb, var(--acp-navy) 72%, #fff);
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+  .aura-customer-portal__empty-note,
+  .aura-customer-portal__empty-state {
+    margin: 0;
+    color: color-mix(in srgb, var(--acp-navy) 65%, #fff);
+    font-size: 0.95rem;
+  }
+  .aura-customer-portal__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1.15rem;
+    border-radius: 999px;
+    background: var(--acp-pink);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    width: auto;
+    max-width: 100%;
+  }
+  .aura-customer-portal__btn--secondary {
+    background: #fff;
+    color: var(--acp-navy);
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 22%, transparent);
+  }
+  @media screen and (max-width: 749px) {
+    .aura-customer-portal__btn {
+      width: 100%;
+    }
+  }
+  .aura-customer-portal__orders {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .aura-customer-portal__order-card {
+    background: #fff;
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 12%, transparent);
+    border-radius: var(--acp-radius);
+    padding: 1rem 1.1rem;
+  }
+  .aura-customer-portal__order-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--acp-navy) 8%, transparent);
+  }
+  .aura-customer-portal__order-row:last-of-type {
+    border-bottom: none;
+  }
+  .aura-customer-portal__order-label {
+    color: color-mix(in srgb, var(--acp-navy) 55%, #fff);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .aura-customer-portal__order-row--total {
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+  .aura-customer-portal__text-link {
+    display: inline-block;
+    margin-top: 0.65rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--acp-pink);
+  }
+  .aura-customer-portal__pagination {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+  }
+  .aura-customer-portal__subscriptions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .aura-customer-portal__fallback-card {
+    background: #fff;
+    border-radius: var(--acp-radius);
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 12%, transparent);
+    padding: 1.15rem;
+  }
+  .aura-customer-portal__fallback-card p {
+    margin: 0 0 0.85rem;
+    line-height: 1.45;
+  }
+  .aura-customer-portal__app-region {
+    margin-bottom: 0.5rem;
+  }
+  .aura-customer-portal__app-slot {
+    margin-bottom: 0.75rem;
+  }
+  .aura-customer-portal__ship-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  @media screen and (min-width: 600px) {
+    .aura-customer-portal__ship-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .aura-customer-portal__ship-card {
+    background: #fff;
+    border-radius: var(--acp-radius);
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 12%, transparent);
+    padding: 1rem;
+  }
+  .aura-customer-portal__ship-media {
+    border-radius: calc(var(--acp-radius) - 4px);
+    overflow: hidden;
+    margin-bottom: 0.65rem;
+  }
+  .aura-customer-portal__ship-img {
+    width: 100%;
+    display: block;
+    height: auto;
+  }
+  .aura-customer-portal__ship-title {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .aura-customer-portal__ship-meta,
+  .aura-customer-portal__ship-status {
+    margin: 0;
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--acp-navy) 70%, #fff);
+  }
+  .aura-customer-portal__benefit-grid {
+    display: grid;
+    gap: 0.85rem;
+  }
+  @media screen and (min-width: 750px) {
+    .aura-customer-portal__benefit-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .aura-customer-portal__benefit {
+    background: #fff;
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 12%, transparent);
+    border-radius: var(--acp-radius);
+    padding: 1rem;
+  }
+  .aura-customer-portal__benefit-ic {
+    display: flex;
+    color: var(--acp-pink);
+    margin-bottom: 0.5rem;
+  }
+  .aura-customer-portal__benefit-title {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .aura-customer-portal__benefit-text {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--acp-navy) 78%, #fff);
+  }
+  .aura-customer-portal__refer {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media screen and (min-width: 750px) {
+    .aura-customer-portal__refer {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      align-items: start;
+    }
+  }
+  .aura-customer-portal__refer-media {
+    border-radius: var(--acp-radius);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 10%, transparent);
+  }
+  .aura-customer-portal__refer-img {
+    width: 100%;
+    display: block;
+    height: auto;
+  }
+  .aura-customer-portal__refer-reward {
+    margin: 0 0 1rem;
+    font-family: var(--acp-heading-font);
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+  .aura-customer-portal__field {
+    margin-bottom: 0.85rem;
+  }
+  .aura-customer-portal__field-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
+    color: color-mix(in srgb, var(--acp-navy) 60%, #fff);
+  }
+  .aura-customer-portal__input {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: calc(var(--acp-radius) - 4px);
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 18%, transparent);
+    font: inherit;
+    background: #fff;
+  }
+  .aura-customer-portal__copied {
+    margin: 0.5rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--acp-pink);
+  }
+  .aura-customer-portal__signout-card {
+    background: #fff;
+    border-radius: var(--acp-radius);
+    border: 1px solid color-mix(in srgb, var(--acp-navy) 12%, transparent);
+    padding: 1.25rem;
+    max-width: 420px;
+  }
+  .aura-customer-portal__signout-card p {
+    margin: 0 0 1rem;
+    line-height: 1.45;
+  }
+  .aura-customer-portal__icon-fallback {
+    opacity: 0.5;
+  }
+  .aura-customer-portal__rte {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--acp-navy) 78%, #fff);
+  }
+  .aura-customer-portal--guest {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+    color: #0a142f;
+  }
+  .aura-customer-portal--guest .link {
+    color: #ec008c;
+    font-weight: 600;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.aura_customer_portal.name",
+  "tag": "section",
+  "class": "section-aura-customer-portal",
+  "enabled_on": {
+    "templates": ["customers/account"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.aura_customer_portal.headers.hero"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "t:sections.aura_customer_portal.settings.hero_image"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image_mobile",
+      "label": "t:sections.aura_customer_portal.settings.hero_image_mobile"
+    },
+    {
+      "type": "text",
+      "id": "hero_name_fallback",
+      "label": "t:sections.aura_customer_portal.settings.hero_name_fallback",
+      "default": "Friend"
+    },
+    {
+      "type": "text",
+      "id": "hero_gradient_css",
+      "label": "t:sections.aura_customer_portal.settings.hero_gradient_css",
+      "default": "linear-gradient(105deg, #fdeef4 0%, #f8d7e4 45%, #fce4ec 100%)"
+    },
+    {
+      "type": "text",
+      "id": "points_display",
+      "label": "t:sections.aura_customer_portal.settings.points_display",
+      "default": "1,200"
+    },
+    {
+      "type": "number",
+      "id": "points_value",
+      "label": "t:sections.aura_customer_portal.settings.points_value",
+      "default": 1200
+    },
+    {
+      "type": "number",
+      "id": "points_target",
+      "label": "t:sections.aura_customer_portal.settings.points_target",
+      "default": 1550
+    },
+    {
+      "type": "text",
+      "id": "tier_name",
+      "label": "t:sections.aura_customer_portal.settings.tier_name",
+      "default": "Glow Member"
+    },
+    {
+      "type": "text",
+      "id": "next_tier_name",
+      "label": "t:sections.aura_customer_portal.settings.next_tier_name",
+      "default": "Glow Collector"
+    },
+    {
+      "type": "textarea",
+      "id": "progress_text",
+      "label": "t:sections.aura_customer_portal.settings.progress_text",
+      "info": "t:sections.aura_customer_portal.settings.progress_text_info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.aura_customer_portal.headers.sidebar_promo"
+    },
+    {
+      "type": "image_picker",
+      "id": "promo_image",
+      "label": "t:sections.aura_customer_portal.settings.promo_image"
+    },
+    {
+      "type": "text",
+      "id": "promo_heading",
+      "label": "t:sections.aura_customer_portal.settings.promo_heading",
+      "default": "Glow more, every day"
+    },
+    {
+      "type": "textarea",
+      "id": "promo_text",
+      "label": "t:sections.aura_customer_portal.settings.promo_text",
+      "default": "Unlock exclusive perks as you glow."
+    },
+    {
+      "type": "text",
+      "id": "promo_btn_label",
+      "label": "t:sections.aura_customer_portal.settings.promo_btn_label",
+      "default": "Explore benefits"
+    },
+    {
+      "type": "url",
+      "id": "promo_btn_link",
+      "label": "t:sections.aura_customer_portal.settings.promo_btn_link"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.aura_customer_portal.headers.account"
+    },
+    {
+      "type": "url",
+      "id": "profile_manage_url",
+      "label": "t:sections.aura_customer_portal.settings.profile_manage_url",
+      "info": "t:sections.aura_customer_portal.settings.profile_manage_url_info"
+    },
+    {
+      "type": "range",
+      "id": "orders_per_page",
+      "min": 5,
+      "max": 50,
+      "step": 1,
+      "label": "t:sections.aura_customer_portal.settings.orders_per_page",
+      "default": 12
+    },
+    {
+      "type": "url",
+      "id": "subscription_portal_url",
+      "label": "t:sections.aura_customer_portal.settings.subscription_portal_url"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.aura_customer_portal.headers.referral"
+    },
+    {
+      "type": "image_picker",
+      "id": "referral_image",
+      "label": "t:sections.aura_customer_portal.settings.referral_image"
+    },
+    {
+      "type": "text",
+      "id": "referral_reward_text",
+      "label": "t:sections.aura_customer_portal.settings.referral_reward_text",
+      "default": "Give $20, get $20"
+    },
+    {
+      "type": "text",
+      "id": "referral_code",
+      "label": "t:sections.aura_customer_portal.settings.referral_code",
+      "default": "GLOW20"
+    },
+    {
+      "type": "url",
+      "id": "referral_link",
+      "label": "t:sections.aura_customer_portal.settings.referral_link"
+    },
+    {
+      "type": "richtext",
+      "id": "referral_body",
+      "label": "t:sections.aura_customer_portal.settings.referral_body"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.aura_customer_portal.headers.colors_type"
+    },
+    {
+      "type": "color",
+      "id": "color_navy",
+      "label": "t:sections.aura_customer_portal.settings.color_navy",
+      "default": "#0a142f"
+    },
+    {
+      "type": "color",
+      "id": "color_pink",
+      "label": "t:sections.aura_customer_portal.settings.color_pink",
+      "default": "#EC008C"
+    },
+    {
+      "type": "color",
+      "id": "color_blush",
+      "label": "t:sections.aura_customer_portal.settings.color_blush",
+      "default": "#fdf8f6"
+    },
+    {
+      "type": "color",
+      "id": "color_cream",
+      "label": "t:sections.aura_customer_portal.settings.color_cream",
+      "default": "#faf6f2"
+    },
+    {
+      "type": "text",
+      "id": "heading_font_stack",
+      "label": "t:sections.aura_customer_portal.settings.heading_font_stack",
+      "default": "Georgia, \"Times New Roman\", Times, serif",
+      "info": "t:sections.aura_customer_portal.settings.font_stack_info"
+    },
+    {
+      "type": "text",
+      "id": "body_font_stack",
+      "label": "t:sections.aura_customer_portal.settings.body_font_stack",
+      "default": "system-ui, -apple-system, \"Segoe UI\", sans-serif",
+      "info": "t:sections.aura_customer_portal.settings.font_stack_info"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 6,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "t:sections.aura_customer_portal.settings.card_radius",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "min": 12,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "t:sections.aura_customer_portal.settings.section_padding",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "t:sections.aura_customer_portal.blocks.benefit.name",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:sections.aura_customer_portal.blocks.benefit.icon",
+          "default": "sparkles",
+          "options": [
+            { "value": "sparkles", "label": "t:sections.aura_customer_portal.blocks.benefit.icons.sparkles" },
+            { "value": "gift", "label": "t:sections.aura_customer_portal.blocks.benefit.icons.gift" },
+            { "value": "drop", "label": "t:sections.aura_customer_portal.blocks.benefit.icons.drop" },
+            { "value": "users", "label": "t:sections.aura_customer_portal.blocks.benefit.icons.users" },
+            { "value": "headset", "label": "t:sections.aura_customer_portal.blocks.benefit.icons.headset" },
+            { "value": "crown", "label": "t:sections.aura_customer_portal.blocks.benefit.icons.crown" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.text",
+          "default": "Benefit"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "t:labels.text",
+          "default": "Describe this perk."
+        }
+      ]
+    },
+    {
+      "type": "shipment",
+      "name": "t:sections.aura_customer_portal.blocks.shipment.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:labels.image"
+        },
+        {
+          "type": "text",
+          "id": "product_title",
+          "label": "t:sections.aura_customer_portal.blocks.shipment.product_title",
+          "default": "Product name"
+        },
+        {
+          "type": "text",
+          "id": "estimated_date",
+          "label": "t:sections.aura_customer_portal.blocks.shipment.estimated_date",
+          "default": "Est. May 28"
+        },
+        {
+          "type": "text",
+          "id": "status_label",
+          "label": "t:sections.aura_customer_portal.blocks.shipment.status",
+          "default": "Processing"
+        }
+      ]
+    },
+    {
+      "type": "quick_link",
+      "name": "t:sections.aura_customer_portal.blocks.quick_link.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.aura_customer_portal.blocks.quick_link.label",
+          "default": "Link"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "t:sections.aura_customer_portal.blocks.quick_link.url"
+        }
+      ]
+    },
+    {
+      "type": "subscriptions_app_slot",
+      "name": "t:sections.aura_customer_portal.blocks.subscriptions_app_slot.name",
+      "blocks": [{ "type": "@app" }]
+    },
+    {
+      "type": "membership_app_slot",
+      "name": "t:sections.aura_customer_portal.blocks.membership_app_slot.name",
+      "blocks": [{ "type": "@app" }]
+    },
+    {
+      "type": "referral_app_slot",
+      "name": "t:sections.aura_customer_portal.blocks.referral_app_slot.name",
+      "blocks": [{ "type": "@app" }]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.aura_customer_portal.presets.default.name",
+      "settings": {
+        "promo_heading": "Glow more, every day",
+        "promo_text": "Unlock exclusive perks as you glow.",
+        "promo_btn_label": "Explore benefits"
+      },
+      "blocks": [
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Earn points",
+            "text": "Every purchase brings you closer to your next reward."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "gift",
+            "title": "Birthday gifts",
+            "text": "A special treat on your birthday when you're opted in."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "drop",
+            "title": "Exclusive drops",
+            "text": "Early access to new launches for members."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "users",
+            "title": "Referral rewards",
+            "text": "Share Aura Society and earn when friends shop."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "headset",
+            "title": "Priority support",
+            "text": "We prioritize member questions and requests."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "crown",
+            "title": "VIP perks",
+            "text": "Unlock top-tier surprises as you level up."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

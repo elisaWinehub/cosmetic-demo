@@ -1,0 +1,78 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file may be updated by the Shopify admin
+ * theme editor or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "aura-customer-portal",
+      "settings": {
+        "promo_heading": "Glow more, every day",
+        "promo_text": "Unlock exclusive perks as you glow.",
+        "promo_btn_label": "Explore benefits"
+      },
+      "blocks": {
+        "benefit_1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Earn points",
+            "text": "Every purchase brings you closer to your next reward."
+          }
+        },
+        "benefit_2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "gift",
+            "title": "Birthday gifts",
+            "text": "A special treat on your birthday when you're opted in."
+          }
+        },
+        "benefit_3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "drop",
+            "title": "Exclusive drops",
+            "text": "Early access to new launches for members."
+          }
+        },
+        "benefit_4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "users",
+            "title": "Referral rewards",
+            "text": "Share Aura Society and earn when friends shop."
+          }
+        },
+        "benefit_5": {
+          "type": "benefit",
+          "settings": {
+            "icon": "headset",
+            "title": "Priority support",
+            "text": "We prioritize member questions and requests."
+          }
+        },
+        "benefit_6": {
+          "type": "benefit",
+          "settings": {
+            "icon": "crown",
+            "title": "VIP perks",
+            "text": "Unlock top-tier surprises as you level up."
+          }
+        }
+      },
+      "block_order": [
+        "benefit_1",
+        "benefit_2",
+        "benefit_3",
+        "benefit_4",
+        "benefit_5",
+        "benefit_6"
+      ]
+    }
+  },
+  "order": ["main"]
+}
