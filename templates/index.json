@@ -57,7 +57,7 @@
         "primary_button_link": "/collections/all",
         "secondary_button_text": "Explore products",
         "secondary_button_link": "/collections/all",
-        "desktop_image": "shopify://shop_images/ChatGPT_Image_May_12_2026_02_24_22_PM.png",
+        "desktop_image": "shopify://shop_images/mainbanner.png",
         "show_banner_fade": false,
         "show_floating_cards": true,
         "reverse_layout": false,
@@ -281,7 +281,7 @@
         "testimonial_3": {
           "type": "testimonial",
           "settings": {
-            "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_04_06_37_PM.png",
+            "image": "shopify://shop_images/ChatGPTImageMay13_2026_12_05_56PM.png",
             "quote": "Referral rewards are such a fun bonus, and the products are incredible.",
             "author": "Mia T.",
             "rating": 5
@@ -290,7 +290,7 @@
         "testimonial_4": {
           "type": "testimonial",
           "settings": {
-            "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_04_09_19_PM.png",
+            "image": "shopify://shop_images/ChatGPT_Image_May_12_2026_04_06_37_PM_67d561da-9ec8-495b-85bb-86ed914ca403.png",
             "quote": "A premium beauty experience that actually gives something back.",
             "author": "Noa R.",
             "rating": 5
@@ -447,7 +447,7 @@
         "background_style": "gradient",
         "background_color": "#d86f8a",
         "accent_color": "#9d3a63",
-        "desktop_image": "shopify://shop_images/ChatGPT_Image_May_12_2026_08_33_40_PM_1.png",
+        "desktop_image": "shopify://shop_images/cta-banner.png",
         "overlay_color": "#6a3248",
         "overlay_opacity": 25,
         "alignment": "center",

@@ -1,7 +1,106 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "aura_product_main": {
       "type": "aura-product-main",
+      "blocks": {
+        "pdp_eyebrow": {
+          "type": "eyebrow",
+          "settings": {
+            "show": true,
+            "show_vendor": false
+          }
+        },
+        "pdp_title": {
+          "type": "title",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_subtitle": {
+          "type": "subtitle",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_rating": {
+          "type": "rating",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_price": {
+          "type": "price",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_description": {
+          "type": "description",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_benefits": {
+          "type": "benefits",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_variants": {
+          "type": "variant_picker",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_purchase_summary": {
+          "type": "purchase_summary",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_qty": {
+          "type": "quantity_selector",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_buy": {
+          "type": "buy_buttons",
+          "settings": {
+            "show": true,
+            "show_dynamic_checkout": true
+          }
+        },
+        "pdp_points": {
+          "type": "points_note",
+          "settings": {
+            "show": true
+          }
+        }
+      },
+      "block_order": [
+        "pdp_eyebrow",
+        "pdp_title",
+        "pdp_subtitle",
+        "pdp_rating",
+        "pdp_price",
+        "pdp_description",
+        "pdp_benefits",
+        "pdp_variants",
+        "pdp_purchase_summary",
+        "pdp_qty",
+        "pdp_buy",
+        "pdp_points"
+      ],
       "settings": {
         "section_width": 1240,
         "background_color": "#ffffff",
@@ -39,7 +138,10 @@
         "padding_top_desktop": 8,
         "padding_bottom_desktop": 40,
         "padding_top_mobile": 4,
-        "padding_bottom_mobile": 28
+        "padding_bottom_mobile": 28,
+        "info_block_gap": 0,
+        "app_block_spacing": 0,
+        "show_one_time_purchase_row": true
       }
     },
     "aura_trust_strip": {
