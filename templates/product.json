@@ -40,10 +40,15 @@
             "review_count": ""
           }
         },
-        "pdp_price": {
-          "type": "price",
+        "perkrunner_subscription_options_jkTT9U": {
+          "type": "shopify://apps/perkrunner/blocks/subscription-options/019bea36-aced-72e5-8631-e8e1efbd44dc",
+          "settings": {}
+        },
+        "pdp_buy": {
+          "type": "buy_buttons",
           "settings": {
-            "show": true
+            "show": true,
+            "show_dynamic_checkout": true
           }
         },
         "pdp_description": {
@@ -66,29 +71,6 @@
             "show": true
           }
         },
-        "pdp_purchase_summary": {
-          "type": "purchase_summary",
-          "settings": {
-            "show": true
-          }
-        },
-        "perkrunner_subscription_options_jkTT9U": {
-          "type": "shopify://apps/perkrunner/blocks/subscription-options/019bea36-aced-72e5-8631-e8e1efbd44dc",
-          "settings": {}
-        },
-        "pdp_qty": {
-          "type": "quantity_selector",
-          "settings": {
-            "show": true
-          }
-        },
-        "pdp_buy": {
-          "type": "buy_buttons",
-          "settings": {
-            "show": true,
-            "show_dynamic_checkout": true
-          }
-        },
         "pdp_points": {
           "type": "points_note",
           "settings": {
@@ -101,14 +83,11 @@
         "pdp_title",
         "pdp_subtitle",
         "pdp_rating",
-        "pdp_price",
+        "perkrunner_subscription_options_jkTT9U",
+        "pdp_buy",
         "pdp_description",
         "pdp_benefits",
         "pdp_variants",
-        "pdp_purchase_summary",
-        "perkrunner_subscription_options_jkTT9U",
-        "pdp_qty",
-        "pdp_buy",
         "pdp_points"
       ],
       "settings": {
