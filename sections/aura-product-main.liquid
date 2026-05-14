@@ -2998,7 +2998,8 @@
       "step": 2,
       "unit": "px",
       "label": "Extra space around app blocks",
-      "default": 0
+      "default": 0,
+      "info": "App blocks load their own markup and styles. Theme CSS cannot reliably restyle inside third-party widgets; use each app's settings or custom CSS field when available."
     }
   ],
   "blocks": [
@@ -3137,11 +3138,18 @@
           "id": "show",
           "label": "Show variant picker",
           "default": true
-        },
+        }
+      ]
+    },
+    {
+      "type": "purchase_summary",
+      "name": "One-time purchase row",
+      "limit": 1,
+      "settings": [
         {
           "type": "checkbox",
-          "id": "show_purchase_summary",
-          "label": "Show one-time purchase price",
+          "id": "show",
+          "label": "Show",
           "default": true
         }
       ]
@@ -3256,8 +3264,13 @@
         "pdp_variants": {
           "type": "variant_picker",
           "settings": {
-            "show": true,
-            "show_purchase_summary": true
+            "show": true
+          }
+        },
+        "pdp_purchase_summary": {
+          "type": "purchase_summary",
+          "settings": {
+            "show": true
           }
         },
         "pdp_qty": {
@@ -3289,6 +3302,7 @@
         "pdp_description",
         "pdp_benefits",
         "pdp_variants",
+        "pdp_purchase_summary",
         "pdp_qty",
         "pdp_buy",
         "pdp_points"

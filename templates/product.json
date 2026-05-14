@@ -49,8 +49,13 @@
         "pdp_variants": {
           "type": "variant_picker",
           "settings": {
-            "show": true,
-            "show_purchase_summary": true
+            "show": true
+          }
+        },
+        "pdp_purchase_summary": {
+          "type": "purchase_summary",
+          "settings": {
+            "show": true
           }
         },
         "pdp_qty": {
@@ -82,6 +87,7 @@
         "pdp_description",
         "pdp_benefits",
         "pdp_variants",
+        "pdp_purchase_summary",
         "pdp_qty",
         "pdp_buy",
         "pdp_points"
