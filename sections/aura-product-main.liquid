@@ -115,6 +115,8 @@
     --apm-cart-modal-reward-border: rgba(236, 0, 140, 0.22);
     --apm-cart-modal-progress-track: #fde8f0;
     --apm-cart-modal-progress-bar: linear-gradient(90deg, {{ section.settings.button_gradient_start }} 0%, {{ section.settings.button_gradient_end }} 100%);
+    --apm-info-block-gap: {{ section.settings.info_block_gap }}px;
+    --apm-app-block-margin: {{ section.settings.app_block_spacing }}px;
   "
 >
   <div class="aura-product-main__inner">
@@ -225,206 +227,225 @@
         </div>
       </div>
 
-      <div class="aura-product-main__info">
-        {% if eyebrow != blank %}
-          <p class="aura-product-main__eyebrow">{{ eyebrow | upcase | escape }}</p>
-        {% endif %}
+      <div
+        class="aura-product-main__info{% if section.blocks.size > 0 %} aura-product-main__info--blocks{% endif %}"
+      >
+        {% if section.blocks.size > 0 %}
+          {% assign product_form_id = 'AuraProductForm-' | append: section.id %}
+          {% form 'product', product, id: product_form_id, class: 'aura-product-main__form aura-product-main__form--blocks' %}
+            <input type="hidden" name="id" value="{{ current_variant.id }}" data-aura-variant-id>
+            {% render 'aura-product-info-blocks-loop',
+              form: form,
+              product: product,
+              section: section,
+              current_variant: current_variant,
+              display_subtitle: display_subtitle,
+              benefits_meta: benefits_meta,
+              fallback_benefits: fallback_benefits,
+              pdp_variant_on_sale: pdp_variant_on_sale
+            %}
+          {% endform %}
+        {% else %}
+          {% if eyebrow != blank %}
+            <p class="aura-product-main__eyebrow">{{ eyebrow | upcase | escape }}</p>
+          {% endif %}
 
-        <h1 class="aura-product-main__title">{{ product.title | escape }}</h1>
+          <h1 class="aura-product-main__title">{{ product.title | escape }}</h1>
 
-        {% if display_subtitle != blank %}
-          <p class="aura-product-main__subtitle">{{ display_subtitle | escape }}</p>
-        {% endif %}
+          {% if display_subtitle != blank %}
+            <p class="aura-product-main__subtitle">{{ display_subtitle | escape }}</p>
+          {% endif %}
 
-        {% if section.settings.show_rating %}
-          {% liquid
-            assign rating_num = section.settings.rating_value | plus: 0
-            assign full_stars = rating_num | floor
-          %}
-          <div class="aura-product-main__rating">
-            <span class="aura-product-main__stars" aria-hidden="true">
-              {% for i in (1..5) %}
-                {% if i <= full_stars %}
-                  <span class="aura-product-main__star aura-product-main__star--full">★</span>
-                {% else %}
-                  <span class="aura-product-main__star aura-product-main__star--muted">★</span>
-                {% endif %}
-              {% endfor %}
-            </span>
-            <span class="aura-product-main__rating-meta">
-              {{ section.settings.rating_value | escape }} ({{ section.settings.review_count | escape }})
-            </span>
-          </div>
-        {% endif %}
+          {% if section.settings.show_rating %}
+            {% liquid
+              assign rating_num = section.settings.rating_value | plus: 0
+              assign full_stars = rating_num | floor
+            %}
+            <div class="aura-product-main__rating">
+              <span class="aura-product-main__stars" aria-hidden="true">
+                {% for i in (1..5) %}
+                  {% if i <= full_stars %}
+                    <span class="aura-product-main__star aura-product-main__star--full">★</span>
+                  {% else %}
+                    <span class="aura-product-main__star aura-product-main__star--muted">★</span>
+                  {% endif %}
+                {% endfor %}
+              </span>
+              <span class="aura-product-main__rating-meta">
+                {{ section.settings.rating_value | escape }} ({{ section.settings.review_count | escape }})
+              </span>
+            </div>
+          {% endif %}
 
-        <div class="aura-product-main__price-row">
-          <s
-            class="aura-product-main__price-compare"
-            data-aura-compare
-            {% unless pdp_variant_on_sale %}
-              hidden
-            {% endunless %}
-          >
-            {%- if pdp_variant_on_sale -%}
-              {{- current_variant.compare_at_price | money -}}
-            {%- endif -%}
-          </s>
-          <span class="aura-product-main__price-current" data-aura-price>{{ current_variant.price | money }}</span>
-        </div>
-
-        {% if product.description != blank %}
-          <div class="aura-product-main__desc rte">{{ product.description }}</div>
-        {% endif %}
-
-        {% if section.settings.show_benefits %}
-          <ul class="aura-product-main__benefits">
-            {% if benefits_meta != blank %}
-              {% assign rendered_benefits = false %}
-              {% if benefits_meta.type contains 'list' %}
-                {% if benefits_meta.value %}
-                  {% for row in benefits_meta.value %}
-                    {% assign rendered_benefits = true %}
-                    <li>{{ row | strip | escape }}</li>
-                  {% endfor %}
-                {% endif %}
-              {% endif %}
-              {% unless rendered_benefits %}
-                {% if benefits_meta.value != blank %}
-                  {% assign benefit_lines = benefits_meta.value | newline_to_br | split: '<br />' %}
-                  {% for line in benefit_lines %}
-                    {% assign tline = line | strip | strip_html %}
-                    {% if tline != blank %}
-                      <li>{{ tline | escape }}</li>
-                    {% endif %}
-                  {% endfor %}
-                {% endif %}
+          <div class="aura-product-main__price-row">
+            <s
+              class="aura-product-main__price-compare"
+              data-aura-compare
+              {% unless pdp_variant_on_sale %}
+                hidden
               {% endunless %}
-            {% else %}
-              {% for line in fallback_benefits %}
-                <li>{{ line | escape }}</li>
-              {% endfor %}
-            {% endif %}
-          </ul>
-        {% endif %}
+            >
+              {%- if pdp_variant_on_sale -%}
+                {{- current_variant.compare_at_price | money -}}
+              {%- endif -%}
+            </s>
+            <span class="aura-product-main__price-current" data-aura-price>{{ current_variant.price | money }}</span>
+          </div>
 
-        {% assign product_form_id = 'AuraProductForm-' | append: section.id %}
-        {% form 'product', product, id: product_form_id, class: 'aura-product-main__form' %}
-          <input type="hidden" name="id" value="{{ current_variant.id }}" data-aura-variant-id>
+          {% if product.description != blank %}
+            <div class="aura-product-main__desc rte">{{ product.description }}</div>
+          {% endif %}
 
-          {% if product.options_with_values.size > 0 %}
-            <div class="aura-product-main__options" data-aura-options>
-              {% for option in product.options_with_values %}
-                <div class="aura-product-main__option">
-                  <p class="aura-product-main__option-label">{{ option.name | escape }}</p>
-                  <div class="aura-product-main__pills">
-                    {% for value in option.values %}
-                      {% assign opt_index = forloop.parentloop.index0 %}
-                      {% liquid
-                        assign is_selected = false
-                        if option.selected_value == value
-                          assign is_selected = true
-                        endif
-                      %}
-                      <button
-                        type="button"
-                        class="aura-product-main__pill{% if is_selected %} is-active{% endif %}"
-                        data-aura-option
-                        data-option-index="{{ opt_index }}"
-                        data-value="{{ value | escape }}"
-                      >
-                        {{ value | escape }}
-                      </button>
+          {% if section.settings.show_benefits %}
+            <ul class="aura-product-main__benefits">
+              {% if benefits_meta != blank %}
+                {% assign rendered_benefits = false %}
+                {% if benefits_meta.type contains 'list' %}
+                  {% if benefits_meta.value %}
+                    {% for row in benefits_meta.value %}
+                      {% assign rendered_benefits = true %}
+                      <li>{{ row | strip | escape }}</li>
                     {% endfor %}
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          <div class="aura-product-main__purchase">
-            <div class="aura-product-main__purchase-row aura-product-main__purchase-row--static">
-              <span>{{ 'sections.aura_product_main.one_time' | t }}</span>
-              <strong class="aura-product-main__purchase-price-wrap">
-                <s
-                  class="aura-product-main__purchase-compare"
-                  data-aura-one-time-compare
-                  {% unless pdp_variant_on_sale %}
-                    hidden
-                  {% endunless %}
-                >
-                  {%- if pdp_variant_on_sale -%}
-                    {{- current_variant.compare_at_price | money -}}
-                  {%- endif -%}
-                </s>
-                <span class="aura-product-main__purchase-current" data-aura-one-time-price>{{ current_variant.price | money }}</span>
-              </strong>
-            </div>
-          </div>
-
-          <div class="aura-product-main__cart-row">
-            <div class="aura-product-main__qty">
-              <button type="button" class="aura-product-main__qty-btn" data-aura-qty-dec aria-label="{{ 'sections.aura_product_main.decrease' | t }}">−</button>
-              <input
-                class="aura-product-main__qty-input"
-                name="quantity"
-                type="number"
-                value="1"
-                min="1"
-                data-aura-qty
-                aria-label="{{ 'sections.aura_product_main.quantity' | t }}"
-              >
-              <button type="button" class="aura-product-main__qty-btn" data-aura-qty-inc aria-label="{{ 'sections.aura_product_main.increase' | t }}">+</button>
-            </div>
-
-            <button
-              type="submit"
-              name="add"
-              class="aura-product-main__submit"
-              {% unless current_variant.available %}
-                disabled
-              {% endunless %}
-              data-aura-add
-              data-label-available="{{ 'sections.aura_product_main.add_to_cart' | t | escape }}"
-              data-label-loading="{{ 'sections.aura_product_main.add_to_cart_loading' | t | escape }}"
-              data-label-soldout="{{ 'sections.aura_product_main.sold_out' | t | escape }}"
-            >
-              <span class="aura-product-main__submit-spinner" aria-hidden="true"></span>
-              <span class="aura-product-main__submit-label">
-                {% if current_variant.available %}
-                  {{ 'sections.aura_product_main.add_to_cart' | t }}
-                {% else %}
-                  {{ 'sections.aura_product_main.sold_out' | t }}
+                  {% endif %}
                 {% endif %}
-              </span>
-            </button>
-          </div>
-
-          {% if section.settings.show_dynamic_checkout %}
-            <div class="aura-product-main__dynamic" data-aura-dynamic-checkout>
-              {{ form | payment_button }}
-            </div>
+                {% unless rendered_benefits %}
+                  {% if benefits_meta.value != blank %}
+                    {% assign benefit_lines = benefits_meta.value | newline_to_br | split: '<br />' %}
+                    {% for line in benefit_lines %}
+                      {% assign tline = line | strip | strip_html %}
+                      {% if tline != blank %}
+                        <li>{{ tline | escape }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                {% endunless %}
+              {% else %}
+                {% for line in fallback_benefits %}
+                  <li>{{ line | escape }}</li>
+                {% endfor %}
+              {% endif %}
+            </ul>
           {% endif %}
-        {% endform %}
 
-        {% if section.settings.show_points %}
-          {% liquid
-            assign pts_initial = current_variant.price | times: section.settings.points_multiplier | divided_by: 100.0 | round
-            assign points_tpl = 'sections.aura_product_main.points_earn' | t: points: '__POINTS__', reward_label: section.settings.points_label
-          %}
-          {% if section.settings.points_text_override != blank %}
-            <p class="aura-product-main__points">{{ section.settings.points_text_override | escape }}</p>
-          {% else %}
-            <p
-              class="aura-product-main__points"
-              data-aura-points-wrap
-              data-points-mult="{{ section.settings.points_multiplier }}"
-              data-points-format="{{ points_tpl | escape }}"
-            >
-              <span class="aura-product-main__points-inner">
-                {% render 'aura-icon', icon: 'sparkle', class: 'aura-product-main__points-icon' %}
-                <span data-aura-points-text>{{ 'sections.aura_product_main.points_earn' | t: points: pts_initial, reward_label: section.settings.points_label }}</span>
-              </span>
-            </p>
+          {% assign legacy_form_id = 'AuraProductForm-' | append: section.id %}
+          {% form 'product', product, id: legacy_form_id, class: 'aura-product-main__form' %}
+            <input type="hidden" name="id" value="{{ current_variant.id }}" data-aura-variant-id>
+
+            {% if product.options_with_values.size > 0 %}
+              <div class="aura-product-main__options" data-aura-options>
+                {% for option in product.options_with_values %}
+                  <div class="aura-product-main__option">
+                    <p class="aura-product-main__option-label">{{ option.name | escape }}</p>
+                    <div class="aura-product-main__pills">
+                      {% for value in option.values %}
+                        {% assign opt_index = forloop.parentloop.index0 %}
+                        {% liquid
+                          assign is_selected = false
+                          if option.selected_value == value
+                            assign is_selected = true
+                          endif
+                        %}
+                        <button
+                          type="button"
+                          class="aura-product-main__pill{% if is_selected %} is-active{% endif %}"
+                          data-aura-option
+                          data-option-index="{{ opt_index }}"
+                          data-value="{{ value | escape }}"
+                        >
+                          {{ value | escape }}
+                        </button>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="aura-product-main__purchase">
+              <div class="aura-product-main__purchase-row aura-product-main__purchase-row--static">
+                <span>{{ 'sections.aura_product_main.one_time' | t }}</span>
+                <strong class="aura-product-main__purchase-price-wrap">
+                  <s
+                    class="aura-product-main__purchase-compare"
+                    data-aura-one-time-compare
+                    {% unless pdp_variant_on_sale %}
+                      hidden
+                    {% endunless %}
+                  >
+                    {%- if pdp_variant_on_sale -%}
+                      {{- current_variant.compare_at_price | money -}}
+                    {%- endif -%}
+                  </s>
+                  <span class="aura-product-main__purchase-current" data-aura-one-time-price>{{ current_variant.price | money }}</span>
+                </strong>
+              </div>
+            </div>
+
+            <div class="aura-product-main__cart-row">
+              <div class="aura-product-main__qty">
+                <button type="button" class="aura-product-main__qty-btn" data-aura-qty-dec aria-label="{{ 'sections.aura_product_main.decrease' | t }}">−</button>
+                <input
+                  class="aura-product-main__qty-input"
+                  name="quantity"
+                  type="number"
+                  value="1"
+                  min="1"
+                  data-aura-qty
+                  aria-label="{{ 'sections.aura_product_main.quantity' | t }}"
+                >
+                <button type="button" class="aura-product-main__qty-btn" data-aura-qty-inc aria-label="{{ 'sections.aura_product_main.increase' | t }}">+</button>
+              </div>
+
+              <button
+                type="submit"
+                name="add"
+                class="aura-product-main__submit"
+                {% unless current_variant.available %}
+                  disabled
+                {% endunless %}
+                data-aura-add
+                data-label-available="{{ 'sections.aura_product_main.add_to_cart' | t | escape }}"
+                data-label-loading="{{ 'sections.aura_product_main.add_to_cart_loading' | t | escape }}"
+                data-label-soldout="{{ 'sections.aura_product_main.sold_out' | t | escape }}"
+              >
+                <span class="aura-product-main__submit-spinner" aria-hidden="true"></span>
+                <span class="aura-product-main__submit-label">
+                  {% if current_variant.available %}
+                    {{ 'sections.aura_product_main.add_to_cart' | t }}
+                  {% else %}
+                    {{ 'sections.aura_product_main.sold_out' | t }}
+                  {% endif %}
+                </span>
+              </button>
+            </div>
+
+            {% if section.settings.show_dynamic_checkout %}
+              <div class="aura-product-main__dynamic" data-aura-dynamic-checkout>
+                {{ form | payment_button }}
+              </div>
+            {% endif %}
+          {% endform %}
+
+          {% if section.settings.show_points %}
+            {% liquid
+              assign pts_initial = current_variant.price | times: section.settings.points_multiplier | divided_by: 100.0 | round
+              assign points_tpl = 'sections.aura_product_main.points_earn' | t: points: '__POINTS__', reward_label: section.settings.points_label
+            %}
+            {% if section.settings.points_text_override != blank %}
+              <p class="aura-product-main__points">{{ section.settings.points_text_override | escape }}</p>
+            {% else %}
+              <p
+                class="aura-product-main__points"
+                data-aura-points-wrap
+                data-points-mult="{{ section.settings.points_multiplier }}"
+                data-points-format="{{ points_tpl | escape }}"
+              >
+                <span class="aura-product-main__points-inner">
+                  {% render 'aura-icon', icon: 'sparkle', class: 'aura-product-main__points-icon' %}
+                  <span data-aura-points-text>{{ 'sections.aura_product_main.points_earn' | t: points: pts_initial, reward_label: section.settings.points_label }}</span>
+                </span>
+              </p>
+            {% endif %}
           {% endif %}
         {% endif %}
       </div>
@@ -596,6 +617,25 @@
     margin: 0 auto;
     padding-top: var(--apm-padding-top-d);
     padding-bottom: var(--apm-padding-bottom-d);
+  }
+
+  .aura-product-main__info--blocks {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .aura-product-main__form--blocks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--apm-info-block-gap, 0px);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .aura-product-main .aura-product-main__app-slot {
+    width: 100%;
+    min-width: 0;
+    margin-block: var(--apm-app-block-margin, 0);
   }
 
   .aura-product-main__breadcrumb {
@@ -2934,11 +2974,329 @@
       "unit": "px",
       "label": "Padding bottom (mobile)",
       "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Product info blocks"
+    },
+    {
+      "type": "range",
+      "id": "info_block_gap",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Space between blocks",
+      "default": 0,
+      "info": "Extra gap between stacked blocks. Default 0 keeps original margins only."
+    },
+    {
+      "type": "range",
+      "id": "app_block_spacing",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Extra space around app blocks",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "eyebrow",
+      "name": "Eyebrow",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Show vendor instead of product type",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "text_override",
+          "label": "Text override",
+          "info": "Blank uses section eyebrow override, then product type or vendor."
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "Product title",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "subtitle",
+      "name": "Subtitle",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "rating",
+      "name": "Rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "rating_value",
+          "label": "Rating value",
+          "info": "Blank uses section rating value."
+        },
+        {
+          "type": "text",
+          "id": "review_count",
+          "label": "Review count",
+          "info": "Blank uses section review count."
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "benefits",
+      "name": "Benefits",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "benefits_metafield_namespace",
+          "label": "Benefits metafield namespace",
+          "info": "Use with key below. Both required to override section metafield."
+        },
+        {
+          "type": "text",
+          "id": "benefits_metafield_key",
+          "label": "Benefits metafield key"
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant picker",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show variant picker",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_purchase_summary",
+          "label": "Show one-time purchase price",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "quantity_selector",
+      "name": "Quantity",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Show dynamic checkout (Buy it now)",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "points_note",
+      "name": "Points note",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show",
+          "label": "Show",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "custom_liquid",
+      "name": "Custom liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Liquid"
+        }
+      ]
+    },
+    {
+      "type": "@app"
     }
   ],
   "presets": [
     {
-      "name": "Aura product main"
+      "name": "Aura product main",
+      "blocks": {
+        "pdp_eyebrow": {
+          "type": "eyebrow",
+          "settings": {
+            "show": true,
+            "show_vendor": false
+          }
+        },
+        "pdp_title": {
+          "type": "title",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_subtitle": {
+          "type": "subtitle",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_rating": {
+          "type": "rating",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_price": {
+          "type": "price",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_description": {
+          "type": "description",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_benefits": {
+          "type": "benefits",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_variants": {
+          "type": "variant_picker",
+          "settings": {
+            "show": true,
+            "show_purchase_summary": true
+          }
+        },
+        "pdp_app": {
+          "type": "@app"
+        },
+        "pdp_qty": {
+          "type": "quantity_selector",
+          "settings": {
+            "show": true
+          }
+        },
+        "pdp_buy": {
+          "type": "buy_buttons",
+          "settings": {
+            "show": true,
+            "show_dynamic_checkout": true
+          }
+        },
+        "pdp_points": {
+          "type": "points_note",
+          "settings": {
+            "show": true
+          }
+        }
+      },
+      "block_order": [
+        "pdp_eyebrow",
+        "pdp_title",
+        "pdp_subtitle",
+        "pdp_rating",
+        "pdp_price",
+        "pdp_description",
+        "pdp_benefits",
+        "pdp_variants",
+        "pdp_app",
+        "pdp_qty",
+        "pdp_buy",
+        "pdp_points"
+      ]
     }
   ]
 }

@@ -1,0 +1,329 @@
+{% doc %}
+  Renders theme + app blocks for Aura PDP product info (inside `{% form 'product' %}`).
+
+  @param {object} form - Product form object from parent form tag
+  @param {object} product
+  @param {object} section
+  @param {variant} current_variant
+  @param {string} display_subtitle
+  @param {object} benefits_meta
+  @param {array} fallback_benefits
+  @param {boolean} pdp_variant_on_sale
+{% enddoc %}
+
+{% liquid
+  assign cart_row_open = false
+%}
+
+{% for block in section.blocks %}
+  {% if cart_row_open %}
+    {% unless block.type == 'buy_buttons' %}
+      </div>
+      {% assign cart_row_open = false %}
+    {% endunless %}
+  {% endif %}
+
+  {% case block.type %}
+    {% when 'eyebrow' %}
+      {% if block.settings.show %}
+        {% liquid
+          assign eb_row = blank
+          if block.settings.text_override != blank
+            assign eb_row = block.settings.text_override | strip
+          elsif section.settings.eyebrow_override != blank
+            assign eb_row = section.settings.eyebrow_override | strip
+          elsif block.settings.show_vendor and product.vendor != blank
+            assign eb_row = product.vendor | strip
+          else
+            assign eb_row = product.type | strip
+          endif
+        %}
+        {% if eb_row != blank %}
+          <div class="aura-product-main__block aura-product-main__block--eyebrow" {{ block.shopify_attributes }}>
+            {% if block.settings.show_vendor %}
+              <p class="aura-product-main__eyebrow">{{ eb_row | escape }}</p>
+            {% else %}
+              <p class="aura-product-main__eyebrow">{{ eb_row | upcase | escape }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+
+    {% when 'title' %}
+      {% if block.settings.show %}
+        <div class="aura-product-main__block aura-product-main__block--title" {{ block.shopify_attributes }}>
+          <h1 class="aura-product-main__title">{{ product.title | escape }}</h1>
+        </div>
+      {% endif %}
+
+    {% when 'subtitle' %}
+      {% if block.settings.show and display_subtitle != blank %}
+        <div class="aura-product-main__block aura-product-main__block--subtitle" {{ block.shopify_attributes }}>
+          <p class="aura-product-main__subtitle">{{ display_subtitle | escape }}</p>
+        </div>
+      {% endif %}
+
+    {% when 'rating' %}
+      {% if block.settings.show %}
+        {% liquid
+          assign rv = block.settings.rating_value | default: section.settings.rating_value
+          assign rc = block.settings.review_count | default: section.settings.review_count
+          assign rating_num = rv | plus: 0
+          assign full_stars = rating_num | floor
+        %}
+        <div class="aura-product-main__block aura-product-main__block--rating" {{ block.shopify_attributes }}>
+          <div class="aura-product-main__rating">
+            <span class="aura-product-main__stars" aria-hidden="true">
+              {% for i in (1..5) %}
+                {% if i <= full_stars %}
+                  <span class="aura-product-main__star aura-product-main__star--full">★</span>
+                {% else %}
+                  <span class="aura-product-main__star aura-product-main__star--muted">★</span>
+                {% endif %}
+              {% endfor %}
+            </span>
+            <span class="aura-product-main__rating-meta">{{ rv | escape }} ({{ rc | escape }})</span>
+          </div>
+        </div>
+      {% endif %}
+
+    {% when 'price' %}
+      {% if block.settings.show %}
+        <div class="aura-product-main__block aura-product-main__block--price" {{ block.shopify_attributes }}>
+          <div class="aura-product-main__price-row">
+            <s
+              class="aura-product-main__price-compare"
+              data-aura-compare
+              {% unless pdp_variant_on_sale %}
+                hidden
+              {% endunless %}
+            >
+              {%- if pdp_variant_on_sale -%}
+                {{- current_variant.compare_at_price | money -}}
+              {%- endif -%}
+            </s>
+            <span class="aura-product-main__price-current" data-aura-price>{{ current_variant.price | money }}</span>
+          </div>
+        </div>
+      {% endif %}
+
+    {% when 'description' %}
+      {% if block.settings.show and product.description != blank %}
+        <div class="aura-product-main__block aura-product-main__block--description" {{ block.shopify_attributes }}>
+          <div class="aura-product-main__desc rte">{{ product.description }}</div>
+        </div>
+      {% endif %}
+
+    {% when 'benefits' %}
+      {% if block.settings.show %}
+        {% liquid
+          assign ns_o = block.settings.benefits_metafield_namespace | strip
+          assign key_o = block.settings.benefits_metafield_key | strip
+          assign ben_meta = benefits_meta
+          if ns_o != blank and key_o != blank
+            assign ben_meta = blank
+            if product.metafields[ns_o][key_o] != blank
+              assign ben_meta = product.metafields[ns_o][key_o]
+            endif
+          endif
+        %}
+        <div class="aura-product-main__block aura-product-main__block--benefits" {{ block.shopify_attributes }}>
+          <ul class="aura-product-main__benefits">
+            {% if ben_meta != blank %}
+              {% assign rendered_benefits = false %}
+              {% if ben_meta.type contains 'list' %}
+                {% if ben_meta.value %}
+                  {% for row in ben_meta.value %}
+                    {% assign rendered_benefits = true %}
+                    <li>{{ row | strip | escape }}</li>
+                  {% endfor %}
+                {% endif %}
+              {% endif %}
+              {% unless rendered_benefits %}
+                {% if ben_meta.value != blank %}
+                  {% assign benefit_lines = ben_meta.value | newline_to_br | split: '<br />' %}
+                  {% for line in benefit_lines %}
+                    {% assign tline = line | strip | strip_html %}
+                    {% if tline != blank %}
+                      <li>{{ tline | escape }}</li>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endunless %}
+            {% else %}
+              {% for line in fallback_benefits %}
+                <li>{{ line | escape }}</li>
+              {% endfor %}
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+
+    {% when 'variant_picker' %}
+      {% if block.settings.show %}
+        <div class="aura-product-main__block aura-product-main__block--variant-wrap" {{ block.shopify_attributes }}>
+          {% if product.options_with_values.size > 0 %}
+            <div class="aura-product-main__options" data-aura-options>
+              {% for option in product.options_with_values %}
+                <div class="aura-product-main__option">
+                  <p class="aura-product-main__option-label">{{ option.name | escape }}</p>
+                  <div class="aura-product-main__pills">
+                    {% for value in option.values %}
+                      {% assign opt_index = forloop.parentloop.index0 %}
+                      {% liquid
+                        assign is_selected = false
+                        if option.selected_value == value
+                          assign is_selected = true
+                        endif
+                      %}
+                      <button
+                        type="button"
+                        class="aura-product-main__pill{% if is_selected %} is-active{% endif %}"
+                        data-aura-option
+                        data-option-index="{{ opt_index }}"
+                        data-value="{{ value | escape }}"
+                      >
+                        {{ value | escape }}
+                      </button>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if block.settings.show_purchase_summary %}
+            <div class="aura-product-main__purchase">
+              <div class="aura-product-main__purchase-row aura-product-main__purchase-row--static">
+                <span>{{ 'sections.aura_product_main.one_time' | t }}</span>
+                <strong class="aura-product-main__purchase-price-wrap">
+                  <s
+                    class="aura-product-main__purchase-compare"
+                    data-aura-one-time-compare
+                    {% unless pdp_variant_on_sale %}
+                      hidden
+                    {% endunless %}
+                  >
+                    {%- if pdp_variant_on_sale -%}
+                      {{- current_variant.compare_at_price | money -}}
+                    {%- endif -%}
+                  </s>
+                  <span class="aura-product-main__purchase-current" data-aura-one-time-price>
+                    {{- current_variant.price | money -}}
+                  </span>
+                </strong>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    {% when 'quantity_selector' %}
+      {% if block.settings.show %}
+      <div class="aura-product-main__cart-row">
+        {% assign cart_row_open = true %}
+        <span class="aura-product-main__block-inline" style="display: contents" {{ block.shopify_attributes }}>
+          <div class="aura-product-main__qty">
+            <button type="button" class="aura-product-main__qty-btn" data-aura-qty-dec aria-label="{{ 'sections.aura_product_main.decrease' | t }}">
+              −
+            </button>
+            <input
+              class="aura-product-main__qty-input"
+              name="quantity"
+              type="number"
+              value="1"
+              min="1"
+              data-aura-qty
+              aria-label="{{ 'sections.aura_product_main.quantity' | t }}"
+            >
+            <button type="button" class="aura-product-main__qty-btn" data-aura-qty-inc aria-label="{{ 'sections.aura_product_main.increase' | t }}">
+              +
+            </button>
+          </div>
+        </span>
+      {% endif %}
+
+    {% when 'buy_buttons' %}
+      {% if block.settings.show %}
+      {% unless cart_row_open %}
+        <div class="aura-product-main__cart-row">
+          {% assign cart_row_open = true %}
+      {% endunless %}
+      <span class="aura-product-main__block-inline" style="display: contents" {{ block.shopify_attributes }}>
+        <button
+          type="submit"
+          name="add"
+          class="aura-product-main__submit"
+          {% unless current_variant.available %}
+            disabled
+          {% endunless %}
+          data-aura-add
+          data-label-available="{{ 'sections.aura_product_main.add_to_cart' | t | escape }}"
+          data-label-loading="{{ 'sections.aura_product_main.add_to_cart_loading' | t | escape }}"
+          data-label-soldout="{{ 'sections.aura_product_main.sold_out' | t | escape }}"
+        >
+          <span class="aura-product-main__submit-spinner" aria-hidden="true"></span>
+          <span class="aura-product-main__submit-label">
+            {% if current_variant.available %}
+              {{ 'sections.aura_product_main.add_to_cart' | t }}
+            {% else %}
+              {{ 'sections.aura_product_main.sold_out' | t }}
+            {% endif %}
+          </span>
+        </button>
+      </span>
+      </div>
+      {% assign cart_row_open = false %}
+
+      {% if block.settings.show_dynamic_checkout %}
+        <div class="aura-product-main__dynamic" data-aura-dynamic-checkout>
+          {{ form | payment_button }}
+        </div>
+      {% endif %}
+      {% endif %}
+
+    {% when 'points_note' %}
+      {% if block.settings.show %}
+        {% liquid
+          assign pts_initial = current_variant.price | times: section.settings.points_multiplier | divided_by: 100.0 | round
+          assign points_tpl = 'sections.aura_product_main.points_earn' | t: points: '__POINTS__', reward_label: section.settings.points_label
+        %}
+        <div class="aura-product-main__block aura-product-main__block--points" {{ block.shopify_attributes }}>
+          {% if section.settings.points_text_override != blank %}
+            <p class="aura-product-main__points">{{ section.settings.points_text_override | escape }}</p>
+          {% else %}
+            <p
+              class="aura-product-main__points"
+              data-aura-points-wrap
+              data-points-mult="{{ section.settings.points_multiplier }}"
+              data-points-format="{{ points_tpl | escape }}"
+            >
+              <span class="aura-product-main__points-inner">
+                {% render 'aura-icon', icon: 'sparkle', class: 'aura-product-main__points-icon' %}
+                <span data-aura-points-text>
+                  {{- 'sections.aura_product_main.points_earn' | t: points: pts_initial, reward_label: section.settings.points_label -}}
+                </span>
+              </span>
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    {% when 'custom_liquid' %}
+      {% if block.settings.custom_liquid != blank %}
+        <div class="aura-product-main__block aura-product-main__block--custom" {{ block.shopify_attributes }}>
+          {{ block.settings.custom_liquid }}
+        </div>
+      {% endif %}
+
+    {% when '@app' %}
+      <div class="aura-product-main__app-slot" {{ block.shopify_attributes }}>
+        {% render block %}
+      </div>
+
+  {% endcase %}
+{% endfor %}
+
+{% if cart_row_open %}
+  </div>
+{% endif %}
