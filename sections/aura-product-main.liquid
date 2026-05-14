@@ -361,6 +361,7 @@
               </div>
             {% endif %}
 
+            {% if section.settings.show_one_time_purchase_row %}
             <div class="aura-product-main__purchase">
               <div class="aura-product-main__purchase-row aura-product-main__purchase-row--static">
                 <span>{{ 'sections.aura_product_main.one_time' | t }}</span>
@@ -380,6 +381,7 @@
                 </strong>
               </div>
             </div>
+            {% endif %}
 
             <div class="aura-product-main__cart-row">
               <div class="aura-product-main__qty">
@@ -2170,15 +2172,16 @@
       const priceEl = root.querySelector('[data-aura-price]');
       const compareEl = root.querySelector('[data-aura-compare]');
       const optionButtons = root.querySelectorAll('[data-aura-option]');
-      const qtyInput = root.querySelector('[data-aura-qty]');
+      const qtyRoot = root.querySelector('.aura-product-main__qty');
+      const qtyInput = qtyRoot ? qtyRoot.querySelector('[data-aura-qty]') : null;
       const addBtn = root.querySelector('[data-aura-add]');
       const addBtnLabel = addBtn ? addBtn.querySelector('.aura-product-main__submit-label') : null;
       const pointsWrap = root.querySelector('[data-aura-points-wrap]');
       const pointsTextEl = root.querySelector('[data-aura-points-text]');
       const oneTimePriceEl = root.querySelector('[data-aura-one-time-price]');
       const oneTimeCompareEl = root.querySelector('[data-aura-one-time-compare]');
-      const qtyDec = root.querySelector('[data-aura-qty-dec]');
-      const qtyInc = root.querySelector('[data-aura-qty-inc]');
+      const qtyDec = qtyRoot ? qtyRoot.querySelector('[data-aura-qty-dec]') : null;
+      const qtyInc = qtyRoot ? qtyRoot.querySelector('[data-aura-qty-inc]') : null;
       const attrFormat = root.getAttribute('data-money-format');
       const currencySymbol = root.getAttribute('data-currency-symbol') || '';
       const moneyFormat =
@@ -2980,6 +2983,13 @@
       "content": "Product info blocks"
     },
     {
+      "type": "checkbox",
+      "id": "show_one_time_purchase_row",
+      "label": "Show one-time purchase row",
+      "default": true,
+      "info": "The bordered \"One-time purchase\" price row. Turn off to remove it from the storefront when a subscription or bundle app replaces this UI. Applies to block layouts and the legacy (no blocks) layout."
+    },
+    {
       "type": "range",
       "id": "info_block_gap",
       "min": 0,
@@ -3150,12 +3160,9 @@
           "type": "checkbox",
           "id": "show",
           "label": "Show",
-          "default": true
+          "default": true,
+          "info": "The section also has \"Show one-time purchase row\". Both must be on for this row to appear."
         }
-      ]
-    },
-    {
-      "type": "quantity_selector",
       "name": "Quantity",
       "limit": 1,
       "settings": [

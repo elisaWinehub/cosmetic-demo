@@ -131,7 +131,8 @@
         "padding_top_mobile": 4,
         "padding_bottom_mobile": 28,
         "info_block_gap": 0,
-        "app_block_spacing": 0
+        "app_block_spacing": 0,
+        "show_one_time_purchase_row": true
       }
     },
     "aura_trust_strip": {
