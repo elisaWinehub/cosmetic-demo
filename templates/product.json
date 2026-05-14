@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "aura_product_main": {
@@ -7,7 +16,8 @@
           "type": "eyebrow",
           "settings": {
             "show": true,
-            "show_vendor": false
+            "show_vendor": false,
+            "text_override": ""
           }
         },
         "pdp_title": {
@@ -25,7 +35,9 @@
         "pdp_rating": {
           "type": "rating",
           "settings": {
-            "show": true
+            "show": true,
+            "rating_value": "",
+            "review_count": ""
           }
         },
         "pdp_price": {
@@ -43,7 +55,9 @@
         "pdp_benefits": {
           "type": "benefits",
           "settings": {
-            "show": true
+            "show": true,
+            "benefits_metafield_namespace": "",
+            "benefits_metafield_key": ""
           }
         },
         "pdp_variants": {
@@ -57,6 +71,14 @@
           "settings": {
             "show": true
           }
+        },
+        "perkrunner_bundle_contents_CdzrRm": {
+          "type": "shopify://apps/perkrunner/blocks/bundle-contents/019bea36-aced-72e5-8631-e8e1efbd44dc",
+          "settings": {}
+        },
+        "perkrunner_subscription_options_jkTT9U": {
+          "type": "shopify://apps/perkrunner/blocks/subscription-options/019bea36-aced-72e5-8631-e8e1efbd44dc",
+          "settings": {}
         },
         "pdp_qty": {
           "type": "quantity_selector",
@@ -88,6 +110,8 @@
         "pdp_benefits",
         "pdp_variants",
         "pdp_purchase_summary",
+        "perkrunner_bundle_contents_CdzrRm",
+        "perkrunner_subscription_options_jkTT9U",
         "pdp_qty",
         "pdp_buy",
         "pdp_points"
@@ -96,16 +120,17 @@
         "section_width": 1240,
         "background_color": "#ffffff",
         "text_color": "#171012",
-        "heading_color": "#1B2C58",
-        "accent_color": "#EC008C",
+        "heading_color": "#1b2c58",
+        "accent_color": "#ec008c",
         "border_color": "#ead8d2",
-        "button_gradient_start": "#43318F",
-        "button_gradient_end": "#EC008C",
-        "star_color": "#EC008C",
+        "button_gradient_start": "#43318f",
+        "button_gradient_end": "#ec008c",
+        "star_color": "#ec008c",
         "show_breadcrumbs": true,
         "show_badge": true,
         "badge_text": "Best seller",
         "show_zoom_icon": true,
+        "eyebrow_override": "",
         "subtitle": "Brightening • Hydrating • Radiant",
         "show_rating": true,
         "rating_value": "4.8",
@@ -117,6 +142,13 @@
         "show_points": true,
         "points_multiplier": 1,
         "points_label": "Glow Points",
+        "points_text_override": "",
+        "cart_modal_show_rewards": true,
+        "cart_modal_reward_spend_goal": 100,
+        "cart_modal_points_cap": 100,
+        "cart_modal_points_multiplier": 0,
+        "cart_modal_reward_label": "",
+        "cart_modal_reward_message": "You're [[amount]] away from your next reward!",
         "gallery_radius": 16,
         "thumbnail_radius": 12,
         "thumbnail_size": 90,
@@ -141,6 +173,7 @@
           "type": "trust_item",
           "settings": {
             "icon": "heart",
+            "custom_svg": "",
             "heading": "Clean & effective",
             "text": "Thoughtfully formulated with safe ingredients."
           }
@@ -149,6 +182,7 @@
           "type": "trust_item",
           "settings": {
             "icon": "community",
+            "custom_svg": "",
             "heading": "Dermatologist tested",
             "text": "Gentle and effective for daily use."
           }
@@ -157,6 +191,7 @@
           "type": "trust_item",
           "settings": {
             "icon": "sparkle",
+            "custom_svg": "",
             "heading": "Cruelty free",
             "text": "Never tested on animals. Always ethical."
           }
@@ -165,17 +200,23 @@
           "type": "trust_item",
           "settings": {
             "icon": "diamond",
+            "custom_svg": "",
             "heading": "Vegan friendly",
             "text": "No animal-derived ingredients."
           }
         }
       },
-      "block_order": ["trust_1", "trust_2", "trust_3", "trust_4"],
+      "block_order": [
+        "trust_1",
+        "trust_2",
+        "trust_3",
+        "trust_4"
+      ],
       "settings": {
         "background_color": "#ffffff",
         "icon_background": "#fff1f8",
-        "icon_color": "#EC008C",
-        "heading_color": "#1B2C58",
+        "icon_color": "#ec008c",
+        "heading_color": "#1b2c58",
         "text_color": "#626b7d",
         "columns_desktop": "4",
         "columns_tablet": "2",
@@ -191,10 +232,10 @@
       "settings": {
         "background_color": "#fffaf7",
         "gradient_end_color": "#ffffff",
-        "heading_color": "#1B2C58",
+        "heading_color": "#1b2c58",
         "text_color": "#626b7d",
         "icon_background": "#fff1f8",
-        "icon_color": "#EC008C",
+        "icon_color": "#ec008c",
         "fallback_heading": "What makes it powerful",
         "fallback_intro": "A blend of clinically loved ingredients that work together to brighten, hydrate, and revitalize your skin.",
         "placeholder_label": "Lifestyle image",
@@ -234,13 +275,17 @@
           }
         }
       },
-      "block_order": ["rev_1", "rev_2", "rev_3"],
+      "block_order": [
+        "rev_1",
+        "rev_2",
+        "rev_3"
+      ],
       "settings": {
         "background_color": "#ffffff",
-        "heading_color": "#1B2C58",
+        "heading_color": "#1b2c58",
         "text_color": "#596173",
         "score_color": "#9f3b2e",
-        "star_color": "#EC008C",
+        "star_color": "#ec008c",
         "bar_track_color": "#f8e6ef",
         "bar_fill_color": "#d12c9b",
         "card_background": "#ffffff",
@@ -251,6 +296,7 @@
         "score": "4.8",
         "based_on": "Based on 124 reviews",
         "button_label": "Write a review",
+        "button_link": "",
         "bar_5": 86,
         "bar_4": 10,
         "bar_3": 3,
@@ -268,6 +314,7 @@
       "type": "aura-recommend-products",
       "settings": {
         "heading": "You may also love",
+        "collection": "",
         "product_limit": 6,
         "points_multiplier": 1,
         "points_label": "Glow Points",
@@ -277,10 +324,10 @@
         "show_points_badge": true,
         "mobile_scroll": true,
         "background_color": "#ffffff",
-        "heading_color": "#1B2C58",
-        "accent_color": "#EC008C",
+        "heading_color": "#1b2c58",
+        "accent_color": "#ec008c",
         "badge_background": "#ffffff",
-        "points_badge_color": "#EC008C",
+        "points_badge_color": "#ec008c",
         "image_ratio": "1 / 1",
         "image_radius": 10,
         "columns_desktop": "6",
@@ -302,6 +349,7 @@
           "type": "perk",
           "settings": {
             "icon": "sparkle",
+            "custom_svg": "",
             "heading": "Earn points",
             "text": "On every order"
           }
@@ -310,6 +358,7 @@
           "type": "perk",
           "settings": {
             "icon": "crown",
+            "custom_svg": "",
             "heading": "Unlock perks",
             "text": "VIP access & surprises"
           }
@@ -318,6 +367,7 @@
           "type": "perk",
           "settings": {
             "icon": "gift",
+            "custom_svg": "",
             "heading": "Birthday gifts",
             "text": "Celebrate with rewards"
           }
@@ -326,28 +376,36 @@
           "type": "perk",
           "settings": {
             "icon": "bag",
+            "custom_svg": "",
             "heading": "Members only",
             "text": "Exclusive drops"
           }
         }
       },
-      "block_order": ["perk_1", "perk_2", "perk_3", "perk_4"],
+      "block_order": [
+        "perk_1",
+        "perk_2",
+        "perk_3",
+        "perk_4"
+      ],
       "settings": {
         "background_start": "#fff6f2",
         "background_end": "#fff0f8",
-        "heading_color": "#1B2C58",
+        "heading_color": "#1b2c58",
         "text_color": "#626b7d",
-        "primary_button_start": "#43318F",
-        "primary_button_end": "#EC008C",
+        "primary_button_start": "#43318f",
+        "primary_button_end": "#ec008c",
         "primary_button_text": "#ffffff",
         "secondary_button_border": "#dac8c3",
         "secondary_button_text": "#252b36",
         "icon_background": "#fff1f8",
-        "icon_color": "#EC008C",
+        "icon_color": "#ec008c",
         "heading": "More glow. More rewards.",
         "text": "Join Aura Society for exclusive perks, member-only rewards, and more.",
         "primary_label": "Join Aura Society",
+        "primary_link": "",
         "secondary_label": "Learn more",
+        "secondary_link": "",
         "heading_size": 32,
         "body_size": 16,
         "padding_top": 44,
